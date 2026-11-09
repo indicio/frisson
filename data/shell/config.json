@@ -1,0 +1,257 @@
+{
+  "version": 1,
+  "viewMode": "grid",
+  "playlist": [
+    {
+      "id": "item-1782577070530-fyvqe320s",
+      "moduleId": "paint-swirl",
+      "moduleName": "Liquid Marbling",
+      "path": "../modules/paint-swirl/index.html",
+      "favorite": "just go",
+      "duration": 30,
+      "order": 0
+    },
+    {
+      "id": "item-1782577076687-n2akr3bsk",
+      "moduleId": "inkdrop",
+      "moduleName": "Inkdrop",
+      "path": "../modules/inkdrop/index.html",
+      "favorite": "fire torrent",
+      "duration": 30,
+      "order": 1
+    },
+    {
+      "id": "item-1782577085947-trbhngmea",
+      "moduleId": "bauhaus",
+      "moduleName": "Bauhaus",
+      "path": "../modules/bauhaus/index.html",
+      "favorite": "discoball",
+      "duration": 30,
+      "order": 2
+    },
+    {
+      "id": "item-1782577100458-lrv9ba17x",
+      "moduleId": "orbs",
+      "moduleName": "Orbs",
+      "path": "../modules/orbs/index.html",
+      "favorite": "nuclear nucleus",
+      "duration": 30,
+      "order": 3
+    },
+    {
+      "id": "item-1782577114839-i5megtqu5",
+      "moduleId": "video-playback",
+      "moduleName": "Video Playback",
+      "path": "../modules/video-playback/index.html",
+      "favorite": "train",
+      "duration": 30,
+      "order": 4
+    }
+  ],
+  "repeat": true,
+  "fade": true,
+  "savedPlaylists": {
+    "main": [
+      {
+        "id": "item-1774810556505-z2jabxol1",
+        "moduleId": "photosome",
+        "moduleName": "Photosome",
+        "path": "../modules/photosome/index.html",
+        "favorite": "oil-drop",
+        "duration": 50,
+        "order": 0
+      },
+      {
+        "id": "item-1774810567478-x9rhe9738",
+        "moduleId": "video-playback",
+        "moduleName": "Video Playback",
+        "path": "../modules/video-playback/index.html",
+        "favorite": "fire",
+        "duration": 30,
+        "order": 1
+      },
+      {
+        "id": "item-1774810577093-ss2else0b",
+        "moduleId": "op-art",
+        "moduleName": "Op Art",
+        "path": "../modules/op-art/index.html",
+        "favorite": "bold",
+        "duration": 190,
+        "order": 2
+      },
+      {
+        "id": "item-1774810584017-m022pxlec",
+        "moduleId": "metaball2",
+        "moduleName": "Metaball2 Shader",
+        "path": "../modules/metaball2/index.html",
+        "favorite": "baby-colors",
+        "duration": 90,
+        "order": 3
+      },
+      {
+        "id": "item-1774810590462-23r4docxq",
+        "moduleId": "webbing",
+        "moduleName": "Webbing",
+        "path": "../modules/webbing/index.html",
+        "favorite": "baseline",
+        "duration": 90,
+        "order": 4
+      },
+      {
+        "id": "item-1774836010414-9k0u7dp7p",
+        "moduleId": "wormhole",
+        "moduleName": "Wormhole",
+        "path": "../modules/wormhole/index.html",
+        "favorite": "fruit-stripe",
+        "duration": 90,
+        "order": 5
+      },
+      {
+        "id": "item-1774836022337-pi7hg6wa3",
+        "moduleId": "bauhaus",
+        "moduleName": "Bauhaus",
+        "path": "../modules/bauhaus/index.html",
+        "favorite": "discoballs",
+        "duration": 90,
+        "order": 6
+      },
+      {
+        "id": "item-1774836047329-kalg4iks8",
+        "moduleId": "bigdeck",
+        "moduleName": "Big Deck",
+        "path": "../modules/bigdeck/index.html",
+        "favorite": "red deck",
+        "duration": 60,
+        "order": 7
+      },
+      {
+        "id": "item-1774836055310-ye0l6a6t0",
+        "moduleId": "orbs",
+        "moduleName": "Orbs",
+        "path": "../modules/orbs/index.html",
+        "favorite": "nuclear nucleus",
+        "duration": 60,
+        "order": 8
+      },
+      {
+        "id": "item-1775092105244-kmbkqupvv",
+        "moduleId": "inkdrop",
+        "moduleName": "Inkdrop",
+        "path": "../modules/inkdrop/index.html",
+        "favorite": "auto-worms",
+        "duration": 60,
+        "order": 9
+      },
+      {
+        "id": "item-1775092116977-lvsy1d95d",
+        "moduleId": "beholder",
+        "moduleName": "Beholder",
+        "path": "../modules/beholder/index.html",
+        "favorite": "big-eyes",
+        "duration": 60,
+        "order": 10
+      },
+      {
+        "id": "item-1775092144671-yc6r5nv2d",
+        "moduleId": "flow",
+        "moduleName": "Flow",
+        "path": "../modules/flow/index.html",
+        "favorite": "autoflow",
+        "duration": 60,
+        "order": 11
+      },
+      {
+        "id": "item-1775092204326-7wpdjbnpm",
+        "moduleId": "leaks-and-lights",
+        "moduleName": "Leaks and Lights",
+        "path": "../modules/leaks-and-lights/index.html",
+        "favorite": "Default",
+        "duration": 60,
+        "order": 12
+      },
+      {
+        "id": "item-1775092244710-2s0i5ms1f",
+        "moduleId": "bigSolid",
+        "moduleName": "Big Solid",
+        "path": "../modules/bigSolid/index.html",
+        "favorite": "fruit-loops",
+        "duration": 60,
+        "order": 13
+      },
+      {
+        "id": "item-1775092253172-4z44dfizx",
+        "moduleId": "bauhaus",
+        "moduleName": "Bauhaus",
+        "path": "../modules/bauhaus/index.html",
+        "favorite": "discoballs",
+        "duration": 60,
+        "order": 14
+      },
+      {
+        "id": "item-1775856978599-pml336hzp",
+        "moduleId": "video-playback",
+        "moduleName": "Video Playback",
+        "path": "../modules/video-playback/index.html",
+        "favorite": "train",
+        "duration": 30,
+        "order": 15
+      },
+      {
+        "id": "item-1775856986322-ty2pc4vfb",
+        "moduleId": "video-playback",
+        "moduleName": "Video Playback",
+        "path": "../modules/video-playback/index.html",
+        "favorite": "fire",
+        "duration": 30,
+        "order": 16
+      }
+    ],
+    "short list": [
+      {
+        "id": "item-1782577070530-fyvqe320s",
+        "moduleId": "paint-swirl",
+        "moduleName": "Liquid Marbling",
+        "path": "../modules/paint-swirl/index.html",
+        "favorite": "just go",
+        "duration": 30,
+        "order": 0
+      },
+      {
+        "id": "item-1782577076687-n2akr3bsk",
+        "moduleId": "inkdrop",
+        "moduleName": "Inkdrop",
+        "path": "../modules/inkdrop/index.html",
+        "favorite": "fire torrent",
+        "duration": 30,
+        "order": 1
+      },
+      {
+        "id": "item-1782577085947-trbhngmea",
+        "moduleId": "bauhaus",
+        "moduleName": "Bauhaus",
+        "path": "../modules/bauhaus/index.html",
+        "favorite": "discoball",
+        "duration": 30,
+        "order": 2
+      },
+      {
+        "id": "item-1782577100458-lrv9ba17x",
+        "moduleId": "orbs",
+        "moduleName": "Orbs",
+        "path": "../modules/orbs/index.html",
+        "favorite": "nuclear nucleus",
+        "duration": 30,
+        "order": 3
+      },
+      {
+        "id": "item-1782577114839-i5megtqu5",
+        "moduleId": "video-playback",
+        "moduleName": "Video Playback",
+        "path": "../modules/video-playback/index.html",
+        "favorite": "train",
+        "duration": 30,
+        "order": 4
+      }
+    ]
+  }
+}

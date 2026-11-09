@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beholder Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Beholder</h1></header>
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Camera & Focus</h3>
+          <div class="control-item"><label class="control-label">Auto Track</label><input type="checkbox" id="autoTrack" checked></div>
+          <div class="control-item"><label class="control-label">Focus <span class="value" id="focus-v">10.0</span></label><input type="range" id="focus" min="0" max="100" step="0.1" value="10"></div>
+          <div class="control-item"><label class="control-label">Aperture <span class="value" id="aperture-v">0.020</span></label><input type="range" id="aperture" min="0" max="0.1" step="0.001" value="0.02"></div>
+          <div class="control-item"><label class="control-label">Max Blur <span class="value" id="maxblur-v">0.010</span></label><input type="range" id="maxblur" min="0" max="0.05" step="0.001" value="0.01"></div>
+        </div>
+
+        <div class="control-group">
+          <h3>Swarm</h3>
+          <div class="control-item"><label class="control-label">Solo Mode</label><input type="checkbox" id="soloMode"></div>
+          <div class="control-item"><label class="control-label">Swarm Count <span class="value" id="swarmCount-v">15</span></label><input type="range" id="swarmCount" min="0" max="100" step="1" value="15"></div>
+          <div class="control-item"><label class="control-label">Eye Size <span class="value" id="baseSize-v">1.00</span></label><input type="range" id="baseSize" min="0.1" max="4" step="0.05" value="1"></div>
+          <button id="rebuildEyes" class="btn secondary" style="width:100%;">Rebuild Eyes</button>
+        </div>
+      </div>
+
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Atmosphere & Light</h3>
+          <div class="control-item"><label class="control-label">Background</label><input type="color" id="bgColor" value="#080808"></div>
+          <div class="control-item"><label class="control-label">Fog Density <span class="value" id="fogDensity-v">0.015</span></label><input type="range" id="fogDensity" min="0" max="0.1" step="0.001" value="0.015"></div>
+          <div class="control-item"><label class="control-label">Eye Hue <span class="value" id="eyeHue-v">0.00</span></label><input type="range" id="eyeHue" min="0" max="6.28" step="0.01" value="0"></div>
+          <div class="control-item"><label class="control-label">Ambient Light <span class="value" id="ambientLight-v">1.00</span></label><input type="range" id="ambientLight" min="0" max="2" step="0.01" value="1"></div>
+          <div class="control-item"><label class="control-label">Rim Color</label><input type="color" id="rimColor" value="#ff1100"></div>
+          <div class="control-item"><label class="control-label">Light Intensity <span class="value" id="dynamicLights-v">250</span></label><input type="range" id="dynamicLights" min="0" max="1000" step="1" value="250"></div>
+        </div>
+
+        <div class="control-group">
+          <h3>Motion</h3>
+          <div class="control-item"><label class="control-label">Ambient Motion</label><input type="checkbox" id="enableAmbient" checked></div>
+          <div class="control-item"><label class="control-label">Float Range <span class="value" id="maxTransposition-v">1.20</span></label><input type="range" id="maxTransposition" min="0" max="5" step="0.01" value="1.2"></div>
+          <div class="control-item"><label class="control-label">Float Speed <span class="value" id="ambientSpeed-v">1.00</span></label><input type="range" id="ambientSpeed" min="0" max="5" step="0.01" value="1"></div>
+          <div class="control-item"><label class="control-label">Sync Gaze</label><input type="checkbox" id="moveInConcert"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>

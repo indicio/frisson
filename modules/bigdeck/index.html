@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Card Configurations - Three.js Deck Module</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #020309;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #fff;
+    }
+    #info {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 5;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(5,5,15,0.75);
+      font-size: 11px;
+      color: #c8ccf8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="info">Layout: <span id="layoutLabel">field</span> &bull; Use mouse to orbit</div>
+
+  <!-- Three.js + OrbitControls (local files) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../../shared/libs/three-r160/three.module.js",
+        "three/addons/": "../../shared/libs/three-r160/addons/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import '../../shared/mediaFeed.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // ---------- Constants ----------
+
+    const CAMERA_BASE_Y = 8;
+
+    // ---------- Deck & Assets ----------
+
+    const SUITS = ["S", "C", "D", "H"];
+    const RANKS = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
+
+    const CARD_BACKS = {
+      blue: "blue-back.png",
+      red: "red-back.png",
+      occult: "occult-back.png",
+      blackgold: "black-gold-back.png"
+    };
+
+    const DECK = [];
+    for (const suit of SUITS) {
+      for (const rank of RANKS) {
+        DECK.push({
+          id: `${rank}${suit}`,
+          rank,
+          suit,
+          face: `${rank}${suit}.png`
+        });
+      }
+    }
+
+    function shuffleDeck(deck) {
+      const d = [...deck];
+      for (let i = d.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [d[i], d[j]] = [d[j], d[i]];
+      }
+      return d;
+    }
+
+    // ---------- Three.js Setup ----------
+
+    let scene, camera, renderer, controls;
+    let cardGroup;
+    let activeDeck = shuffleDeck(DECK);
+    let cardObjects = []; // { group, frontMesh, backMesh, card }
+    
+    // Lighting
+    let ambientLight, keyLight, fillLight, rimLight, hemiLight;
+    
+    // Audio system
+    let audioContext, analyser, microphone;
+    let frequencyData;
+    let bassLevel = 0, midLevel = 0, trebleLevel = 0;
+    let smoothedBass = 0, smoothedMid = 0, smoothedTreble = 0;
+
+    const textureLoader = new THREE.TextureLoader();
+    const textureCache = new Map();
+
+    function getTexture(path) {
+      if (!textureCache.has(path)) {
+        console.log(`🖼️  Loading texture: ${path}`);
+        const tex = textureLoader.load(
+          path,
+          () => console.log(`✅ Texture loaded: ${path}`),
+          undefined,
+          (err) => console.error(`❌ Failed to load texture: ${path}`, err)
+        );
+        tex.colorSpace = THREE.SRGBColorSpace;
+        textureCache.set(path, tex);
+      }
+      return textureCache.get(path);
+    }
+
+    // ---------- Parameters ----------
+
+    const params = {
+      layout: "field",     // "field", "ring", "tunnel", "grid", "exploding", "sphere", "fan", "helix"
+      cardCount: 52,
+      backTheme: "blue",
+      fogDensity: 0.008,
+      fieldSpread: 12,
+      ringRadius: 7,
+      tunnelLength: 40,
+      tunnelRadius: 5,
+      gridRows: 5,
+      gridCols: 10,
+      explodingRadius: 15,
+      sphereRadius: 8,
+      // Fan layout
+      fanRadius: 6,
+      fanAngle: 120,      // degrees
+      fanTilt: 35,        // degrees
+      fanLift: 0.4,       // vertical arch
+      // Helix layout
+      helixRadius: 5,
+      helixHeight: 16,
+      helixTwists: 3,
+      idleSpin: 0.15,
+      // Lighting & Background
+      backgroundColor: '#020309',
+      ambientIntensity: 2.4,
+      keyLightIntensity: 2.2,
+      fillLightIntensity: 2.2,
+      rimLightIntensity: 1.8,
+      hemiIntensity: 0.8,
+      overallBrightness: 1.6,
+      // Camera
+      cameraZoom: 18,
+      // Motion controls
+      rotationSpeedX: 0.2,
+      rotationSpeedY: 0.5,
+      rotationSpeedZ: 0.1,
+      waveAmplitude: 2.0,
+      waveFrequency: 1.0,
+      pulseSpeed: 1.0,
+      autoRotate: false,
+      autoRotateSpeed: 0.5,
+      cardFlipSpeed: 1.0,
+      enableCardFlip: false,
+      // Audio reactivity
+      audioEnabled: false,
+      bassReactivity: 1.0,
+      midReactivity: 0.8,
+      trebleReactivity: 0.6,
+      audioToPosition: true,
+      audioToRotation: true,
+      audioToScale: false,
+      audioToCamera: false,
+      audioSmoothing: 0.7
+    };
+
+    const layoutLabel = document.getElementById("layoutLabel");
+
+    function updateLayoutLabel() {
+      layoutLabel.textContent = params.layout;
+    }
+
+    // ---------- Control Channel Communication ----------
+
+    let controlsChannel = null;
+
+    function initControlsChannel() {
+      controlsChannel = new BroadcastChannel('visualizer-controls');
+      controlsChannel.onmessage = handleControlMessage;
+      
+      // Also listen for window messages (for iframe communication)
+      window.addEventListener('message', handleWindowMessage);
+    }
+
+    function handleControlMessage(event) {
+      if (event.data.type === 'PARAM_CHANGE') {
+        handleParamChange(event.data.param, event.data.value);
+      }
+    }
+
+    function handleWindowMessage(event) {
+      if (event.data.type === 'PARAM_CHANGE') {
+        handleParamChange(event.data.param, event.data.value);
+      }
+    }
+
+    function handleParamChange(param, value) {
+      params[param] = value;
+      
+      // Handle special cases
+      if (param === 'layout') {
+        applyLayout();
+        updateLayoutLabel();
+      } else if (param === 'cardCount') {
+        applyLayout();
+      } else if (param === 'backTheme') {
+        updateCardTextures();
+      } else if (param === 'fogDensity') {
+        if (scene && scene.fog) {
+          scene.fog.density = value;
+        }
+      } else if (param === 'backgroundColor') {
+        if (scene) {
+          const c = new THREE.Color(value);
+          scene.background = c;
+          if (scene.fog) scene.fog.color = c;
+        }
+      } else if (param === 'overallBrightness') {
+        if (renderer) {
+          renderer.toneMappingExposure = value;
+        }
+      } else if (param === 'ambientIntensity') {
+        if (ambientLight) ambientLight.intensity = value;
+      } else if (param === 'hemiIntensity') {
+        if (hemiLight) hemiLight.intensity = value;
+      } else if (param === 'keyLightIntensity') {
+        if (keyLight) keyLight.intensity = value;
+      } else if (param === 'fillLightIntensity') {
+        if (fillLight) fillLight.intensity = value;
+      } else if (param === 'rimLightIntensity') {
+        if (rimLight) rimLight.intensity = value;
+      } else if (param === 'cameraZoom') {
+        if (camera) {
+          camera.position.z = value;
+        }
+      } else if (param === 'shuffle') {
+        activeDeck = shuffleDeck(activeDeck);
+        updateCardTextures();
+        applyLayout();
+      } else if (param === 'audioEnabled') {
+        toggleAudio();
+      } else if (param === 'audioSmoothing') {
+        if (analyser) {
+          analyser.smoothingTimeConstant = value;
+        }
+      } else if (['fieldSpread', 'ringRadius', 'tunnelLength', 'tunnelRadius', 
+                   'gridRows', 'gridCols', 'explodingRadius', 'sphereRadius',
+                   'fanRadius', 'fanAngle', 'fanTilt', 'fanLift',
+                   'helixRadius', 'helixHeight', 'helixTwists'].includes(param)) {
+        // Layout parameter changed, reapply layout
+        applyLayout();
+      }
+    }
+
+    // ---------- Audio System ----------
+
+    function analyzeAudio() {
+      if (!params.audioEnabled) return;
+      frequencyData = window.frissonMedia?.fft?.();
+      if (!frequencyData || !frequencyData.length) return;
+      
+      const bassEnd = Math.floor(frequencyData.length * 0.1);
+      const midEnd = Math.floor(frequencyData.length * 0.5);
+      
+      let bassSum = 0, midSum = 0, trebleSum = 0;
+      
+      for (let i = 0; i < bassEnd; i++) bassSum += frequencyData[i];
+      for (let i = bassEnd; i < midEnd; i++) midSum += frequencyData[i];
+      for (let i = midEnd; i < frequencyData.length; i++) trebleSum += frequencyData[i];
+      
+      bassLevel   = (bassSum / bassEnd) / 255;
+      midLevel    = (midSum / (midEnd - bassEnd)) / 255;
+      trebleLevel = (trebleSum / (frequencyData.length - midEnd)) / 255;
+      
+      const smoothing = params.audioSmoothing;
+      smoothedBass    = smoothedBass    * smoothing + bassLevel   * (1 - smoothing);
+      smoothedMid     = smoothedMid     * smoothing + midLevel    * (1 - smoothing);
+      smoothedTreble  = smoothedTreble  * smoothing + trebleLevel * (1 - smoothing);
+    }
+
+    function toggleAudio() {
+      // The microphone is the front-page audio switch. This checkbox only
+      // decides whether the deck reacts to that shared input.
+    }
+
+    // ---------- Card Creation / Management ----------
+
+    function ensureCardObjects(length) {
+      while (cardObjects.length < length) {
+        const cardIndex = cardObjects.length;
+        const cardData = activeDeck[cardIndex % activeDeck.length];
+
+        const cardGroup = new THREE.Group();
+        const width = 1;
+        const height = 1.4;
+        const geom = new THREE.PlaneGeometry(width, height);
+
+        const frontTex = getTexture(cardData.face);
+        const backTex = getTexture(CARD_BACKS[params.backTheme]);
+
+        const frontMat = new THREE.MeshStandardMaterial({
+          map: frontTex,
+          roughness: 0.6,
+          metalness: 0.1,
+          transparent: true,
+          alphaTest: 0.5
+        });
+
+        const backMat = new THREE.MeshStandardMaterial({
+          map: backTex,
+          roughness: 0.7,
+          metalness: 0.2,
+          transparent: true,
+          alphaTest: 0.5
+        });
+
+        const frontMesh = new THREE.Mesh(geom, frontMat);
+        const backMesh = new THREE.Mesh(geom, backMat);
+        backMesh.rotation.y = Math.PI;
+
+        cardGroup.add(frontMesh);
+        cardGroup.add(backMesh);
+
+        cardGroup.userData.cardIndex = cardIndex;
+        cardGroup.userData.card = cardData;
+
+        cardGroup.castShadow = true;
+        cardGroup.receiveShadow = true;
+        frontMesh.castShadow = true;
+        backMesh.castShadow = true;
+
+        cardGroup.position.set(0, 0, 0);
+
+        cardGroup.userData.baseRotation = new THREE.Euler(
+          Math.random() * Math.PI * 2,
+          Math.random() * Math.PI * 2,
+          Math.random() * Math.PI * 2
+        );
+        cardGroup.userData.offset = Math.random() * 1000;
+
+        cardGroup.visible = true;
+        cardGroup.matrixAutoUpdate = true;
+        cardGroup.name = "cardGroup_" + cardIndex;
+
+        cardGroup.traverse(obj => {
+          if (obj.isMesh) {
+            obj.castShadow = true;
+            obj.receiveShadow = true;
+          }
+        });
+
+        cardGroup.updateMatrixWorld(true);
+        cardGroup.children.forEach(c => {
+          c.frustumCulled = false;
+        });
+
+        cardGroup.userData.layout = params.layout;
+        cardGroup.userData.targetPosition = new THREE.Vector3();
+        cardGroup.userData.targetRotation = new THREE.Euler();
+
+        cardObjects.push({
+          group: cardGroup,
+          frontMesh,
+          backMesh,
+          card: cardData
+        });
+      }
+
+      for (let i = 0; i < cardObjects.length; i++) {
+        const obj = cardObjects[i];
+        if (!obj.group.parent && cardGroup) {
+          cardGroup.add(obj.group);
+        }
+      }
+    }
+
+    function updateCardTextures() {
+      for (let i = 0; i < cardObjects.length; i++) {
+        const obj = cardObjects[i];
+        const cardData = activeDeck[i % activeDeck.length];
+        obj.card = cardData;
+        obj.group.userData.card = cardData;
+        obj.frontMesh.material.map = getTexture(cardData.face);
+        obj.frontMesh.material.needsUpdate = true;
+        obj.backMesh.material.map = getTexture(CARD_BACKS[params.backTheme]);
+        obj.backMesh.material.needsUpdate = true;
+      }
+    }
+
+    // ---------- Layouts ----------
+
+    function applyLayout() {
+      const count = Math.min(params.cardCount, activeDeck.length);
+      ensureCardObjects(count);
+
+      for (let i = 0; i < cardObjects.length; i++) {
+        cardObjects[i].group.visible = i < count;
+      }
+
+      switch (params.layout) {
+        case "field":     layoutField();     break;
+        case "ring":      layoutRing();      break;
+        case "tunnel":    layoutTunnel();    break;
+        case "grid":      layoutGrid();      break;
+        case "exploding": layoutExploding(); break;
+        case "sphere":    layoutSphere();    break;
+        case "fan":       layoutFan();       break;
+        case "helix":     layoutHelix();     break;
+      }
+
+      cardObjects.forEach(obj => {
+        const g = obj.group;
+        if (!g.visible) return;
+        g.userData.basePosition = g.position.clone();
+      });
+    }
+
+    // 1. Floating field / nebula
+    function layoutField() {
+      const spread = params.fieldSpread;
+      const depth = spread * 1.5;
+      cardObjects.forEach(obj => {
+        if (!obj.group.visible) return;
+        const g = obj.group;
+        g.position.set(
+          (Math.random() - 0.5) * spread,
+          (Math.random() - 0.5) * spread,
+          (Math.random() - 0.5) * depth
+        );
+        g.rotation.set(
+          (Math.random() - 0.5) * Math.PI * 0.7,
+          (Math.random() - 0.5) * Math.PI * 2,
+          (Math.random() - 0.5) * Math.PI * 0.7
+        );
+      });
+    }
+
+    // 2. Card ring / halo
+    function layoutRing() {
+      const radius = params.ringRadius;
+      const visible = cardObjects.filter(o => o.group.visible);
+      const count = visible.length;
+
+      visible.forEach((obj, i) => {
+        const t = i / count * Math.PI * 2;
+        const x = Math.cos(t) * radius;
+        const z = Math.sin(t) * radius;
+        const y = (Math.random() - 0.5) * 2;
+        const g = obj.group;
+        g.position.set(x, y, z);
+        g.lookAt(0, 0, 0);
+        g.rotation.z += (Math.random() - 0.5) * 0.3;
+      });
+    }
+
+    // 3. Card tunnel / vortex
+    function layoutTunnel() {
+      const len = params.tunnelLength;
+      const radius = params.tunnelRadius;
+      const visible = cardObjects.filter(o => o.group.visible);
+      const count = visible.length;
+
+      visible.forEach((obj, i) => {
+        const t = i / count;
+        const angle = t * Math.PI * 6;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        const z = -t * len;
+        const g = obj.group;
+        g.position.set(x, y, z);
+        g.lookAt(0, 0, z + 5);
+        g.rotation.z += (Math.random() - 0.5) * 0.3;
+      });
+    }
+
+    // 4. Card wall / grid
+    function layoutGrid() {
+      const rows = params.gridRows;
+      const cols = params.gridCols;
+      const visible = cardObjects.filter(o => o.group.visible);
+      const count = visible.length;
+
+      const cellW = 1.3;
+      const cellH = 1.8;
+
+      const totalCols = Math.min(cols, count);
+      const totalRows = Math.ceil(count / totalCols);
+
+      const width = (totalCols - 1) * cellW;
+      const height = (totalRows - 1) * cellH;
+
+      visible.forEach((obj, index) => {
+        const r = Math.floor(index / totalCols);
+        const c = index % totalCols;
+        const x = c * cellW - width / 2;
+        const y = height / 2 - r * cellH;
+        const z = -8 + Math.random() * 1.2;
+        const g = obj.group;
+        g.position.set(x, y, z);
+        g.rotation.set(
+          THREE.MathUtils.degToRad((Math.random() - 0.5) * 5),
+          0,
+          THREE.MathUtils.degToRad((Math.random() - 0.5) * 5)
+        );
+      });
+    }
+
+    // 5. Exploding deck
+    function layoutExploding() {
+      const radius = params.explodingRadius;
+      const center = new THREE.Vector3(0, 0, 0);
+
+      cardObjects.forEach(obj => {
+        if (!obj.group.visible) return;
+        const g = obj.group;
+
+        const dir = new THREE.Vector3(
+          Math.random() - 0.5,
+          Math.random() - 0.5,
+          Math.random() - 0.5
+        ).normalize();
+
+        const dist = radius * (0.4 + Math.random() * 0.6);
+        const targetPos = dir.multiplyScalar(dist);
+
+        g.position.copy(targetPos);
+        g.lookAt(center);
+        g.rotation.z += (Math.random() - 0.5) * 1.0;
+      });
+    }
+
+    // 6. Sphere / globe of cards
+    function layoutSphere() {
+      const radius = params.sphereRadius;
+      const visible = cardObjects.filter(o => o.group.visible);
+      const count = visible.length;
+
+      visible.forEach((obj, i) => {
+        const g = obj.group;
+
+        const t = i / count;
+        const phi = Math.acos(1 - 2 * t);
+        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+
+        const x = radius * Math.sin(phi) * Math.cos(theta);
+        const y = radius * Math.cos(phi);
+        const z = radius * Math.sin(phi) * Math.sin(theta);
+
+        g.position.set(x, y, z);
+
+        g.lookAt(0, 0, 0);
+        g.rotateY(Math.PI);
+        g.rotation.z += (Math.random() - 0.5) * 0.2;
+      });
+    }
+
+    // 7. Table fan / dealer spread
+    function layoutFan() {
+      const visible = cardObjects.filter(o => o.group.visible);
+      const count = visible.length;
+      if (count === 0) return;
+
+      const radius = params.fanRadius;
+      const angleDeg = params.fanAngle;
+      const angleRad = THREE.MathUtils.degToRad(angleDeg);
+      const tiltRad = THREE.MathUtils.degToRad(params.fanTilt);
+      const lift = params.fanLift;
+
+      const mid = (count - 1) / 2;
+
+      visible.forEach((obj, i) => {
+        const g = obj.group;
+
+        const rel = (i - mid) / Math.max(mid, 1); // -1 .. 1
+        const a = rel * (angleRad / 2);
+
+        const x = Math.sin(a) * radius;
+        const z = -Math.cos(a) * radius;
+        const y = Math.abs(rel) * lift;
+
+        g.position.set(x, y, z);
+
+        g.lookAt(0, 0, 0);
+        g.rotateX(-tiltRad);
+
+        g.rotation.z += -a * 0.5;
+      });
+    }
+
+    // 8. Spiral helix
+    function layoutHelix() {
+      const visible = cardObjects.filter(o => o.group.visible);
+      const count = visible.length;
+      if (count === 0) return;
+
+      const radius = params.helixRadius;
+      const height = params.helixHeight;
+      const twists = params.helixTwists;
+
+      visible.forEach((obj, i) => {
+        const g = obj.group;
+
+        const t = i / Math.max(count - 1, 1); // 0..1
+        const angle = t * Math.PI * 2 * twists;
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+        const y = (t - 0.5) * height;
+
+        g.position.set(x, y, z);
+
+        const outward = new THREE.Vector3(x, 0, z).normalize();
+        const target = new THREE.Vector3().copy(g.position).add(outward);
+        g.lookAt(target);
+        g.rotation.x += (t - 0.5) * 0.6;
+      });
+    }
+
+    // ---------- Init Three.js Scene ----------
+
+    function initThree() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x020309);
+      scene.fog = new THREE.FogExp2(0x020309, params.fogDensity);
+
+      const aspect = window.innerWidth / window.innerHeight;
+      camera = new THREE.PerspectiveCamera(55, aspect, 0.1, 200);
+      camera.position.set(0, CAMERA_BASE_Y, params.cameraZoom);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio || 1);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMappingExposure = params.overallBrightness;
+      document.body.appendChild(renderer.domElement);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.minDistance = 5;
+      controls.maxDistance = 60;
+
+      // Lights
+      ambientLight = new THREE.AmbientLight(0x404060, params.ambientIntensity);
+      scene.add(ambientLight);
+
+      hemiLight = new THREE.HemisphereLight(0xa0bfff, 0x050308, params.hemiIntensity);
+      scene.add(hemiLight);
+
+      keyLight = new THREE.DirectionalLight(0xffffff, params.keyLightIntensity);
+      keyLight.position.set(8, 12, 4);
+      keyLight.castShadow = true;
+      keyLight.shadow.mapSize.set(2048, 2048);
+      keyLight.shadow.radius = 20;
+      keyLight.shadow.bias = -0.0001;
+      keyLight.shadow.normalBias = 0.05;
+      keyLight.shadow.camera.near = 0.1;
+      keyLight.shadow.camera.far = 100;
+      scene.add(keyLight);
+
+      fillLight = new THREE.PointLight(0x4a73ff, params.fillLightIntensity, 60);
+      fillLight.position.set(-6, -2, 10);
+      scene.add(fillLight);
+
+      rimLight = new THREE.PointLight(0xff6080, params.rimLightIntensity, 60);
+      rimLight.position.set(4, 4, -12);
+      scene.add(rimLight);
+
+      cardGroup = new THREE.Group();
+      scene.add(cardGroup);
+
+      // Initialize controls channel
+      initControlsChannel();
+
+      applyLayout();
+      updateCardTextures();
+      updateLayoutLabel();
+
+      window.addEventListener("resize", onWindowResize);
+      animate();
+    }
+
+    function onWindowResize() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    // ---------- Animation Loop ----------
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+
+      if (params.audioEnabled) analyzeAudio();
+
+      if (params.autoRotate) {
+        const angle = t * params.autoRotateSpeed * 0.1;
+        const radius = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
+        camera.position.x = Math.cos(angle) * radius;
+        camera.position.z = Math.sin(angle) * radius;
+        camera.lookAt(0, 0, 0);
+      }
+
+      if (params.audioEnabled && params.audioToCamera) {
+        const cameraShake = smoothedBass * params.bassReactivity * 0.5;
+        camera.position.y = CAMERA_BASE_Y + Math.sin(t * 10) * cameraShake;
+      }
+
+      cardObjects.forEach(obj => {
+        if (!obj.group.visible) return;
+        const g = obj.group;
+        const offset = g.userData.offset || 0;
+
+        if (!g.userData.basePosition) {
+          g.userData.basePosition = g.position.clone();
+        }
+        const basePos = g.userData.basePosition;
+
+        // Idle spin + float
+        const spinSpeed = params.idleSpin;
+        if (spinSpeed > 0) {
+          const s = spinSpeed * 0.2;
+          g.rotation.y += s * 0.01;
+          g.position.y += Math.sin(t * 0.4 + offset) * 0.0008;
+        }
+
+        // Manual rotation speeds
+        if (params.rotationSpeedX > 0) g.rotation.x += params.rotationSpeedX * 0.01;
+        if (params.rotationSpeedY > 0 && params.idleSpin === 0) g.rotation.y += params.rotationSpeedY * 0.01;
+        if (params.rotationSpeedZ > 0) g.rotation.z += params.rotationSpeedZ * 0.01;
+
+        // Wave offset
+        if (params.waveAmplitude > 0) {
+          const wavePhase = t * params.waveFrequency + offset;
+          g.position.y = basePos.y + Math.sin(wavePhase) * params.waveAmplitude;
+          g.position.x = basePos.x + Math.cos(wavePhase * 0.5) * params.waveAmplitude * 0.3;
+        }
+
+        // Pulse scale
+        if (params.pulseSpeed > 0) {
+          const pulsePhase = t * params.pulseSpeed + offset;
+          const scale = 1.0 + Math.sin(pulsePhase) * 0.1;
+          g.scale.set(scale, scale, scale);
+        }
+
+        // Global flip
+        if (params.enableCardFlip) {
+          const flipPhase = t * params.cardFlipSpeed + offset;
+          g.rotation.y = Math.sin(flipPhase) * Math.PI;
+        }
+
+        // Audio-based modulation
+        if (params.audioEnabled) {
+          if (params.audioToPosition) {
+            const bassEffect = smoothedBass * params.bassReactivity * 2;
+            const midEffect = smoothedMid * params.midReactivity * 1.5;
+            g.position.y += bassEffect + midEffect * Math.sin(t * 2 + offset);
+
+            const distanceFromCenter = Math.sqrt(basePos.x ** 2 + basePos.z ** 2);
+            if (distanceFromCenter > 0.1) {
+              const spreadFactor = 1 + smoothedBass * params.bassReactivity * 0.3;
+              g.position.x = basePos.x * spreadFactor;
+              g.position.z = basePos.z * spreadFactor;
+            }
+          }
+
+          if (params.audioToRotation) {
+            g.rotation.y += smoothedMid * params.midReactivity * 0.05;
+            g.rotation.z += smoothedTreble * params.trebleReactivity * 0.03;
+          }
+
+          if (params.audioToScale) {
+            const scaleReact = 1.0 + (smoothedBass * params.bassReactivity * 0.3);
+            g.scale.set(scaleReact, scaleReact, scaleReact);
+          }
+        }
+      });
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // ---------- Initialize on Load ----------
+
+    initThree();
+
+    // Expose moduleAPI for loader.js (self-initializing module)
+    window.moduleAPI = {
+      initModule: async () => {},
+      start: async () => {},
+      stop: async () => {},
+      destroy: async () => {
+        if (controlsChannel) { controlsChannel.close(); controlsChannel = null; }
+        if (renderer) renderer.dispose();
+      },
+    };
+  </script>
+</body>
+</html>

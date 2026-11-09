@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaleidoscope - Audio-Reactive Webcam</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <script src="../../shared/libs/three-r128/three.min.js"></script>
+    <script type="module" src="../../shared/mediaFeed.js"></script>
+    <script>
+        let scene, camera, renderer, video, videoTexture, material, plane;
+        let audioContext, analyser, audioSource, dataArray;
+        let audioLevel = 0;
+        let smoothedAudioLevel = 0;
+        let stream = null;
+        let animationId = null;
+        let feedbackRT1, feedbackRT2;
+        let currentFeedbackRT = null;
+        let displayScene, displayCamera, displayMaterial, displayPlane;
+        let container = null;
+        let controlsChannel = null;
+
+        const controls = {
+            audioSensitivity: 1.0,
+            globalIntensity: 1.0,
+            globalBrightness: 0,
+            globalContrast: 1.0,
+            globalBlend: 1.0,
+            globalBlur: 0,
+            kaleidSegments: 6,
+            kaleidSubdivisions: 1,
+            kaleidMirrorStrength: 1.0,
+            kaleidZoom: 1.0,
+            kaleidRotationSpeed: 0,
+            audioReactiveSegments: 0,
+            rotationCenters: 1,
+            centerOrbitRadius: 0.0,
+            centerOrbitSpeed: 0.0,
+            fractalRecursion: 1,
+            recursionScale: 1.0,
+            temporalFeedback: 0.0
+        };
+
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform sampler2D tVideo;
+            uniform sampler2D tFeedback;
+            uniform float time;
+            uniform float audioLevel;
+            uniform float globalIntensity;
+            uniform float globalBrightness;
+            uniform float globalContrast;
+            uniform float globalBlend;
+            uniform float globalBlur;
+            uniform vec2 resolution;
+            uniform float kaleidSegments;
+            uniform float kaleidSubdivisions;
+            uniform float kaleidMirrorStrength;
+            uniform float kaleidZoom;
+            uniform float kaleidRotationSpeed;
+            uniform float audioReactiveSegments;
+            uniform float rotationCenters;
+            uniform float centerOrbitRadius;
+            uniform float centerOrbitSpeed;
+            uniform float fractalRecursion;
+            uniform float recursionScale;
+            uniform float temporalFeedback;
+            
+            varying vec2 vUv;
+            
+            float random(vec2 st) {
+                return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+            }
+            
+            float noise(vec2 st) {
+                vec2 i = floor(st);
+                vec2 f = fract(st);
+                float a = random(i);
+                float b = random(i + vec2(1.0, 0.0));
+                float c = random(i + vec2(0.0, 1.0));
+                float d = random(i + vec2(1.0, 1.0));
+                vec2 u = f * f * (3.0 - 2.0 * f);
+                return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+            }
+            
+            vec2 kaleidoscopeMultiCenterUV(vec2 uv, float segCount, out float segIndex) {
+                vec2 centered = (uv - 0.5) * 2.0;
+                
+                // Find closest center using Voronoi-like selection
+                float minDist = 9999.0;
+                vec2 bestLocal = centered;
+                vec2 bestResult = uv;
+                float bestSegIndex = 0.0;
+                
+                int numCenters = int(floor(rotationCenters));
+                for (int i = 0; i < 5; i++) {
+                    if (i >= numCenters) break;
+                    
+                    float angleOffset = (6.28318 * float(i) / max(1.0, rotationCenters)) + time * centerOrbitSpeed;
+                    vec2 centerOffset = vec2(cos(angleOffset), sin(angleOffset)) * centerOrbitRadius;
+                    vec2 local = centered - centerOffset;
+                    float d = length(local);
+                    
+                    if (d < minDist) {
+                        minDist = d;
+                        bestLocal = local;
+                        
+                        float angle = atan(bestLocal.y, bestLocal.x);
+                        float radius = length(bestLocal);
+                        
+                        float segmentAngle = 6.28318 / segCount;
+                        float rawAngle = angle + time * kaleidRotationSpeed;
+                        // Normalize angle to 0-2π and compute segment index
+                        float normalizedAngle = mod(rawAngle + 6.28318, 6.28318);
+                        bestSegIndex = floor(mod(normalizedAngle / segmentAngle, segCount));
+                        
+                        angle += time * kaleidRotationSpeed;
+                        
+                        angle = mod(angle, segmentAngle * 2.0);
+                        if (angle > segmentAngle) {
+                            angle = segmentAngle * 2.0 - angle;
+                        }
+                        
+                        if (kaleidSubdivisions > 1.0) {
+                            float subSegmentAngle = segmentAngle / kaleidSubdivisions;
+                            float localAngle = mod(angle, subSegmentAngle * 2.0);
+                            if (localAngle > subSegmentAngle) {
+                                localAngle = subSegmentAngle * 2.0 - localAngle;
+                            }
+                            angle = floor(angle / (subSegmentAngle * 2.0)) * (subSegmentAngle * 2.0) + localAngle;
+                        }
+                        
+                        vec2 folded = vec2(cos(angle), sin(angle)) * radius;
+                        bestResult = (folded * 0.5 + 0.5) / kaleidZoom;
+                    }
+                }
+                
+                segIndex = bestSegIndex;
+                return mix(uv, bestResult, kaleidMirrorStrength);
+            }
+            
+            vec3 blurEffect(vec2 uv, float blurAmount) {
+                if (blurAmount <= 0.0) {
+                    return texture2D(tVideo, uv).rgb;
+                }
+                
+                vec3 color = vec3(0.0);
+                float totalWeight = 0.0;
+                float stepSize = blurAmount * 0.001;
+                
+                for (float x = -1.0; x <= 1.0; x += 1.0) {
+                    for (float y = -1.0; y <= 1.0; y += 1.0) {
+                        vec2 offset = vec2(x, y) * stepSize;
+                        float weight = 1.0 / (1.0 + length(vec2(x, y)));
+                        color += texture2D(tVideo, clamp(uv + offset, 0.0, 1.0)).rgb * weight;
+                        totalWeight += weight;
+                    }
+                }
+                
+                return color / totalWeight;
+            }
+            
+            void main() {
+                vec2 uv = vUv;
+                
+                // Compute effective segment count with audio reactivity
+                float baseSegments = max(2.0, kaleidSegments);
+                float reactiveAdd = audioReactiveSegments * audioLevel;
+                float segCount = clamp(baseSegments + reactiveAdd, 2.0, 24.0);
+                
+                // Fractal recursion
+                int layers = int(floor(fractalRecursion));
+                vec2 uvLayer = uv;
+                vec3 accumColor = vec3(0.0);
+                float accumWeight = 0.0;
+                float finalSegIndex = 0.0;
+                
+                for (int i = 0; i < 4; i++) {
+                    if (i >= layers) break;
+                    
+                    float scale = pow(recursionScale, float(i));
+                    vec2 scaledUV = (uvLayer - 0.5) * scale + 0.5;
+                    float segIdx = 0.0;
+                    vec2 layerUV = kaleidoscopeMultiCenterUV(scaledUV, segCount, segIdx);
+                    
+                    if (i == 0) {
+                        finalSegIndex = segIdx;
+                    }
+                    
+                    vec3 c = texture2D(tVideo, layerUV).rgb;
+                    float w = 1.0 / (1.0 + float(i));
+                    accumColor += c * w;
+                    accumWeight += w;
+                }
+                
+                vec3 fractalColor = accumColor / max(accumWeight, 0.0001);
+                
+                // Apply blur if needed (before hue shift)
+                if (globalBlur > 0.0) {
+                    float segIdx = 0.0;
+                    vec2 kaleidUV = kaleidoscopeMultiCenterUV(uv, segCount, segIdx);
+                    fractalColor = blurEffect(kaleidUV, globalBlur);
+                }
+                
+                vec3 color = fractalColor;
+                
+                // Temporal feedback
+                if (temporalFeedback > 0.001) {
+                    vec3 feedbackColor = texture2D(tFeedback, vUv).rgb;
+                    color = mix(color, feedbackColor, temporalFeedback);
+                }
+                
+                color = mix(texture2D(tVideo, uv).rgb, color, globalIntensity);
+                color += globalBrightness;
+                color = (color - 0.5) * globalContrast + 0.5;
+                color = mix(texture2D(tVideo, uv).rgb, color, globalBlend);
+                
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            // Don't append to body - will be appended to container in initModule
+            // document.body.appendChild(renderer.domElement);
+            
+            // Create feedback render targets
+            feedbackRT1 = new THREE.WebGLRenderTarget(width, height, {
+                minFilter: THREE.LinearFilter,
+                magFilter: THREE.LinearFilter,
+                format: THREE.RGBAFormat
+            });
+            feedbackRT2 = new THREE.WebGLRenderTarget(width, height, {
+                minFilter: THREE.LinearFilter,
+                magFilter: THREE.LinearFilter,
+                format: THREE.RGBAFormat
+            });
+            currentFeedbackRT = feedbackRT1;
+            
+            // Create display scene for final output
+            displayScene = new THREE.Scene();
+            displayCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            
+            const defaultTexture = new THREE.DataTexture(
+                new Uint8Array([0, 0, 0, 255]),
+                1, 1,
+                THREE.RGBAFormat
+            );
+            defaultTexture.needsUpdate = true;
+            
+            const defaultFeedbackTexture = new THREE.DataTexture(
+                new Uint8Array([0, 0, 0, 255]),
+                1, 1,
+                THREE.RGBAFormat
+            );
+            defaultFeedbackTexture.needsUpdate = true;
+            
+            const geometry = new THREE.PlaneGeometry(2, 2);
+            
+            material = new THREE.ShaderMaterial({
+                vertexShader,
+                fragmentShader,
+                uniforms: {
+                    tVideo: { value: defaultTexture },
+                    tFeedback: { value: defaultFeedbackTexture },
+                    time: { value: 0 },
+                    audioLevel: { value: 0 },
+                    globalIntensity: { value: 1.0 },
+                    globalBrightness: { value: 0 },
+                    globalContrast: { value: 1.0 },
+                    globalBlend: { value: 1.0 },
+                    globalBlur: { value: 0 },
+                    resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                    kaleidSegments: { value: 6 },
+                    kaleidSubdivisions: { value: 1 },
+                    kaleidMirrorStrength: { value: 1.0 },
+                    kaleidZoom: { value: 1.0 },
+                    kaleidRotationSpeed: { value: 0 },
+                    audioReactiveSegments: { value: 0 },
+                    rotationCenters: { value: 1 },
+                    centerOrbitRadius: { value: 0.0 },
+                    centerOrbitSpeed: { value: 0.0 },
+                    fractalRecursion: { value: 1 },
+                    recursionScale: { value: 1.0 },
+                    temporalFeedback: { value: 0.0 }
+                }
+            });
+            
+            plane = new THREE.Mesh(geometry, material);
+            scene.add(plane);
+            
+            // Display material (simple pass-through)
+            displayMaterial = new THREE.MeshBasicMaterial({
+                map: currentFeedbackRT.texture
+            });
+            displayPlane = new THREE.Mesh(geometry, displayMaterial);
+            displayScene.add(displayPlane);
+            
+            window.addEventListener('resize', handleResize);
+        }
+
+        function handleResize() {
+            if (!renderer) return;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // Resize feedback targets
+            if (feedbackRT1) feedbackRT1.setSize(window.innerWidth, window.innerHeight);
+            if (feedbackRT2) feedbackRT2.setSize(window.innerWidth, window.innerHeight);
+            
+            if (material) {
+                material.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
+            }
+        }
+
+function startWebcam() {
+            const attach = () => {
+                const media = window.frissonMedia;
+                if (!media) return false;
+                media.bindCamera((el) => {
+                    if (videoTexture) {
+                        videoTexture.dispose();
+                        videoTexture = null;
+                    }
+                    video = el || null;
+                    if (!video || !material) {
+                        if (material && material.uniforms && material.uniforms.tVideo) material.uniforms.tVideo.value = null;
+                        return;
+                    }
+                    videoTexture = new THREE.VideoTexture(video);
+                    videoTexture.minFilter = THREE.LinearFilter;
+                    videoTexture.magFilter = THREE.LinearFilter;
+                    videoTexture.format = THREE.RGBFormat;
+                    videoTexture.needsUpdate = true;
+                    if (material.uniforms && material.uniforms.tVideo) material.uniforms.tVideo.value = videoTexture;
+                });
+                return true;
+            };
+            if (!attach()) window.addEventListener('frisson-media-ready', attach, { once: true });
+        }
+
+        function stopWebcam() {
+            if (videoTexture) {
+                videoTexture.dispose();
+                videoTexture = null;
+            }
+            video = null;
+            if (material && material.uniforms && material.uniforms.tVideo) material.uniforms.tVideo.value = null;
+            if (feedbackRT1) {
+                feedbackRT1.dispose();
+                feedbackRT1 = null;
+            }
+            if (feedbackRT2) {
+                feedbackRT2.dispose();
+                feedbackRT2 = null;
+            }
+        }
+
+        function analyzeAudio() {
+            const level = window.frissonMedia?.level?.() || 0;
+            audioLevel = level * controls.audioSensitivity;
+            audioLevel = Math.min(audioLevel, 1.0);
+            
+            smoothedAudioLevel = smoothedAudioLevel * 0.9 + audioLevel * 0.1;
+        }
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            
+            analyzeAudio();
+            
+            const time = performance.now() * 0.001;
+            
+            if (material) {
+                material.uniforms.time.value = time;
+                material.uniforms.audioLevel.value = smoothedAudioLevel;
+                material.uniforms.globalIntensity.value = controls.globalIntensity;
+                material.uniforms.globalBrightness.value = controls.globalBrightness;
+                material.uniforms.globalContrast.value = controls.globalContrast;
+                material.uniforms.globalBlend.value = controls.globalBlend;
+                material.uniforms.globalBlur.value = controls.globalBlur;
+                material.uniforms.kaleidSegments.value = controls.kaleidSegments;
+                material.uniforms.kaleidSubdivisions.value = controls.kaleidSubdivisions;
+                material.uniforms.kaleidMirrorStrength.value = controls.kaleidMirrorStrength;
+                material.uniforms.kaleidZoom.value = controls.kaleidZoom;
+                material.uniforms.kaleidRotationSpeed.value = controls.kaleidRotationSpeed;
+                material.uniforms.audioReactiveSegments.value = controls.audioReactiveSegments;
+                material.uniforms.rotationCenters.value = controls.rotationCenters;
+                material.uniforms.centerOrbitRadius.value = controls.centerOrbitRadius;
+                material.uniforms.centerOrbitSpeed.value = controls.centerOrbitSpeed;
+                material.uniforms.fractalRecursion.value = controls.fractalRecursion;
+                material.uniforms.recursionScale.value = controls.recursionScale;
+                material.uniforms.temporalFeedback.value = controls.temporalFeedback;
+                
+                if (videoTexture && video && video.readyState >= 2) {
+                    videoTexture.needsUpdate = true;
+                }
+            }
+            
+            // Set feedback texture (previous frame) before rendering
+            if (currentFeedbackRT === feedbackRT1) {
+                material.uniforms.tFeedback.value = feedbackRT2.texture;
+            } else {
+                material.uniforms.tFeedback.value = feedbackRT1.texture;
+            }
+            
+            // Render to feedback target
+            renderer.setRenderTarget(currentFeedbackRT);
+            renderer.render(scene, camera);
+            
+            // Update display material with the render we just created
+            if (displayMaterial) {
+                displayMaterial.map = currentFeedbackRT.texture;
+            }
+            
+            // Render to screen
+            renderer.setRenderTarget(null);
+            renderer.render(displayScene, displayCamera);
+            
+            // Swap feedback targets for next frame
+            if (currentFeedbackRT === feedbackRT1) {
+                currentFeedbackRT = feedbackRT2;
+            } else {
+                currentFeedbackRT = feedbackRT1;
+            }
+        }
+
+        /**
+         * Handle control messages from controls panel
+         */
+        function handleControlMessage(event) {
+            if (event.data.type === 'PARAM_CHANGE') {
+                const { param, value } = event.data;
+                handleParamChange(param, value);
+            }
+        }
+
+        /**
+         * Handle parameter changes
+         */
+        function handleParamChange(param, value) {
+            switch(param) {
+                case 'startWebcam':
+                    startWebcam();
+                    break;
+                case 'stopWebcam':
+                    stopWebcam();
+                    break;
+                case 'audioSensitivity':
+                    controls.audioSensitivity = parseFloat(value);
+                    break;
+                case 'globalIntensity':
+                    controls.globalIntensity = parseFloat(value);
+                    break;
+                case 'globalBrightness':
+                    controls.globalBrightness = parseFloat(value);
+                    break;
+                case 'globalContrast':
+                    controls.globalContrast = parseFloat(value);
+                    break;
+                case 'globalBlend':
+                    controls.globalBlend = parseFloat(value);
+                    break;
+                case 'globalBlur':
+                    controls.globalBlur = parseFloat(value);
+                    break;
+                case 'kaleidSegments':
+                    controls.kaleidSegments = parseFloat(value);
+                    break;
+                case 'kaleidSubdivisions':
+                    controls.kaleidSubdivisions = parseFloat(value);
+                    break;
+                case 'kaleidMirrorStrength':
+                    controls.kaleidMirrorStrength = parseFloat(value);
+                    break;
+                case 'kaleidZoom':
+                    controls.kaleidZoom = parseFloat(value);
+                    break;
+                case 'kaleidRotationSpeed':
+                    controls.kaleidRotationSpeed = parseFloat(value);
+                    break;
+                case 'audioReactiveSegments':
+                    controls.audioReactiveSegments = parseFloat(value);
+                    break;
+                case 'rotationCenters':
+                    controls.rotationCenters = parseFloat(value);
+                    break;
+                case 'centerOrbitRadius':
+                    controls.centerOrbitRadius = parseFloat(value);
+                    break;
+                case 'centerOrbitSpeed':
+                    controls.centerOrbitSpeed = parseFloat(value);
+                    break;
+                case 'fractalRecursion':
+                    controls.fractalRecursion = parseFloat(value);
+                    break;
+                case 'recursionScale':
+                    controls.recursionScale = parseFloat(value);
+                    break;
+                case 'temporalFeedback':
+                    controls.temporalFeedback = parseFloat(value);
+                    break;
+            }
+        }
+
+        // --- MODULE API ---
+        const moduleAPI = {
+            async initModule({ container: containerElement, audio, controlsChannel: channel }) {
+                console.log('Kaleidoscope initModule called', { 
+                    hasContainer: !!containerElement, 
+                    hasAudio: !!audio, 
+                    hasChannel: !!channel 
+                });
+                
+                container = containerElement;
+                controlsChannel = channel;
+                
+                if (controlsChannel) {
+                    controlsChannel.onmessage = handleControlMessage;
+                }
+                
+                window.addEventListener('resize', handleResize);
+                
+                // Initialize Three.js
+                initThreeJS();
+                
+                // Add renderer to container if needed
+                if (container && renderer && renderer.domElement) {
+                    if (!container.contains(renderer.domElement)) {
+                        container.appendChild(renderer.domElement);
+                    }
+                } else {
+                    console.warn('Kaleidoscope: container or renderer.domElement not available', { 
+                        hasContainer: !!container, 
+                        hasRenderer: !!renderer,
+                        hasDomElement: !!(renderer && renderer.domElement)
+                    });
+                }
+                
+                handleResize();
+                startWebcam();
+            },
+            
+            start() {
+                if (!animationId) {
+                    animate();
+                }
+            },
+            
+            stop() {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            },
+            
+            destroy() {
+                stop();
+                stopWebcam();
+                window.removeEventListener('resize', handleResize);
+                
+                if (controlsChannel) {
+                    controlsChannel.close();
+                }
+                
+                if (container && renderer && renderer.domElement && container.contains(renderer.domElement)) {
+                    container.removeChild(renderer.domElement);
+                }
+            }
+        };
+
+        // Expose API immediately (before loader calls initModule)
+        window.moduleAPI = moduleAPI;
+        
+        console.log('Kaleidoscope module API exposed', { hasInitModule: !!moduleAPI.initModule });
+    </script>
+</body>
+</html>
+

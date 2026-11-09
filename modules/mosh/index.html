@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datamosh Lab - Audio-Reactive Webcam</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <script src="../../shared/libs/three-r128/three.min.js"></script>
+    <script type="module" src="../../shared/mediaFeed.js"></script>
+    <script>
+        let scene, camera, renderer, video, videoTexture, material, plane;
+        let feedbackScene, feedbackCamera, feedbackMaterial, feedbackPlane;
+        let feedbackTarget1, feedbackTarget2;
+        let currentFeedbackTarget = 0;
+        let audioLevel = 0;
+        let smoothedAudioLevel = 0;
+        let lowBand = 0, midBand = 0, highBand = 0;
+        let transientLevel = 0;
+        let previousAudioLevel = 0;
+        let stream = null;
+        let animationId = null;
+        let freezeFrame = 0;
+        let feedbackMode = false;
+        let glitchPunch = 0;
+        let resolutionScale = 1.0;
+        let container = null;
+        let controlsChannel = null;
+        let audioAPI = null;
+
+        const controls = {
+            audioSensitivity: 1.0,
+            globalIntensity: 1.0,
+            glitchMode: 0,
+            glitchBaseIntensity: 0.3,
+            glitchMaxPixelSize: 8,
+            glitchRGBOffset: 0.01,
+            glitchThreshold: 0.5,
+            feedbackMix: 0.3,
+            feedbackZoom: 0.98,
+            feedbackDistort: 0.01,
+            crtCurvature: 0.1,
+            vignetteStrength: 0.3,
+            scanlineIntensity: 0.2,
+            bloomThreshold: 0.7,
+            bloomIntensity: 0.3,
+            freezeProbability: 0.01,
+            tearIntensity: 0.3
+        };
+
+        const presets = {
+            default: {
+                name: 'Default',
+                audioSensitivity: 1.0,
+                globalIntensity: 1.0,
+                glitchMode: 0,
+                glitchBaseIntensity: 0.3,
+                glitchMaxPixelSize: 8,
+                glitchRGBOffset: 0.01,
+                glitchThreshold: 0.5,
+                feedbackMix: 0.3,
+                feedbackZoom: 0.98,
+                feedbackDistort: 0.01,
+                crtCurvature: 0.1,
+                vignetteStrength: 0.3,
+                scanlineIntensity: 0.2,
+                bloomThreshold: 0.7,
+                bloomIntensity: 0.3,
+                freezeProbability: 0.01,
+                tearIntensity: 0.3
+            },
+            vhs: {
+                name: 'VHS',
+                audioSensitivity: 1.2,
+                globalIntensity: 1.0,
+                glitchMode: 1,
+                glitchBaseIntensity: 0.5,
+                glitchMaxPixelSize: 12,
+                glitchRGBOffset: 0.015,
+                glitchThreshold: 0.4,
+                feedbackMix: 0.2,
+                feedbackZoom: 0.99,
+                feedbackDistort: 0.02,
+                crtCurvature: 0.2,
+                vignetteStrength: 0.4,
+                scanlineIntensity: 0.5,
+                bloomThreshold: 0.6,
+                bloomIntensity: 0.2,
+                freezeProbability: 0.02,
+                tearIntensity: 0.2
+            },
+            datamosh: {
+                name: 'Datamosh',
+                audioSensitivity: 1.5,
+                globalIntensity: 1.0,
+                glitchMode: 2,
+                glitchBaseIntensity: 0.6,
+                glitchMaxPixelSize: 16,
+                glitchRGBOffset: 0.02,
+                glitchThreshold: 0.3,
+                feedbackMix: 0.5,
+                feedbackZoom: 0.95,
+                feedbackDistort: 0.03,
+                crtCurvature: 0.05,
+                vignetteStrength: 0.2,
+                scanlineIntensity: 0.1,
+                bloomThreshold: 0.8,
+                bloomIntensity: 0.4,
+                freezeProbability: 0.05,
+                tearIntensity: 0.5
+            },
+            pixelSort: {
+                name: 'Pixel Sort',
+                audioSensitivity: 1.3,
+                globalIntensity: 1.0,
+                glitchMode: 3,
+                glitchBaseIntensity: 0.4,
+                glitchMaxPixelSize: 6,
+                glitchRGBOffset: 0.008,
+                glitchThreshold: 0.4,
+                feedbackMix: 0.4,
+                feedbackZoom: 0.97,
+                feedbackDistort: 0.015,
+                crtCurvature: 0.15,
+                vignetteStrength: 0.35,
+                scanlineIntensity: 0.3,
+                bloomThreshold: 0.65,
+                bloomIntensity: 0.35,
+                freezeProbability: 0.015,
+                tearIntensity: 0.25
+            },
+            compression: {
+                name: 'Compression',
+                audioSensitivity: 1.1,
+                globalIntensity: 1.0,
+                glitchMode: 4,
+                glitchBaseIntensity: 0.5,
+                glitchMaxPixelSize: 10,
+                glitchRGBOffset: 0.012,
+                glitchThreshold: 0.45,
+                feedbackMix: 0.6,
+                feedbackZoom: 0.96,
+                feedbackDistort: 0.025,
+                crtCurvature: 0.12,
+                vignetteStrength: 0.3,
+                scanlineIntensity: 0.25,
+                bloomThreshold: 0.7,
+                bloomIntensity: 0.3,
+                freezeProbability: 0.03,
+                tearIntensity: 0.4
+            },
+            extreme: {
+                name: 'Extreme',
+                audioSensitivity: 2.0,
+                globalIntensity: 1.0,
+                glitchMode: 2,
+                glitchBaseIntensity: 0.8,
+                glitchMaxPixelSize: 20,
+                glitchRGBOffset: 0.02,
+                glitchThreshold: 0.2,
+                feedbackMix: 0.7,
+                feedbackZoom: 0.92,
+                feedbackDistort: 0.05,
+                crtCurvature: 0.3,
+                vignetteStrength: 0.5,
+                scanlineIntensity: 0.6,
+                bloomThreshold: 0.5,
+                bloomIntensity: 0.5,
+                freezeProbability: 0.08,
+                tearIntensity: 0.8
+            }
+        };
+
+        let currentPresetName = 'default';
+        const presetNames = Object.keys(presets);
+
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform sampler2D tVideo;
+            uniform sampler2D tFeedback;
+            uniform float time;
+            uniform float audioLevel;
+            uniform float lowBand;
+            uniform float midBand;
+            uniform float highBand;
+            uniform float transientLevel;
+            uniform float globalIntensity;
+            uniform vec2 resolution;
+            uniform float glitchMode;
+            uniform float glitchBaseIntensity;
+            uniform float glitchMaxPixelSize;
+            uniform float glitchRGBOffset;
+            uniform float glitchThreshold;
+            uniform float feedbackMix;
+            uniform float feedbackZoom;
+            uniform float feedbackDistort;
+            uniform float crtCurvature;
+            uniform float vignetteStrength;
+            uniform float scanlineIntensity;
+            uniform float bloomThreshold;
+            uniform float bloomIntensity;
+            uniform float freezeActive;
+            uniform float tearIntensity;
+            uniform float glitchPunch;
+            
+            varying vec2 vUv;
+            
+            float random(vec2 st) {
+                return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+            }
+            
+            float noise(vec2 st) {
+                vec2 i = floor(st);
+                vec2 f = fract(st);
+                float a = random(i);
+                float b = random(i + vec2(1.0, 0.0));
+                float c = random(i + vec2(0.0, 1.0));
+                float d = random(i + vec2(1.0, 1.0));
+                vec2 u = f * f * (3.0 - 2.0 * f);
+                return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+            }
+            
+            vec2 crtWarp(vec2 uv) {
+                vec2 center = uv - 0.5;
+                float dist = length(center);
+                float factor = 1.0 + dist * dist * crtCurvature;
+                return center * factor + 0.5;
+            }
+            
+            vec3 glitchMode0(vec2 uv, float intensity) {
+                vec3 base = texture2D(tVideo, uv).rgb;
+                float subtleOffset = glitchRGBOffset * 0.3 * intensity;
+                float rSub = texture2D(tVideo, uv + vec2(subtleOffset, 0.0)).r;
+                float gSub = texture2D(tVideo, uv).g;
+                float bSub = texture2D(tVideo, uv - vec2(subtleOffset, 0.0)).b;
+                vec3 subtleColor = vec3(rSub, gSub, bSub);
+                
+                float jitter = (random(vec2(uv.y * 100.0, floor(time * 30.0))) - 0.5) * 0.01 * intensity;
+                vec2 jitterUV = uv + vec2(jitter, 0.0);
+                vec3 jitterColor = texture2D(tVideo, jitterUV).rgb;
+                
+                return mix(base, mix(subtleColor, jitterColor, 0.7), intensity * 0.6);
+            }
+            
+            vec3 glitchMode1(vec2 uv, float intensity) {
+                vec3 base = texture2D(tVideo, uv).rgb;
+                
+                float roll = sin(time * 2.0 + uv.y * 10.0) * 0.02 * intensity * highBand;
+                vec2 rollUV = uv + vec2(0.0, roll);
+                rollUV.y = mod(rollUV.y, 1.0);
+                
+                float wobble = sin(time * 3.0 + uv.x * 20.0) * 0.01 * intensity;
+                vec2 wobbleUV = rollUV + vec2(wobble, 0.0);
+                
+                vec3 vhsColor = texture2D(tVideo, wobbleUV).rgb;
+                
+                float scanline = sin(uv.y * resolution.y * 0.5) * 0.5 + 0.5;
+                scanline = pow(scanline, 10.0);
+                vhsColor *= mix(1.0, scanline, scanlineIntensity * 0.5);
+                
+                float rgbOff = glitchRGBOffset * intensity * 2.0;
+                float r = texture2D(tVideo, wobbleUV + vec2(rgbOff, 0.0)).r;
+                float g = vhsColor.g;
+                float b = texture2D(tVideo, wobbleUV - vec2(rgbOff, 0.0)).b;
+                
+                return vec3(r, g, b);
+            }
+            
+            vec3 glitchMode2(vec2 uv, float intensity) {
+                float rowHash = random(vec2(
+                    floor(uv.y * resolution.y / glitchMaxPixelSize),
+                    floor(time * 3.0)
+                ));
+                float blockFactor = mix(1.0, glitchMaxPixelSize * (1.0 + midBand * 2.0), intensity * rowHash);
+                
+                vec2 blockUV = floor(uv * resolution.xy / blockFactor) * blockFactor / resolution.xy;
+                
+                float lineJitter = (random(vec2(blockUV.y * 200.0, floor(time * 20.0))) - 0.5);
+                lineJitter *= 0.06 * intensity;
+                blockUV.x += lineJitter;
+                
+                float blockMask = step(
+                    0.7,
+                    random(floor(blockUV * 40.0) + floor(time * 5.0))
+                );
+                if (blockMask > 0.5) {
+                    float verticalShift = (random(vec2(blockUV.x * 50.0, time)) - 0.5);
+                    blockUV.y = clamp(
+                        blockUV.y + verticalShift * 0.3 * intensity,
+                        0.0,
+                        1.0
+                    );
+                }
+                
+                float rgbOff = glitchRGBOffset * intensity * (1.0 + midBand);
+                float r = texture2D(tVideo, blockUV + vec2(rgbOff, 0.0)).r;
+                float g = texture2D(tVideo, blockUV).g;
+                float b = texture2D(tVideo, blockUV - vec2(rgbOff, 0.0)).b;
+                vec3 col = vec3(r, g, b);
+                
+                float crush = smoothstep(0.5, 1.0, intensity);
+                vec3 crushed = floor(col * (4.0 + midBand * 4.0)) / (4.0 + midBand * 4.0);
+                col = mix(col, crushed, crush);
+                
+                return col;
+            }
+            
+            vec3 glitchMode3(vec2 uv, float intensity) {
+                vec3 base = texture2D(tVideo, uv).rgb;
+                
+                float streakProb = step(0.7, random(vec2(floor(uv.y * resolution.y / 4.0), floor(time * 2.0))));
+                float streakAmount = highBand * intensity * streakProb;
+                
+                if (streakAmount > 0.1) {
+                    float streakDir = (random(vec2(floor(uv.y * resolution.y / 4.0), 0.0)) - 0.5) * 2.0;
+                    float streakLength = streakAmount * 0.1;
+                    
+                    vec2 streakUV = uv + vec2(streakDir * streakLength, 0.0);
+                    streakUV.x = mod(streakUV.x, 1.0);
+                    
+                    vec3 streakColor = texture2D(tVideo, streakUV).rgb;
+                    base = mix(base, streakColor, streakAmount);
+                }
+                
+                float pixelSort = step(0.6, random(vec2(floor(uv.y * resolution.y / 8.0), floor(time * 1.5))));
+                if (pixelSort > 0.5) {
+                    float sortOffset = (random(vec2(floor(uv.y * resolution.y / 8.0), 1.0)) - 0.5) * 0.05 * intensity * highBand;
+                    vec2 sortUV = uv + vec2(sortOffset, 0.0);
+                    sortUV.x = clamp(sortUV.x, 0.0, 1.0);
+                    base = mix(base, texture2D(tVideo, sortUV).rgb, 0.7);
+                }
+                
+                return base;
+            }
+            
+            vec3 glitchMode4(vec2 uv, float intensity) {
+                vec3 base = texture2D(tVideo, uv).rgb;
+                
+                float smear = intensity * (0.3 + midBand * 0.7);
+                vec2 smearUV = uv + vec2(smear * 0.02, 0.0);
+                smearUV.x = clamp(smearUV.x, 0.0, 1.0);
+                
+                vec3 smeared = texture2D(tVideo, smearUV).rgb;
+                base = mix(base, smeared, smear);
+                
+                float ghost = step(0.8, random(vec2(floor(uv.y * resolution.y / 10.0), floor(time * 0.5))));
+                if (ghost > 0.5) {
+                    vec2 ghostUV = uv + vec2(0.05 * intensity, 0.0);
+                    ghostUV.x = mod(ghostUV.x, 1.0);
+                    vec3 ghostColor = texture2D(tVideo, ghostUV).rgb;
+                    base = mix(base, ghostColor, 0.3 * intensity);
+                }
+                
+                float compression = smoothstep(0.4, 1.0, intensity);
+                vec3 compressed = floor(base * (6.0 + midBand * 2.0)) / (6.0 + midBand * 2.0);
+                base = mix(base, compressed, compression);
+                
+                return base;
+            }
+            
+            vec3 glitchEffect(vec2 uv) {
+                vec2 sampleUV = uv;
+                
+                float intensity = mix(glitchBaseIntensity, 1.0, audioLevel + glitchPunch);
+                intensity = min(intensity, 1.0);
+                
+                float mode = floor(glitchMode);
+                vec3 result;
+                
+                if (freezeActive > 0.5) {
+                    result = texture2D(tFeedback, uv).rgb;
+                } else {
+                    if (mode < 0.5) {
+                        result = glitchMode0(sampleUV, intensity);
+                    } else if (mode < 1.5) {
+                        result = glitchMode1(sampleUV, intensity);
+                    } else if (mode < 2.5) {
+                        result = glitchMode2(sampleUV, intensity);
+                    } else if (mode < 3.5) {
+                        result = glitchMode3(sampleUV, intensity);
+                    } else {
+                        result = glitchMode4(sampleUV, intensity);
+                    }
+                }
+                
+                float grain = (random(uv * resolution.xy * 2.0 + time) - 0.5);
+                grain *= 0.15 * intensity;
+                result += grain;
+                
+                return result;
+            }
+            
+            void main() {
+                vec2 uv = vUv;
+                
+                float cameraShake = lowBand * 0.02;
+                uv += vec2(
+                    (random(vec2(time, 0.0)) - 0.5) * cameraShake,
+                    (random(vec2(time, 1.0)) - 0.5) * cameraShake
+                );
+                
+                float zoomWobble = lowBand * 0.05;
+                vec2 center = uv - 0.5;
+                uv = center * (1.0 + sin(time * 2.0) * zoomWobble) + 0.5;
+                
+                float tear = step(0.95, random(vec2(floor(uv.y * resolution.y / 20.0), floor(time * 10.0))));
+                if (tear > 0.5) {
+                    float tearOffset = (random(vec2(floor(uv.y * resolution.y / 20.0), 2.0)) - 0.5) * tearIntensity * 0.1;
+                    uv.x += tearOffset;
+                    uv.x = clamp(uv.x, 0.0, 1.0);
+                }
+                
+                vec2 crtUV = crtWarp(uv);
+                if (crtUV.x < 0.0 || crtUV.x > 1.0 || crtUV.y < 0.0 || crtUV.y > 1.0) {
+                    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                    return;
+                }
+                
+                vec3 color = glitchEffect(crtUV);
+                
+                vec2 feedbackUV = (crtUV - 0.5) * feedbackZoom + 0.5;
+                feedbackUV += vec2(
+                    (random(vec2(floor(feedbackUV.y * resolution.y / 10.0), time)) - 0.5) * feedbackDistort,
+                    (random(vec2(floor(feedbackUV.x * resolution.x / 10.0), time + 1.0)) - 0.5) * feedbackDistort
+                );
+                feedbackUV = clamp(feedbackUV, 0.0, 1.0);
+                
+                vec3 feedbackColor = texture2D(tFeedback, feedbackUV).rgb;
+                color = mix(color, feedbackColor, feedbackMix * (1.0 + audioLevel * 0.5));
+                
+                float brightness = dot(color, vec3(0.299, 0.587, 0.114));
+                if (brightness > bloomThreshold) {
+                    float bloom = (brightness - bloomThreshold) / (1.0 - bloomThreshold);
+                    color += color * bloom * bloomIntensity;
+                }
+                
+                float scanline = sin(crtUV.y * resolution.y * 0.5) * 0.5 + 0.5;
+                scanline = pow(scanline, 20.0);
+                color *= mix(1.0, scanline, scanlineIntensity);
+                
+                float dist = length(crtUV - 0.5);
+                float vignette = 1.0 - smoothstep(0.3, 1.0, dist) * vignetteStrength;
+                color *= vignette;
+                
+                color = mix(texture2D(tVideo, crtUV).rgb, color, globalIntensity);
+                
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            const width = container ? container.clientWidth : window.innerWidth;
+            const height = container ? container.clientHeight : window.innerHeight;
+            camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            // Don't append to body - will be appended to container in initModule
+            
+            const renderWidth = Math.floor(width * resolutionScale);
+            const renderHeight = Math.floor(height * resolutionScale);
+            
+            feedbackTarget1 = new THREE.WebGLRenderTarget(renderWidth, renderHeight, {
+                minFilter: THREE.LinearFilter,
+                magFilter: THREE.LinearFilter,
+                format: THREE.RGBAFormat
+            });
+            
+            feedbackTarget2 = new THREE.WebGLRenderTarget(renderWidth, renderHeight, {
+                minFilter: THREE.LinearFilter,
+                magFilter: THREE.LinearFilter,
+                format: THREE.RGBAFormat
+            });
+            
+            feedbackScene = new THREE.Scene();
+            feedbackCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            
+            const geometry = new THREE.PlaneGeometry(2, 2);
+            const defaultTexture = new THREE.DataTexture(
+                new Uint8Array([0, 0, 0, 255]),
+                1, 1,
+                THREE.RGBAFormat
+            );
+            defaultTexture.needsUpdate = true;
+            
+            material = new THREE.ShaderMaterial({
+                vertexShader,
+                fragmentShader,
+                uniforms: {
+                    tVideo: { value: defaultTexture },
+                    tFeedback: { value: feedbackTarget1.texture },
+                    time: { value: 0 },
+                    audioLevel: { value: 0 },
+                    lowBand: { value: 0 },
+                    midBand: { value: 0 },
+                    highBand: { value: 0 },
+                    transientLevel: { value: 0 },
+                    globalIntensity: { value: 1.0 },
+                    resolution: { value: new THREE.Vector2(renderWidth, renderHeight) },
+                    glitchMode: { value: 0 },
+                    glitchBaseIntensity: { value: 0.3 },
+                    glitchMaxPixelSize: { value: 8 },
+                    glitchRGBOffset: { value: 0.01 },
+                    glitchThreshold: { value: 0.5 },
+                    feedbackMix: { value: 0.3 },
+                    feedbackZoom: { value: 0.98 },
+                    feedbackDistort: { value: 0.01 },
+                    crtCurvature: { value: 0.1 },
+                    vignetteStrength: { value: 0.3 },
+                    scanlineIntensity: { value: 0.2 },
+                    bloomThreshold: { value: 0.7 },
+                    bloomIntensity: { value: 0.3 },
+                    freezeActive: { value: 0 },
+                    tearIntensity: { value: 0.3 },
+                    glitchPunch: { value: 0 }
+                }
+            });
+            
+            plane = new THREE.Mesh(geometry, material);
+            scene.add(plane);
+            
+            feedbackMaterial = new THREE.ShaderMaterial({
+                vertexShader,
+                fragmentShader,
+                uniforms: material.uniforms
+            });
+            
+            feedbackPlane = new THREE.Mesh(geometry, feedbackMaterial);
+            feedbackScene.add(feedbackPlane);
+            
+            window.addEventListener('resize', handleResize);
+        }
+
+        function handleResize() {
+            if (!renderer) return;
+            const width = container ? container.clientWidth : window.innerWidth;
+            const height = container ? container.clientHeight : window.innerHeight;
+            renderer.setSize(width, height);
+            const renderWidth = Math.floor(width * resolutionScale);
+            const renderHeight = Math.floor(height * resolutionScale);
+            if (feedbackTarget1 && feedbackTarget2) {
+                feedbackTarget1.setSize(renderWidth, renderHeight);
+                feedbackTarget2.setSize(renderWidth, renderHeight);
+            }
+            if (material) {
+                material.uniforms.resolution.value.set(renderWidth, renderHeight);
+            }
+        }
+
+function startWebcam() {
+            const attach = () => {
+                const media = window.frissonMedia;
+                if (!media) return false;
+                media.bindCamera((el) => {
+                    if (videoTexture) {
+                        videoTexture.dispose();
+                        videoTexture = null;
+                    }
+                    video = el || null;
+                    if (!video || !material) {
+                        if (material && material.uniforms && material.uniforms.tVideo) material.uniforms.tVideo.value = null;
+                        return;
+                    }
+                    videoTexture = new THREE.VideoTexture(video);
+                    videoTexture.minFilter = THREE.LinearFilter;
+                    videoTexture.magFilter = THREE.LinearFilter;
+                    videoTexture.format = THREE.RGBFormat;
+                    videoTexture.needsUpdate = true;
+                    material.uniforms.tVideo.value = videoTexture;
+                });
+                return true;
+            };
+            if (!attach()) window.addEventListener('frisson-media-ready', attach, { once: true });
+        }
+
+        function stopWebcam() {
+            if (videoTexture) {
+                videoTexture.dispose();
+                videoTexture = null;
+            }
+            video = null;
+            if (material && material.uniforms && material.uniforms.tVideo) material.uniforms.tVideo.value = null;
+        }
+
+                /**
+         * Handle audio updates from loader
+         */
+        function handleAudioUpdate(event) {
+            if (event.data && event.data.type === 'AUDIO_UPDATE') {
+                const audioLevelRaw = event.data.audioLevel || 0;
+                audioLevel = audioLevelRaw * controls.audioSensitivity;
+                audioLevel = Math.min(audioLevel, 1.0);
+                
+                const audioDelta = Math.abs(audioLevel - previousAudioLevel);
+                transientLevel = Math.min(audioDelta * 3.0, 1.0);
+                previousAudioLevel = audioLevel;
+                
+                smoothedAudioLevel = smoothedAudioLevel * 0.9 + audioLevel * 0.1;
+                
+                // Get frequency bands from audio API if available
+                if (audioAPI) {
+                    try {
+                        const fftData = audioAPI.getFFTData();
+                        if (fftData && fftData.length > 0) {
+                            const binCount = fftData.length;
+                            const lowEnd = Math.floor(binCount * 0.1);
+                            const midEnd = Math.floor(binCount * 0.5);
+                            
+                            let lowSum = 0, midSum = 0, highSum = 0;
+                            for (let i = 0; i < lowEnd; i++) {
+                                lowSum += fftData[i] * fftData[i];
+                            }
+                            for (let i = lowEnd; i < midEnd; i++) {
+                                midSum += fftData[i] * fftData[i];
+                            }
+                            for (let i = midEnd; i < binCount; i++) {
+                                highSum += fftData[i] * fftData[i];
+                            }
+                            
+                            lowBand = lowBand * 0.8 + (Math.sqrt(lowSum / lowEnd) / 255.0) * 0.2;
+                            midBand = midBand * 0.8 + (Math.sqrt(midSum / (midEnd - lowEnd)) / 255.0) * 0.2;
+                            highBand = highBand * 0.8 + (Math.sqrt(highSum / (binCount - midEnd)) / 255.0) * 0.2;
+                        }
+                    } catch (e) {
+                        // Fallback if audio API not available
+                        lowBand = audioLevel * 0.3;
+                        midBand = audioLevel * 0.5;
+                        highBand = audioLevel * 0.2;
+                    }
+                } else {
+                    // Fallback if audio API not available
+                    lowBand = audioLevel * 0.3;
+                    midBand = audioLevel * 0.5;
+                    highBand = audioLevel * 0.2;
+                }
+            }
+        }
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            
+            const time = performance.now() * 0.001;
+            
+            if (freezeFrame > 0) {
+                freezeFrame--;
+            } else if (Math.random() < controls.freezeProbability * (1.0 + transientLevel * 2.0)) {
+                freezeFrame = Math.floor(2 + Math.random() * 4);
+            }
+            
+            if (glitchPunch > 0) {
+                glitchPunch = Math.max(0, glitchPunch - 0.05);
+            } else if (transientLevel > 0.5) {
+                glitchPunch = Math.min(transientLevel * 0.8, 0.8);
+            }
+            
+            const currentTarget = currentFeedbackTarget === 0 ? feedbackTarget1 : feedbackTarget2;
+            const nextTarget = currentFeedbackTarget === 0 ? feedbackTarget2 : feedbackTarget1;
+            
+            if (material && videoTexture && video && video.readyState >= 2) {
+                videoTexture.needsUpdate = true;
+                
+                material.uniforms.tFeedback.value = currentTarget.texture;
+                material.uniforms.time.value = time;
+                material.uniforms.audioLevel.value = smoothedAudioLevel;
+                material.uniforms.lowBand.value = lowBand;
+                material.uniforms.midBand.value = midBand;
+                material.uniforms.highBand.value = highBand;
+                material.uniforms.transientLevel.value = transientLevel;
+                material.uniforms.globalIntensity.value = controls.globalIntensity;
+                material.uniforms.glitchMode.value = controls.glitchMode;
+                material.uniforms.glitchBaseIntensity.value = controls.glitchBaseIntensity;
+                material.uniforms.glitchMaxPixelSize.value = controls.glitchMaxPixelSize;
+                material.uniforms.glitchRGBOffset.value = controls.glitchRGBOffset;
+                material.uniforms.glitchThreshold.value = controls.glitchThreshold;
+                material.uniforms.feedbackMix.value = controls.feedbackMix * (1.0 + audioLevel * 0.5);
+                material.uniforms.feedbackZoom.value = controls.feedbackZoom - (audioLevel * 0.02) + (lowBand * 0.03 * Math.sin(time * 2.0));
+                material.uniforms.feedbackDistort.value = controls.feedbackDistort;
+                material.uniforms.crtCurvature.value = controls.crtCurvature;
+                material.uniforms.vignetteStrength.value = controls.vignetteStrength;
+                material.uniforms.scanlineIntensity.value = controls.scanlineIntensity * (1.0 + highBand);
+                material.uniforms.bloomThreshold.value = controls.bloomThreshold;
+                material.uniforms.bloomIntensity.value = controls.bloomIntensity;
+                material.uniforms.freezeActive.value = freezeFrame > 0 ? 1.0 : 0.0;
+                material.uniforms.tearIntensity.value = controls.tearIntensity * (1.0 + transientLevel);
+                material.uniforms.glitchPunch.value = glitchPunch;
+                
+                feedbackMaterial.uniforms = material.uniforms;
+                
+                renderer.setRenderTarget(nextTarget);
+                renderer.render(feedbackScene, feedbackCamera);
+                renderer.setRenderTarget(null);
+                
+                currentFeedbackTarget = currentFeedbackTarget === 0 ? 1 : 0;
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        function applyPreset(presetName) {
+            const preset = presets[presetName];
+            if (!preset) return;
+            
+            currentPresetName = presetName;
+            
+            Object.keys(preset).forEach(key => {
+                if (key !== 'name' && controls.hasOwnProperty(key)) {
+                    controls[key] = preset[key];
+                }
+            });
+        }
+
+        function nextPreset() {
+            const currentIndex = presetNames.indexOf(currentPresetName);
+            const nextIndex = (currentIndex + 1) % presetNames.length;
+            applyPreset(presetNames[nextIndex]);
+        }
+
+        function randomPreset() {
+            const randomIndex = Math.floor(Math.random() * presetNames.length);
+            applyPreset(presetNames[randomIndex]);
+        }
+
+        function resetPreset() {
+            applyPreset('default');
+        }
+
+        /**
+         * Handle control messages from controls panel
+         */
+        function handleControlMessage(event) {
+            if (event.data.type === 'PARAM_CHANGE') {
+                const { param, value } = event.data;
+                handleParamChange(param, value);
+            }
+        }
+
+        /**
+         * Handle parameter changes
+         */
+        function handleParamChange(param, value) {
+            switch(param) {
+                case 'startWebcam':
+                    startWebcam();
+                    break;
+                case 'stopWebcam':
+                    stopWebcam();
+                    break;
+                case 'nextPreset':
+                    nextPreset();
+                    break;
+                case 'randomPreset':
+                    randomPreset();
+                    break;
+                case 'resetPreset':
+                    resetPreset();
+                    break;
+                case 'audioSensitivity':
+                    controls.audioSensitivity = parseFloat(value);
+                    break;
+                case 'globalIntensity':
+                    controls.globalIntensity = parseFloat(value);
+                    break;
+                case 'resolutionScale':
+                    resolutionScale = parseFloat(value);
+                    handleResize();
+                    break;
+                case 'glitchMode':
+                    controls.glitchMode = parseInt(value);
+                    break;
+                case 'glitchBaseIntensity':
+                    controls.glitchBaseIntensity = parseFloat(value);
+                    break;
+                case 'glitchMaxPixelSize':
+                    controls.glitchMaxPixelSize = parseInt(value);
+                    break;
+                case 'glitchRGBOffset':
+                    controls.glitchRGBOffset = parseFloat(value);
+                    break;
+                case 'glitchThreshold':
+                    controls.glitchThreshold = parseFloat(value);
+                    break;
+                case 'feedbackMix':
+                    controls.feedbackMix = parseFloat(value);
+                    break;
+                case 'feedbackZoom':
+                    controls.feedbackZoom = parseFloat(value);
+                    break;
+                case 'feedbackDistort':
+                    controls.feedbackDistort = parseFloat(value);
+                    break;
+                case 'crtCurvature':
+                    controls.crtCurvature = parseFloat(value);
+                    break;
+                case 'vignetteStrength':
+                    controls.vignetteStrength = parseFloat(value);
+                    break;
+                case 'scanlineIntensity':
+                    controls.scanlineIntensity = parseFloat(value);
+                    break;
+                case 'bloomThreshold':
+                    controls.bloomThreshold = parseFloat(value);
+                    break;
+                case 'bloomIntensity':
+                    controls.bloomIntensity = parseFloat(value);
+                    break;
+                case 'freezeProbability':
+                    controls.freezeProbability = parseFloat(value);
+                    break;
+                case 'tearIntensity':
+                    controls.tearIntensity = parseFloat(value);
+                    break;
+            }
+        }
+
+        // --- MODULE API ---
+        const moduleAPI = {
+            async initModule({ container: containerElement, audio, controlsChannel: channel }) {
+                console.log('Mosh initModule called', { 
+                    hasContainer: !!containerElement, 
+                    hasAudio: !!audio, 
+                    hasChannel: !!channel 
+                });
+                
+                container = containerElement;
+                controlsChannel = channel;
+                audioAPI = audio;
+                
+                if (controlsChannel) {
+                    controlsChannel.onmessage = handleControlMessage;
+                }
+                
+                // Listen for audio updates from loader
+                window.addEventListener('message', handleAudioUpdate);
+                
+                window.addEventListener('resize', handleResize);
+                
+                // Initialize Three.js
+                initThreeJS();
+                
+                // Add renderer to container if needed
+                if (container && renderer && renderer.domElement) {
+                    if (!container.contains(renderer.domElement)) {
+                        container.appendChild(renderer.domElement);
+                    }
+                } else {
+                    console.warn('Mosh: container or renderer.domElement not available', { 
+                        hasContainer: !!container, 
+                        hasRenderer: !!renderer,
+                        hasDomElement: !!(renderer && renderer.domElement)
+                    });
+                }
+                
+                handleResize();
+                startWebcam();
+                applyPreset('default');
+            },
+            
+            start() {
+                if (!animationId) {
+                    animate();
+                }
+            },
+            
+            stop() {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            },
+            
+            destroy() {
+                stop();
+                stopWebcam();
+                window.removeEventListener('resize', handleResize);
+                window.removeEventListener('message', handleAudioUpdate);
+                
+                if (controlsChannel) {
+                    controlsChannel.close();
+                }
+                
+                if (container && renderer && renderer.domElement && container.contains(renderer.domElement)) {
+                    container.removeChild(renderer.domElement);
+                }
+            }
+        };
+
+        // Expose API immediately (before loader calls initModule)
+        window.moduleAPI = moduleAPI;
+        
+        console.log('Mosh module API exposed', { hasInitModule: !!moduleAPI.initModule });
+    </script>
+</body>
+</html>

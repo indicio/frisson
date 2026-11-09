@@ -1,0 +1,56 @@
+{
+  "falling forever": {
+    "params": {
+      "tunnelShape": "cylinder",
+      "colorMode": "solid",
+      "elementColor": "#4a9eff",
+      "backgroundColor": "#000000",
+      "speed": 0.5,
+      "audioSensitivity": 1,
+      "shape": "stars",
+      "flowDirection": "forward",
+      "starDensity": 5000,
+      "lineLength": 2.5,
+      "ringCount": 50,
+      "ringThickness": 0.2,
+      "ringSpacing": 4,
+      "ringRadius": 15,
+      "squareCount": 50,
+      "squareSpacing": 4,
+      "squareSize": 15,
+      "borderThickness": 2,
+      "rotationSpeed": 0.5,
+      "rotationDirection": "forward",
+      "rotationAxis": "z"
+    },
+    "timestamp": 1774809402171,
+    "updated": 1774809402171
+  },
+  "fruit-stripe": {
+    "params": {
+      "tunnelShape": "spiral",
+      "colorMode": "rainbow",
+      "elementColor": "#b83272",
+      "backgroundColor": "#da858a",
+      "speed": 0.2,
+      "audioSensitivity": 0.3,
+      "shape": "rings",
+      "flowDirection": "reverse",
+      "starDensity": 5000,
+      "lineLength": 0.6,
+      "ringCount": 80,
+      "ringThickness": 2,
+      "ringSpacing": 2.5,
+      "ringRadius": 19,
+      "squareCount": 180,
+      "squareSpacing": 7.5,
+      "squareSize": 15,
+      "borderThickness": 3.7,
+      "rotationSpeed": 0.6,
+      "rotationDirection": "forward",
+      "rotationAxis": "z"
+    },
+    "timestamp": 1774809566327,
+    "updated": 1774809566327
+  }
+}

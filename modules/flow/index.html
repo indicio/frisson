@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flow - Audio Reactive</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #020309;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #fff;
+    }
+
+    canvas#viz {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    /* Subtle audio-reactive edge vignette overlay (no user controls) */
+    #vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(
+        circle at center,
+        rgba(0, 0, 0, 0) 45%,
+        rgba(0, 0, 0, 0.9) 100%
+      );
+      opacity: 0;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="viz"></canvas>
+  <div id="vignette"></div>
+
+  <script src="../../shared/libs/three-r160/three.min.js"></script>
+  <script type="module" src="./module.js"></script>
+</body>
+</html>

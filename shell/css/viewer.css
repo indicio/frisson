@@ -1,0 +1,123 @@
+/**
+ * Viewer Window Styles
+ * Styles for the separate viewer window that displays visualizations
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+#viewer-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #000;
+}
+
+#viewer-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #000;
+}
+
+/* Status Overlay */
+#status-overlay {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 20px;
+  border-radius: 6px;
+  z-index: 1000;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+#status-overlay.hidden {
+  opacity: 0;
+}
+
+#status-message {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Fullscreen support */
+body:fullscreen,
+body:-webkit-full-screen,
+body:-moz-full-screen,
+body:-ms-fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+#viewer-container:fullscreen,
+#viewer-container:-webkit-full-screen,
+#viewer-container:-moz-full-screen,
+#viewer-container:-ms-fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+#mapping-output {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+  background: #000;
+}
+
+#mapping-output[hidden],
+#mapping-modules[hidden],
+#mapping-overlay[hidden] {
+  display: none;
+}
+
+#mapping-modules {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#mapping-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  pointer-events: none;
+  background: transparent;
+}
+
+/* Image Layer Container. Hidden during mapping so the logo is not part of the map. */
+body.mapping-active #image-layer-container {
+  visibility: hidden !important;
+}
+
+#image-layer-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+

@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Map Module</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        canvas { display: block; }
+        .fallback-message {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            opacity: 0.45;
+        }
+    </style>
+</head>
+<body>
+    <div id="fallback" class="fallback-message" style="display: none;">
+        Waiting for shell...
+    </div>
+
+    <script src="../../shared/libs/three-r128/three.min.js"></script>
+    <script type="module">
+    import { generatePalette, generateRandomPalette } from '../../shared/colorPalette.js';
+    import '../../shared/mediaFeed.js';
+    (function() {
+        let scene = null;
+        let camera = null;
+        let renderer = null;
+        let material = null;
+        let plane = null;
+        let gradientCanvas = null;
+        let gradientCtx = null;
+        let video = null;
+        let videoTexture = null;
+        let stream = null;
+        let animationId = null;
+        let moduleContainer = null;
+        let controlsChannel = null;
+        let ownsControlsChannel = false;
+        let hasInitialized = false;
+        let incomingAudioLevel = 0;
+        let smoothedAudioLevel = 0;
+        let webcamActive = false;
+        let autoSequenceTimer = 0;
+        let autoSequenceIndex = 0;
+        let lastFrameTime = 0;
+
+        const THEME_PRESETS = {
+            neonHeat: {
+                paletteMode: 'analogous',
+                baseHue: 20,
+                minSaturation: 70,
+                maxSaturation: 100,
+                minLightness: 25,
+                maxLightness: 60,
+                warmCoolLock: 'warm',
+                ensureContrast: true
+            },
+            arcticMirage: {
+                paletteMode: 'analogous',
+                baseHue: 200,
+                minSaturation: 40,
+                maxSaturation: 80,
+                minLightness: 45,
+                maxLightness: 80,
+                warmCoolLock: 'cool',
+                ensureContrast: true
+            },
+            ultraviolet: {
+                paletteMode: 'triadic',
+                baseHue: 285,
+                minSaturation: 60,
+                maxSaturation: 100,
+                minLightness: 30,
+                maxLightness: 65,
+                ensureContrast: true
+            },
+            desertGlow: {
+                paletteMode: 'complementary',
+                baseHue: 35,
+                minSaturation: 65,
+                maxSaturation: 95,
+                minLightness: 35,
+                maxLightness: 70,
+                warmCoolLock: 'warm',
+                ensureContrast: true
+            },
+            holoWave: {
+                paletteMode: 'triadic',
+                baseHue: 210,
+                minSaturation: 55,
+                maxSaturation: 90,
+                minLightness: 40,
+                maxLightness: 75,
+                ensureContrast: true
+            }
+        };
+
+        const THEME_SEQUENCE = Object.keys(THEME_PRESETS);
+        const LEGACY_THEME_MAP = {
+            warmNeon: 'neonHeat',
+            coldSynthwave: 'holoWave',
+            duotone: 'ultraviolet',
+            fire: 'desertGlow',
+            ocean: 'arcticMirage'
+        };
+
+        const state = {
+            audioSensitivity: 1.0,
+            globalIntensity: 1.0,
+            globalBrightness: 0,
+            globalContrast: 1.0,
+            globalBlend: 1.0,
+            globalBlur: 0,
+            gradientColor1: '#000000',
+            gradientColor2: '#808080',
+            gradientColor3: '#ffffff',
+            gradientContrast: 1.0,
+            gradientBrightness: 0,
+            gradientBlend: 1.0,
+            gradientTexture: null,
+            colorTheme: 'custom',
+            transitionDuration: 2,
+            autoSequence: false,
+            autoSequenceInterval: 30
+        };
+
+        const gradientMorph = {
+            active: [state.gradientColor1, state.gradientColor2, state.gradientColor3],
+            from: null,
+            to: null,
+            progress: 1,
+            duration: state.transitionDuration
+        };
+
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform sampler2D tVideo;
+            uniform sampler2D tGradient;
+            uniform float time;
+            uniform float audioLevel;
+            uniform float globalIntensity;
+            uniform float globalBrightness;
+            uniform float globalContrast;
+            uniform float globalBlend;
+            uniform float globalBlur;
+            uniform float gradientContrast;
+            uniform float gradientBrightness;
+            uniform float gradientBlend;
+
+            varying vec2 vUv;
+
+            vec3 blurEffect(vec2 uv, float blurAmount) {
+                if (blurAmount <= 0.0) {
+                    return texture2D(tVideo, uv).rgb;
+                }
+
+                vec3 color = vec3(0.0);
+                float totalWeight = 0.0;
+                float stepSize = blurAmount * 0.001;
+
+                for (float x = -1.0; x <= 1.0; x += 1.0) {
+                    for (float y = -1.0; y <= 1.0; y += 1.0) {
+                        vec2 offset = vec2(x, y) * stepSize;
+                        float weight = 1.0 / (1.0 + length(vec2(x, y)));
+                        color += texture2D(tVideo, clamp(uv + offset, 0.0, 1.0)).rgb * weight;
+                        totalWeight += weight;
+                    }
+                }
+
+                return color / totalWeight;
+            }
+
+            void main() {
+                vec2 uv = vUv;
+                vec3 original = texture2D(tVideo, uv).rgb;
+
+                if (globalBlur > 0.0) {
+                    original = blurEffect(uv, globalBlur);
+                }
+
+                float luminance = dot(original, vec3(0.299, 0.587, 0.114));
+                luminance = (luminance - 0.5) * gradientContrast + 0.5 + gradientBrightness;
+                luminance = clamp(luminance, 0.0, 1.0);
+                vec3 mapped = texture2D(tGradient, vec2(luminance, 0.5)).rgb;
+                vec3 color = mix(original, mapped, gradientBlend);
+
+                color = mix(texture2D(tVideo, uv).rgb, color, globalIntensity);
+                color += globalBrightness;
+                color = (color - 0.5) * globalContrast + 0.5;
+                color = mix(texture2D(tVideo, uv).rgb, color, globalBlend);
+
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        function createGradientTexture() {
+            gradientCanvas = document.createElement('canvas');
+            gradientCanvas.width = 256;
+            gradientCanvas.height = 1;
+            gradientCtx = gradientCanvas.getContext('2d');
+
+            const texture = new THREE.CanvasTexture(gradientCanvas);
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+
+            state.gradientTexture = texture;
+            applyGradientCanvas(gradientMorph.active);
+        }
+
+        function applyGradientCanvas(colors) {
+            if (!gradientCtx || !state.gradientTexture) return;
+            const [c1, c2, c3] = colors;
+            const gradient = gradientCtx.createLinearGradient(0, 0, 256, 0);
+            gradient.addColorStop(0, c1 || '#000000');
+            gradient.addColorStop(0.5, c2 || c1 || '#808080');
+            gradient.addColorStop(1, c3 || c2 || '#ffffff');
+            gradientCtx.fillStyle = gradient;
+            gradientCtx.fillRect(0, 0, 256, 1);
+            state.gradientTexture.needsUpdate = true;
+        }
+
+        function setGradientColors(newColors, { transition = true } = {}) {
+            const nextColors = [
+                newColors[0] || state.gradientColor1,
+                newColors[1] || state.gradientColor2,
+                newColors[2] || state.gradientColor3
+            ];
+
+            state.gradientColor1 = nextColors[0];
+            state.gradientColor2 = nextColors[1];
+            state.gradientColor3 = nextColors[2];
+
+            if (!transition || state.transitionDuration <= 0) {
+                gradientMorph.active = nextColors.slice();
+                gradientMorph.from = null;
+                gradientMorph.to = null;
+                gradientMorph.progress = 1;
+                applyGradientCanvas(gradientMorph.active);
+                return;
+            }
+
+            gradientMorph.from = gradientMorph.active.slice();
+            gradientMorph.to = nextColors.slice();
+            gradientMorph.progress = 0;
+            gradientMorph.duration = state.transitionDuration;
+        }
+
+        function hexToRgb(hex) {
+            const normalized = hex.replace('#', '');
+            const bigint = parseInt(normalized, 16);
+            return {
+                r: (bigint >> 16) & 255,
+                g: (bigint >> 8) & 255,
+                b: bigint & 255
+            };
+        }
+
+        function rgbToHex({ r, g, b }) {
+            return `#${[r, g, b].map(value => {
+                const hex = Math.round(value).toString(16);
+                return hex.length === 1 ? `0${hex}` : hex;
+            }).join('')}`;
+        }
+
+        function blendColors(colorA, colorB, t) {
+            if (!colorA || !colorB) return colorA || colorB;
+            const rgbA = hexToRgb(colorA);
+            const rgbB = hexToRgb(colorB);
+            return rgbToHex({
+                r: rgbA.r + (rgbB.r - rgbA.r) * t,
+                g: rgbA.g + (rgbB.g - rgbA.g) * t,
+                b: rgbA.b + (rgbB.b - rgbA.b) * t
+            });
+        }
+
+        function broadcastPaletteUpdate(extra = {}) {
+            notifyControls({
+                colorTheme: state.colorTheme,
+                gradientColor1: state.gradientColor1,
+                gradientColor2: state.gradientColor2,
+                gradientColor3: state.gradientColor3,
+                ...extra
+            });
+        }
+
+        function generateThemeColors(themeId) {
+            const themeConfig = THEME_PRESETS[themeId];
+            if (!themeConfig) {
+                return generateRandomPalette();
+            }
+            return generatePalette(themeConfig);
+        }
+
+        function applyTheme(themeId, { notify = true, transition = true } = {}) {
+            if (!themeId || themeId === 'custom') {
+                state.colorTheme = 'custom';
+                setGradientColors(
+                    [state.gradientColor1, state.gradientColor2, state.gradientColor3],
+                    { transition: false }
+                );
+                if (notify) {
+                    broadcastPaletteUpdate();
+                }
+                return;
+            }
+
+            const palette = generateThemeColors(themeId);
+            setGradientColors([palette.c1, palette.c2, palette.c3], { transition });
+            state.colorTheme = THEME_PRESETS[themeId] ? themeId : 'custom';
+
+            if (THEME_PRESETS[themeId]) {
+                autoSequenceIndex = THEME_SEQUENCE.indexOf(themeId);
+            }
+
+            if (notify) {
+                broadcastPaletteUpdate();
+            }
+        }
+
+        function applyRandomPalette() {
+            const palette = generateRandomPalette();
+            state.colorTheme = 'custom';
+            setGradientColors([palette.c1, palette.c2, palette.c3], { transition: true });
+            broadcastPaletteUpdate();
+        }
+
+        function getNextThemeId() {
+            if (state.colorTheme && THEME_SEQUENCE.includes(state.colorTheme)) {
+                autoSequenceIndex = THEME_SEQUENCE.indexOf(state.colorTheme);
+            }
+            autoSequenceIndex = (autoSequenceIndex + 1) % THEME_SEQUENCE.length;
+            return THEME_SEQUENCE[autoSequenceIndex];
+        }
+
+        function updateAutoSequence(delta) {
+            if (!state.autoSequence || THEME_SEQUENCE.length === 0) return;
+            autoSequenceTimer += delta;
+            const interval = Math.max(1, state.autoSequenceInterval || 1);
+            if (autoSequenceTimer >= interval) {
+                autoSequenceTimer = 0;
+                const nextTheme = getNextThemeId();
+                applyTheme(nextTheme, { notify: true, transition: true });
+            }
+        }
+
+        function updateGradientTransition(delta) {
+            if (!gradientMorph.to || !gradientMorph.from || gradientMorph.progress >= 1) return;
+            const duration = Math.max(0.001, gradientMorph.duration || state.transitionDuration || 0.001);
+            gradientMorph.progress = Math.min(1, gradientMorph.progress + delta / duration);
+            gradientMorph.active = gradientMorph.from.map((color, index) =>
+                blendColors(color, gradientMorph.to[index], gradientMorph.progress)
+            );
+            applyGradientCanvas(gradientMorph.active);
+            if (gradientMorph.progress >= 1) {
+                gradientMorph.from = null;
+                gradientMorph.to = null;
+            }
+        }
+
+        function initThree(container) {
+            if (hasInitialized) return;
+
+            scene = new THREE.Scene();
+            camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            resizeRenderer();
+
+            if (container && renderer.domElement && !container.contains(renderer.domElement)) {
+                container.appendChild(renderer.domElement);
+            }
+
+            const geometry = new THREE.PlaneGeometry(2, 2);
+            createGradientTexture();
+
+            const defaultTexture = new THREE.DataTexture(
+                new Uint8Array([0, 0, 0, 255]),
+                1,
+                1,
+                THREE.RGBAFormat
+            );
+            defaultTexture.needsUpdate = true;
+
+            material = new THREE.ShaderMaterial({
+                vertexShader,
+                fragmentShader,
+                uniforms: {
+                    tVideo: { value: defaultTexture },
+                    tGradient: { value: state.gradientTexture },
+                    time: { value: 0 },
+                    audioLevel: { value: 0 },
+                    globalIntensity: { value: state.globalIntensity },
+                    globalBrightness: { value: state.globalBrightness },
+                    globalContrast: { value: state.globalContrast },
+                    globalBlend: { value: state.globalBlend },
+                    globalBlur: { value: state.globalBlur },
+                    gradientContrast: { value: state.gradientContrast },
+                    gradientBrightness: { value: state.gradientBrightness },
+                    gradientBlend: { value: state.gradientBlend }
+                }
+            });
+
+            plane = new THREE.Mesh(geometry, material);
+            scene.add(plane);
+
+            window.addEventListener('resize', resizeRenderer);
+            hasInitialized = true;
+        }
+
+        function resizeRenderer() {
+            if (!renderer) return;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+function startWebcam() {
+            const attach = () => {
+                const media = window.frissonMedia;
+                if (!media) return false;
+                media.bindCamera((el) => {
+                    if (!el) {
+                        if (videoTexture) {
+                            videoTexture.dispose();
+                            videoTexture = null;
+                        }
+                        video = null;
+                        if (material) material.uniforms.tVideo.value = null;
+                        if (webcamActive) {
+                            webcamActive = false;
+                            notifyControls({ webcamActive: false });
+                        }
+                        return;
+                    }
+                    if (video === el && videoTexture) return;
+                    video = el;
+                    if (videoTexture) videoTexture.dispose();
+                    videoTexture = new THREE.VideoTexture(video);
+                    videoTexture.minFilter = THREE.LinearFilter;
+                    videoTexture.magFilter = THREE.LinearFilter;
+                    videoTexture.format = THREE.RGBFormat;
+                    if (material) material.uniforms.tVideo.value = videoTexture;
+                    webcamActive = true;
+                    notifyControls({ webcamActive: true });
+                });
+                return true;
+            };
+            if (!attach()) window.addEventListener('frisson-media-ready', attach, { once: true });
+        }
+
+        function stopWebcam() {
+            if (videoTexture) {
+                videoTexture.dispose();
+                videoTexture = null;
+            }
+            video = null;
+            if (material) material.uniforms.tVideo.value = null;
+            if (webcamActive) {
+                webcamActive = false;
+                notifyControls({ webcamActive: false });
+            }
+        }
+
+                function animate() {
+            animationId = requestAnimationFrame(animate);
+            if (!material || !renderer || !scene || !camera) return;
+
+            const time = performance.now() * 0.001;
+            const delta = lastFrameTime ? Math.min(0.1, time - lastFrameTime) : 0;
+            lastFrameTime = time;
+            smoothedAudioLevel = smoothedAudioLevel * 0.9 + incomingAudioLevel * 0.1;
+
+            material.uniforms.time.value = time;
+            material.uniforms.audioLevel.value = smoothedAudioLevel;
+            material.uniforms.globalIntensity.value = state.globalIntensity;
+            material.uniforms.globalBrightness.value = state.globalBrightness;
+            material.uniforms.globalContrast.value = state.globalContrast;
+            material.uniforms.globalBlend.value = state.globalBlend;
+            material.uniforms.globalBlur.value = state.globalBlur;
+            material.uniforms.gradientContrast.value = state.gradientContrast;
+            material.uniforms.gradientBrightness.value = state.gradientBrightness;
+            material.uniforms.gradientBlend.value = state.gradientBlend;
+
+            if (delta > 0) {
+                updateGradientTransition(delta);
+                updateAutoSequence(delta);
+            }
+
+            if (videoTexture && video && video.readyState >= 2) {
+                videoTexture.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function stopAnimation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+
+        function notifyControls(payload) {
+            if (controlsChannel) {
+                controlsChannel.postMessage({
+                    type: 'PARAM_UPDATES',
+                    updates: payload
+                });
+            }
+        }
+
+        function handleParamChange(param, value) {
+            switch (param) {
+                case 'audioSensitivity':
+                    state.audioSensitivity = parseFloat(value);
+                    break;
+                case 'globalIntensity':
+                    state.globalIntensity = parseFloat(value);
+                    break;
+                case 'globalBrightness':
+                    state.globalBrightness = parseFloat(value);
+                    break;
+                case 'globalContrast':
+                    state.globalContrast = parseFloat(value);
+                    break;
+                case 'globalBlend':
+                    state.globalBlend = parseFloat(value);
+                    break;
+                case 'globalBlur':
+                    state.globalBlur = parseFloat(value);
+                    break;
+                case 'gradientColor1':
+                    state.gradientColor1 = value;
+                    state.colorTheme = 'custom';
+                    autoSequenceTimer = 0;
+                    setGradientColors([state.gradientColor1, state.gradientColor2, state.gradientColor3], { transition: false });
+                    break;
+                case 'gradientColor2':
+                    state.gradientColor2 = value;
+                    state.colorTheme = 'custom';
+                    autoSequenceTimer = 0;
+                    setGradientColors([state.gradientColor1, state.gradientColor2, state.gradientColor3], { transition: false });
+                    break;
+                case 'gradientColor3':
+                    state.gradientColor3 = value;
+                    state.colorTheme = 'custom';
+                    autoSequenceTimer = 0;
+                    setGradientColors([state.gradientColor1, state.gradientColor2, state.gradientColor3], { transition: false });
+                    break;
+                case 'gradientContrast':
+                    state.gradientContrast = parseFloat(value);
+                    break;
+                case 'gradientBrightness':
+                    state.gradientBrightness = parseFloat(value);
+                    break;
+                case 'gradientBlend':
+                    state.gradientBlend = parseFloat(value);
+                    break;
+                case 'colorTheme':
+                    autoSequenceTimer = 0;
+                    applyTheme(value, { notify: true, transition: true });
+                    break;
+                case 'gradientPreset':
+                    autoSequenceTimer = 0;
+                    applyTheme(LEGACY_THEME_MAP[value] || value, { notify: true, transition: true });
+                    break;
+                case 'randomizePalette':
+                    autoSequenceTimer = 0;
+                    applyRandomPalette();
+                    break;
+                case 'transitionDuration':
+                    state.transitionDuration = Math.max(0, parseFloat(value));
+                    gradientMorph.duration = state.transitionDuration;
+                    break;
+                case 'autoSequence':
+                    state.autoSequence = Boolean(value);
+                    autoSequenceTimer = 0;
+                    break;
+                case 'autoSequenceInterval':
+                    state.autoSequenceInterval = Math.max(1, parseFloat(value) || 1);
+                    autoSequenceTimer = 0;
+                    break;
+                case 'webcamCommand':
+                    if (value === 'start') {
+                        startWebcam();
+                    } else if (value === 'stop') {
+                        stopWebcam();
+                    }
+                    break;
+                case 'favoritePreset':
+                    if (value && typeof value === 'object') {
+                        Object.entries(value).forEach(([key, val]) => handleParamChange(key, val));
+                    }
+                    break;
+            }
+        }
+
+        function handleControlMessage(event) {
+            if (event.data.type === 'PARAM_CHANGE') {
+                handleParamChange(event.data.param, event.data.value);
+            }
+        }
+
+        function handleWindowMessage(event) {
+            if (event.data.type === 'PARAM_CHANGE') {
+                handleParamChange(event.data.param, event.data.value);
+            } else if (event.data.type === 'AUDIO_UPDATE') {
+                const scaled = Math.min(1, (event.data.audioLevel || 0) * state.audioSensitivity);
+                incomingAudioLevel = scaled;
+            }
+        }
+
+        function cleanup() {
+            stopAnimation();
+            stopWebcam();
+
+            if (controlsChannel && ownsControlsChannel) {
+                controlsChannel.close();
+            }
+            controlsChannel = null;
+            ownsControlsChannel = false;
+
+            window.removeEventListener('message', handleWindowMessage);
+            window.removeEventListener('resize', resizeRenderer);
+
+            if (renderer && renderer.domElement && renderer.domElement.parentNode) {
+                renderer.domElement.parentNode.removeChild(renderer.domElement);
+            }
+
+            if (renderer) {
+                renderer.dispose();
+                renderer = null;
+            }
+
+            if (material) {
+                material.dispose();
+                material = null;
+            }
+
+            if (state.gradientTexture) {
+                state.gradientTexture.dispose();
+                state.gradientTexture = null;
+            }
+
+            if (plane && plane.geometry) {
+                plane.geometry.dispose();
+                plane = null;
+            }
+
+            scene = null;
+            camera = null;
+            hasInitialized = false;
+        }
+
+        const moduleAPI = {
+            async initModule({ container, controlsChannel: channel }) {
+                moduleContainer = container || document.body;
+                controlsChannel = channel || new BroadcastChannel('visualizer-controls');
+                ownsControlsChannel = !channel;
+                controlsChannel.onmessage = handleControlMessage;
+
+                window.addEventListener('message', handleWindowMessage);
+
+                initThree(moduleContainer);
+                const fallback = document.getElementById('fallback');
+                if (fallback) fallback.style.display = 'none';
+            },
+            start() {
+                if (!hasInitialized) {
+                    initThree(moduleContainer || document.body);
+                }
+                if (!animationId) {
+                    animate();
+                }
+            },
+            stop() {
+                stopAnimation();
+            },
+            destroy() {
+                cleanup();
+            }
+        };
+
+        window.moduleAPI = moduleAPI;
+
+        if (window.self === window.top) {
+            const fallback = document.getElementById('fallback');
+            if (fallback) fallback.style.display = 'block';
+            moduleAPI.initModule({ container: document.body }).then(() => {
+                moduleAPI.start();
+                startWebcam();
+            });
+        }
+    })();
+    </script>
+</body>
+</html>

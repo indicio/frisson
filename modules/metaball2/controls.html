@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metaball2 Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    .preset-select {
+      margin-bottom: 1rem;
+    }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Metaball2</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Presets</h3>
+          <div class="control-item preset-select">
+            <label class="control-label" for="presetSelect">Preset</label>
+            <select id="presetSelect">
+              <option value="default">Default</option>
+              <option value="calm">Calm</option>
+              <option value="aggressive">Aggressive</option>
+              <option value="nebula">Nebula</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Animation</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Speed
+              <span class="value" id="speed-value">1.0x</span>
+            </label>
+            <input 
+              type="range" 
+              id="speed" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Metaball Count
+              <span class="value" id="ballCount-value">5</span>
+            </label>
+            <input 
+              type="range" 
+              id="ballCount" 
+              min="2" 
+              max="10" 
+              step="1" 
+              value="5"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Audio Reactivity</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Low Freq Sensitivity
+              <span class="value" id="lowSens-value">1.0x</span>
+            </label>
+            <input 
+              type="range" 
+              id="lowSens" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Mid Freq Sensitivity
+              <span class="value" id="midSens-value">1.0x</span>
+            </label>
+            <input 
+              type="range" 
+              id="midSens" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              High Freq Sensitivity
+              <span class="value" id="highSens-value">1.0x</span>
+            </label>
+            <input 
+              type="range" 
+              id="highSens" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">
+              Overall Audio Gain
+              <span class="value" id="masterGain-value">1.0x</span>
+            </label>
+            <input 
+              type="range" 
+              id="masterGain" 
+              min="0" 
+              max="4" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Visual</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Threshold
+              <span class="value" id="threshold-value">1.5</span>
+            </label>
+            <input 
+              type="range" 
+              id="threshold" 
+              min="0.5" 
+              max="3" 
+              step="0.1" 
+              value="1.5"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Glow Intensity
+              <span class="value" id="glow-value">0.5</span>
+            </label>
+            <input 
+              type="range" 
+              id="glow" 
+              min="0" 
+              max="2" 
+              step="0.1" 
+              value="0.5"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Base Size
+              <span class="value" id="baseSize-value">0.25</span>
+            </label>
+            <input 
+              type="range" 
+              id="baseSize" 
+              min="0.1" 
+              max="0.5" 
+              step="0.05" 
+              value="0.25"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Colors</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Primary Color</label>
+            <input 
+              type="color" 
+              id="color1" 
+              value="#3366ff"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Secondary Color</label>
+            <input 
+              type="color" 
+              id="color2" 
+              value="#ff3399"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Background</label>
+            <input 
+              type="color" 
+              id="bgColor" 
+              value="#000000"
+            >
+          </div>
+          
+          <div class="control-item">
+            <button id="randomizeBtn" class="btn primary" data-randomize-settings style="width: 100%;">Randomize Settings</button>
+          </div>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+  
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Shake Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Camera Shake</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Global Settings</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Master Audio Sensitivity
+              <span class="value" id="audioSensitivityValue">1.0</span>
+            </label>
+            <input type="range" id="audioSensitivity" min="0" max="2" step="0.1" value="1">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Global Effect Intensity
+              <span class="value" id="globalIntensityValue">1.0</span>
+            </label>
+            <input type="range" id="globalIntensity" min="0" max="1" step="0.01" value="1">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Brightness
+              <span class="value" id="globalBrightnessValue">0.0</span>
+            </label>
+            <input type="range" id="globalBrightness" min="-0.5" max="0.5" step="0.01" value="0">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Contrast
+              <span class="value" id="globalContrastValue">1.0</span>
+            </label>
+            <input type="range" id="globalContrast" min="0.5" max="2" step="0.1" value="1">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Blend With Original
+              <span class="value" id="globalBlendValue">1.0</span>
+            </label>
+            <input type="range" id="globalBlend" min="0" max="1" step="0.01" value="1">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Blur
+              <span class="value" id="globalBlurValue">0.0</span>
+            </label>
+            <input type="range" id="globalBlur" min="0" max="10" step="0.1" value="0">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Color Saturation
+              <span class="value" id="globalSaturationValue">1.0</span>
+            </label>
+            <input type="range" id="globalSaturation" min="0" max="2" step="0.1" value="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Shake Settings</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Max Shake Position
+              <span class="value" id="shakeMaxPositionValue">0.02</span>
+            </label>
+            <input type="range" id="shakeMaxPosition" min="0" max="0.05" step="0.001" value="0.02">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Max Shake Rotation
+              <span class="value" id="shakeMaxRotationValue">0.10</span>
+            </label>
+            <input type="range" id="shakeMaxRotation" min="0" max="0.2" step="0.01" value="0.1">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Shake Smoothness
+              <span class="value" id="shakeSmoothnessValue">0.70</span>
+            </label>
+            <input type="range" id="shakeSmoothness" min="0" max="1" step="0.01" value="0.7">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Audio Sensitivity
+              <span class="value" id="shakeAudioSensitivityValue">1.0</span>
+            </label>
+            <input type="range" id="shakeAudioSensitivity" min="0" max="3" step="0.1" value="1">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Color Refraction Amount
+              <span class="value" id="shakeRefractionAmountValue">0.00</span>
+            </label>
+            <input type="range" id="shakeRefractionAmount" min="0" max="0.02" step="0.001" value="0">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Refraction Intensity
+              <span class="value" id="shakeRefractionIntensityValue">1.0</span>
+            </label>
+            <input type="range" id="shakeRefractionIntensity" min="0" max="2" step="0.1" value="1">
+          </div>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

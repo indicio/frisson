@@ -1,0 +1,50 @@
+{
+  "big-eyes": {
+    "params": {
+      "autoTrack": true,
+      "focus": 48.7,
+      "aperture": 0.031,
+      "maxblur": 0.01,
+      "soloMode": false,
+      "swarmCount": 15,
+      "baseSize": 2.45,
+      "bgColor": "#080808",
+      "fogDensity": 0.043,
+      "eyeHue": 0,
+      "ambientLight": 1,
+      "rimColor": "#ff1100",
+      "dynamicLights": 250,
+      "enableAmbient": true,
+      "maxTransposition": 0.2,
+      "ambientSpeed": 0.07,
+      "moveInConcert": true,
+      "useMicrophone": true
+    },
+    "timestamp": 1775078252982,
+    "updated": 1775078252982
+  },
+  "one big fucking eye": {
+    "params": {
+      "autoTrack": true,
+      "focus": 48.7,
+      "aperture": 0.031,
+      "maxblur": 0.01,
+      "soloMode": true,
+      "swarmCount": 15,
+      "baseSize": 1.7,
+      "bgColor": "#080808",
+      "fogDensity": 0.043,
+      "eyeHue": 0,
+      "ambientLight": 1,
+      "rimColor": "#ff1100",
+      "dynamicLights": 250,
+      "enableAmbient": true,
+      "maxTransposition": 0.2,
+      "ambientSpeed": 0.07,
+      "moveInConcert": true,
+      "useMicrophone": true
+    },
+    "timestamp": 1775140806943,
+    "updated": 1775140806943
+  }
+}

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datamosh Lab Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Datamosh Lab</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Presets</h3>
+          
+          <div class="control-item">
+            <div class="button-group" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+              <button class="btn secondary" id="nextPresetBtn">Next</button>
+              <button class="btn secondary" id="randomPresetBtn">Random</button>
+              <button class="btn secondary" id="resetPresetBtn">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Glitch Mode</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Mode:</label>
+            <select id="glitchMode">
+              <option value="0">0: Subtle RGB + Jitter</option>
+              <option value="1">1: VHS (Scanlines + Roll)</option>
+              <option value="2">2: Blocky Databend</option>
+              <option value="3">3: Pixel-Sort Streaks</option>
+              <option value="4">4: Compression Smear</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Global Settings</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Audio Sensitivity
+              <span class="value" id="audioSensitivityValue">1.0</span>
+            </label>
+            <input type="range" id="audioSensitivity" min="0" max="2" step="0.1" value="1">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Global Intensity
+              <span class="value" id="globalIntensityValue">1.0</span>
+            </label>
+            <input type="range" id="globalIntensity" min="0" max="1" step="0.01" value="1">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Resolution Scale
+              <span class="value" id="resolutionScaleValue">1.0</span>
+            </label>
+            <input type="range" id="resolutionScale" min="0.25" max="1" step="0.05" value="1">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Glitch Settings</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Base Intensity
+              <span class="value" id="glitchBaseIntensityValue">0.3</span>
+            </label>
+            <input type="range" id="glitchBaseIntensity" min="0" max="1" step="0.01" value="0.3">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Max Pixel Size
+              <span class="value" id="glitchMaxPixelSizeValue">8</span>
+            </label>
+            <input type="range" id="glitchMaxPixelSize" min="1" max="20" step="1" value="8">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              RGB Offset
+              <span class="value" id="glitchRGBOffsetValue">0.01</span>
+            </label>
+            <input type="range" id="glitchRGBOffset" min="0" max="0.02" step="0.001" value="0.01">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Glitch Threshold
+              <span class="value" id="glitchThresholdValue">0.5</span>
+            </label>
+            <input type="range" id="glitchThreshold" min="0" max="1" step="0.01" value="0.5">
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Temporal Feedback</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Feedback Mix
+              <span class="value" id="feedbackMixValue">0.3</span>
+            </label>
+            <input type="range" id="feedbackMix" min="0" max="1" step="0.01" value="0.3">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Feedback Zoom
+              <span class="value" id="feedbackZoomValue">0.98</span>
+            </label>
+            <input type="range" id="feedbackZoom" min="0.9" max="1.1" step="0.001" value="0.98">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Feedback Distort
+              <span class="value" id="feedbackDistortValue">0.01</span>
+            </label>
+            <input type="range" id="feedbackDistort" min="0" max="0.1" step="0.001" value="0.01">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>CRT Post-Processing</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Curvature
+              <span class="value" id="crtCurvatureValue">0.1</span>
+            </label>
+            <input type="range" id="crtCurvature" min="0" max="0.5" step="0.01" value="0.1">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Vignette
+              <span class="value" id="vignetteStrengthValue">0.3</span>
+            </label>
+            <input type="range" id="vignetteStrength" min="0" max="1" step="0.01" value="0.3">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Scanline Intensity
+              <span class="value" id="scanlineIntensityValue">0.2</span>
+            </label>
+            <input type="range" id="scanlineIntensity" min="0" max="1" step="0.01" value="0.2">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Bloom Threshold
+              <span class="value" id="bloomThresholdValue">0.7</span>
+            </label>
+            <input type="range" id="bloomThreshold" min="0" max="1" step="0.01" value="0.7">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Bloom Intensity
+              <span class="value" id="bloomIntensityValue">0.3</span>
+            </label>
+            <input type="range" id="bloomIntensity" min="0" max="1" step="0.01" value="0.3">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Stutter & Tearing</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Freeze Probability
+              <span class="value" id="freezeProbabilityValue">0.01</span>
+            </label>
+            <input type="range" id="freezeProbability" min="0" max="0.1" step="0.001" value="0.01">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Tear Intensity
+              <span class="value" id="tearIntensityValue">0.3</span>
+            </label>
+            <input type="range" id="tearIntensity" min="0" max="1" step="0.01" value="0.3">
+          </div>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mandala Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    .pp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Mandala</h1></header>
+    <small>Build the mandala with persistent steps, then ride the post drivers for live, audio-reactive expression.</small>
+
+    <!-- GLOBAL -->
+    <div class="section">
+      <div class="section-title">Global</div>
+
+      <div class="control-item">
+        <label class="control-label" for="globalScale">Global Scale
+          <span id="globalScaleValue" class="value">1.00x</span>
+        </label>
+        <input id="globalScale" type="range" min="0.25" max="3" step="0.05" value="1" />
+      </div>
+
+      <div class="control-item">
+        <label class="control-label" for="globalRotation">Global Rotation
+          <span id="globalRotationValue" class="value">0°</span>
+        </label>
+        <input id="globalRotation" type="range" min="-180" max="180" step="1" value="0" />
+      </div>
+
+      <button id="toggleAnim">Start Animation</button>
+    </div>
+
+    <!-- BACKGROUND -->
+    <div class="section">
+      <div class="section-title">Background</div>
+
+      <div class="control-item">
+        <label class="control-label" for="bgMode">Mode</label>
+        <select id="bgMode">
+          <option value="solid">Solid</option>
+          <option value="linear-h">Linear - Horizontal</option>
+          <option value="linear-v">Linear - Vertical</option>
+          <option value="linear-d1">Linear - Diagonal ↘︎</option>
+          <option value="linear-d2">Linear - Diagonal ↗︎</option>
+          <option value="radial">Radial</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="control-item">
+          <label class="control-label" for="bgColor1">Color 1</label>
+          <input id="bgColor1" type="color" value="#020309" />
+        </div>
+        <div class="control-item">
+          <label class="control-label" for="bgColor2">Color 2</label>
+          <input id="bgColor2" type="color" value="#020309" />
+        </div>
+      </div>
+      <div class="hint">For solid, only Color 1 is used.</div>
+    </div>
+
+    <!-- SHAPE SETUP -->
+    <div class="section">
+      <div class="section-title">Shape Setup</div>
+
+      <!-- Base shape -->
+      <div class="control-item">
+        <label class="control-label" for="shapeType">Type</label>
+        <select id="shapeType">
+          <option value="circle">Circle</option>
+          <option value="triangle">Equilateral Triangle</option>
+          <option value="square">Square</option>
+          <option value="pentagon">Pentagon</option>
+          <option value="hexagon">Hexagon</option>
+          <option value="octagon">Octagon</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label class="control-label" for="size">Size (radius)
+          <span id="sizeValue" class="value">120</span>
+        </label>
+        <input id="size" type="range" min="20" max="400" value="120" />
+      </div>
+
+      <div class="control-item">
+        <label class="control-label" for="rotationSpeed">Rotation (°/sec)
+          <span id="rotationValue" class="value">20</span>
+        </label>
+        <input id="rotationSpeed" type="range" min="-180" max="180" value="20" />
+      </div>
+
+      <div class="row">
+        <div class="control-item">
+          <label class="control-label" for="offsetX">Offset X
+            <span id="offsetXValue" class="value">0</span>
+          </label>
+          <input id="offsetX" type="range" min="-400" max="400" value="0" />
+        </div>
+        <div class="control-item">
+          <label class="control-label" for="offsetY">Offset Y
+            <span id="offsetYValue" class="value">0</span>
+          </label>
+          <input id="offsetY" type="range" min="-400" max="400" value="0" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="control-item">
+          <label class="control-label" for="lineWidth">Line Width
+            <span id="lineWidthValue" class="value">2</span>
+          </label>
+          <input id="lineWidth" type="range" min="1" max="8" value="2" />
+        </div>
+        <div class="control-item">
+          <label class="control-label" for="color">Color</label>
+          <input id="color" type="color" value="#ffffff" />
+        </div>
+      </div>
+
+      <div class="control-item">
+        <label class="control-label" for="opacity">Opacity
+          <span id="opacityValue" class="value">100%</span>
+        </label>
+        <input id="opacity" type="range" min="5" max="100" value="100" />
+      </div>
+
+      <!-- Persistent increments -->
+      <div style="margin-top:8px;">
+        <div class="section-title" style="margin-bottom:4px;">Persistent Increments</div>
+        <div class="number-pair">
+          <div class="control-item">
+            <label class="control-label" for="incRadius">Radius Δ</label>
+            <input id="incRadius" type="number" value="0" step="1" />
+          </div>
+          <div class="control-item">
+            <label class="control-label" for="incRot">Rotation Δ (°/sec)</label>
+            <input id="incRot" type="number" value="0" step="1" />
+          </div>
+        </div>
+
+        <div class="number-pair">
+          <div class="control-item">
+            <label class="control-label" for="incOffsetX">Offset X Δ</label>
+            <input id="incOffsetX" type="number" value="0" step="1" />
+          </div>
+          <div class="control-item">
+            <label class="control-label" for="incOffsetY">Offset Y Δ</label>
+            <input id="incOffsetY" type="number" value="0" step="1" />
+          </div>
+        </div>
+
+        <div class="number-pair">
+          <div class="control-item">
+            <label class="control-label" for="incOpacity">Opacity Δ (%)</label>
+            <input id="incOpacity" type="number" value="0" step="1" />
+          </div>
+          <div class="control-item">
+            <label class="control-label" for="incHue">Hue Δ (°)</label>
+            <input id="incHue" type="number" value="0" step="1" />
+          </div>
+        </div>
+        <div class="hint">Used when adding new shapes (and can remain at 0 for static stacks).</div>
+      </div>
+
+      <!-- Actions -->
+      <div style="margin-top:8px;">
+        <div class="section-title" style="margin-bottom:4px;">Actions</div>
+        <button id="addShape">Add New Shape (with increments)</button>
+        <button id="updateShape" class="secondary" disabled>Update Selected Shape</button>
+      </div>
+    </div>
+
+    <!-- SHAPE STACK -->
+    <div class="section">
+      <div class="section-title">Shape Stack</div>
+      <div class="control-item">
+        <label class="control-label" for="shapeSelect">Edit existing</label>
+        <select id="shapeSelect">
+          <option value="">(none)</option>
+        </select>
+      </div>
+      <div class="row">
+        <button id="deleteShape" class="danger" disabled>Delete Selected</button>
+      </div>
+    </div>
+
+    <!-- POST PROCESSING (MULTIPLIERS + DRIVERS) -->
+    <div class="section">
+      <div class="section-title">Post Processing</div>
+      <div class="hint">Live multipliers plus audio/LFO drivers, applied at render-time.</div>
+
+      <!-- Radius -->
+      <div class="pp-group">
+        <div class="pp-header">
+          <span class="label">Radius</span>
+          <label>
+            Drive
+            <input type="checkbox" id="ppRadiusDriveEnabled">
+          </label>
+        </div>
+        <div class="control-item">
+          <label class="control-label" for="ppRadiusMul">Multiplier
+            <span id="ppRadiusMulValue" class="value">1.00x</span>
+          </label>
+          <input id="ppRadiusMul" type="range" min="0.25" max="2" step="0.01" value="1" />
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="ppRadiusRate">Driver Rate (Hz)</label>
+          <input id="ppRadiusRate" type="range" min="0" max="2" step="0.01" value="0.3" />
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="ppRadiusAudio">Audio Influence</label>
+          <input id="ppRadiusAudio" type="range" min="0" max="1" step="0.01" value="0.5" />
+        </div>
+      </div>
+
+      <!-- Rotation -->
+      <div class="pp-group">
+        <div class="pp-header">
+          <span class="label">Rotation Speed</span>
+          <label>
+            Drive
+            <input type="checkbox" id="ppRotDriveEnabled">
+          </label>
+        </div>
+        <div class="control-item">
+          <label class="control-label" for="ppRotMul">Multiplier
+            <span id="ppRotMulValue" class="value">1.00x</span>
+          </label>
+          <input id="ppRotMul" type="range" min="-2" max="2" step="0.05" value="1" />
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="ppRotRate">Driver Rate (Hz)</label>
+          <input id="ppRotRate" type="range" min="0" max="2" step="0.01" value="0.2" />
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="ppRotAudio">Audio Influence</label>
+          <input id="ppRotAudio" type="range" min="0" max="1" step="0.01" value="0.5" />
+        </div>
+      </div>
+
+      <!-- Offset -->
+      <div class="pp-group">
+        <div class="pp-header">
+          <span class="label">Offset</span>
+          <label>
+            Drive
+            <input type="checkbox" id="ppOffsetDriveEnabled">
+          </label>
+        </div>
+        <div class="control-item">
+          <label class="control-label" for="ppOffsetMul">Multiplier
+            <span id="ppOffsetMulValue" class="value">1.00x</span>
+          </label>
+          <input id="ppOffsetMul" type="range" min="0" max="3" step="0.05" value="1" />
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="ppOffsetRate">Driver Rate (Hz)</label>
+          <input id="ppOffsetRate" type="range" min="0" max="2" step="0.01" value="0.15" />
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="ppOffsetAudio">Audio Influence</label>
+          <input id="ppOffsetAudio" type="range" min="0" max="1" step="0.01" value="0.5" />
+        </div>
+      </div>
+
+      <!-- Opacity -->
+      <div class="pp-group">
+        <div class="pp-header">
+          <span class="label">Opacity</span>
+          <label>
+            Drive
+            <input type="checkbox" id="ppOpacityDriveEnabled">
+          </label>
+        </div>
+        <div class="control-item">
+          <label class="control-label" for="ppOpacityMul">Multiplier
+            <span id="ppOpacityMulValue" class="value">1.00x</span>
+          </label>
+          <input id="ppOpacityMul" type="range" min="0" max="2" step="0.05" value="1" />
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="ppOpacityRate">Driver Rate (Hz)</label>
+          <input id="ppOpacityRate" type="range" min="0" max="2" step="0.01" value="0.1" />
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="ppOpacityAudio">Audio Influence</label>
+          <input id="ppOpacityAudio" type="range" min="0" max="1" step="0.01" value="0.5" />
+        </div>
+      </div>
+
+      <!-- Hue -->
+      <div class="pp-group">
+        <div class="pp-header">
+          <span class="label">Hue Shift</span>
+          <label>
+            Drive
+            <input type="checkbox" id="ppHueDriveEnabled">
+          </label>
+        </div>
+        <div class="control-item">
+          <label class="control-label" for="ppHueShift">Base Shift (°)
+            <span id="ppHueShiftValue" class="value">0°</span>
+          </label>
+          <input id="ppHueShift" type="range" min="-180" max="180" step="1" value="0" />
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="ppHueRate">Driver Rate (Hz)</label>
+          <input id="ppHueRate" type="range" min="0" max="2" step="0.01" value="0.1" />
+        </div>
+
+        <div class="control-item">
+          <label class="control-label" for="ppHueAudio">Audio Influence</label>
+          <input id="ppHueAudio" type="range" min="0" max="1" step="0.01" value="0.5" />
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIO -->
+    <div class="section">
+      <div class="section-title">Audio Reactivity</div>
+
+      <div class="control-item">
+        <label class="control-label" for="audioGain">Audio Gain
+          <span id="audioGainValue" class="value">1.0x</span>
+        </label>
+        <input id="audioGain" type="range" min="0" max="4" step="0.1" value="1" />
+      </div>
+      <div class="hint">
+        Post drivers use this level when their Audio Influence is &gt; 0.
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+
+
+
+
+
+

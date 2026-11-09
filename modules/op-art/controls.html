@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Op Art Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Op Art</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Geometry</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Count
+              <span class="value" id="cubeCount-value">16</span>
+            </label>
+            <input 
+              type="range" 
+              id="cubeCount" 
+              min="1" 
+              max="64" 
+              step="1" 
+              value="16"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Size
+              <span class="value" id="cubeSize-value">2.5</span>
+            </label>
+            <input 
+              type="range" 
+              id="cubeSize" 
+              min="0.5" 
+              max="5.0" 
+              step="0.1" 
+              value="2.5"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Size Variation
+              <span class="value" id="sizeVariation-value">0.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="sizeVariation" 
+              min="0" 
+              max="1" 
+              step="0.01" 
+              value="0.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Type</label>
+            <select id="geometryType">
+              <option value="cubes">Cubes</option>
+              <option value="spheres">Spheres</option>
+              <option value="mixed">Mixed</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Intersection Chaos
+              <span class="value" id="intersectionChaos-value">0.50</span>
+            </label>
+            <input 
+              type="range" 
+              id="intersectionChaos" 
+              min="0" 
+              max="1" 
+              step="0.01" 
+              value="0.5"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Distribution Density
+              <span class="value" id="distributionDensity-value">0.50</span>
+            </label>
+            <input 
+              type="range" 
+              id="distributionDensity" 
+              min="0" 
+              max="1" 
+              step="0.01" 
+              value="0.5"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Animation</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Animation Rate
+              <span class="value" id="animationRate-value">1.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="animationRate" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Stripes</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Width
+              <span class="value" id="stripeWidth-value">0.20</span>
+            </label>
+            <input 
+              type="range" 
+              id="stripeWidth" 
+              min="0.01" 
+              max="1.0" 
+              step="0.01" 
+              value="0.2"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Angle (degrees)
+              <span class="value" id="stripeAngle-value">0</span>
+            </label>
+            <input 
+              type="range" 
+              id="stripeAngle" 
+              min="0" 
+              max="360" 
+              step="1" 
+              value="0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Color 1</label>
+            <input 
+              type="color" 
+              id="color1" 
+              value="#000000"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Color 2</label>
+            <input 
+              type="color" 
+              id="color2" 
+              value="#ffffff"
+            >
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Audio Mapping</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Rotation Sensitivity
+              <span class="value" id="rotationSensitivity-value">2.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="rotationSensitivity" 
+              min="0" 
+              max="5" 
+              step="0.1" 
+              value="2.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Orbit Sensitivity
+              <span class="value" id="orbitSensitivity-value">1.5</span>
+            </label>
+            <input 
+              type="range" 
+              id="orbitSensitivity" 
+              min="0" 
+              max="5" 
+              step="0.1" 
+              value="1.5"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Scale Sensitivity
+              <span class="value" id="scaleSensitivity-value">0.30</span>
+            </label>
+            <input 
+              type="range" 
+              id="scaleSensitivity" 
+              min="0" 
+              max="1" 
+              step="0.01" 
+              value="0.3"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Scene</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Background Color</label>
+            <input 
+              type="color" 
+              id="backgroundColor" 
+              value="#000000"
+            >
+          </div>
+          
+          <div class="control-item">
+            <button id="randomizeBtn" class="btn primary" data-randomize-settings style="width: 100%;">Randomize Settings</button>
+          </div>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+  
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

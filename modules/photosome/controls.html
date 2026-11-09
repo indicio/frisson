@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photosome Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    .control-panel small {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+    }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Photosome</h1></header>
+    <small>Ink drop visualization with audio-reactive motion and bass-triggered drops.</small>
+
+    <!-- SIMULATION -->
+    <div class="section">
+      <div class="section-title">Simulation</div>
+
+      <div class="control-item">
+        <label for="simScale">Sim Resolution
+          <span id="simScaleValue" class="value">1.00x</span>
+        </label>
+        <input id="simScale" type="range" min="0.35" max="1.0" step="0.05" value="1.0" />
+      </div>
+
+      <div class="row">
+        <button id="resetBtn" class="secondary">Reset</button>
+        <button id="clearBtn" class="secondary">Clear Buffer</button>
+      </div>
+      <button id="randomizeBtn" class="btn secondary" data-randomize-settings style="width: 100%;">Randomize Settings</button>
+    </div>
+
+    <!-- COLORS -->
+    <div class="section">
+      <div class="section-title">Colors</div>
+
+      <div class="control-item">
+        <label for="colorTheme">Color Theme</label>
+        <select id="colorTheme">
+          <option value="Random" selected>Random</option>
+          <option value="Warm Sunset">Warm Sunset</option>
+          <option value="Cool Ocean">Cool Ocean</option>
+          <option value="Vibrant Rainbow">Vibrant Rainbow</option>
+          <option value="Earth Tones">Earth Tones</option>
+          <option value="Neon Electric">Neon Electric</option>
+          <option value="Pastel Dreams">Pastel Dreams</option>
+          <option value="Deep Forest">Deep Forest</option>
+          <option value="Fire & Ice">Fire & Ice</option>
+          <option value="Monochrome Blue">Monochrome Blue</option>
+          <option value="Black White Red">Black White Red</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label>
+          <input type="checkbox" id="useCustomColors" />
+          Use Custom Colors
+        </label>
+      </div>
+
+      <div class="row">
+        <div class="control-item">
+          <label for="customColor1">Foreground 1</label>
+          <input id="customColor1" type="color" value="#FF0000" />
+        </div>
+        <div class="control-item">
+          <label for="customColor2">Foreground 2</label>
+          <input id="customColor2" type="color" value="#00FF00" />
+        </div>
+      </div>
+
+      <div class="control-item">
+        <label for="customColor3">Foreground 3</label>
+        <input id="customColor3" type="color" value="#0000FF" />
+      </div>
+
+      <div class="control-item">
+        <label for="backgroundColor">Background</label>
+        <input id="backgroundColor" type="color" value="#000000" />
+      </div>
+    </div>
+
+    <!-- AUTO DROPS -->
+    <div class="section">
+      <div class="section-title">Auto Drops</div>
+
+      <div class="control-item">
+        <label>
+          <input type="checkbox" id="autoDrops" checked />
+          Auto Drops
+        </label>
+      </div>
+
+      <div class="control-item">
+        <label for="autoMin">Auto Min (s)
+          <span id="autoMinValue" class="value">4.25</span>
+        </label>
+        <input id="autoMin" type="range" min="0.2" max="10.0" step="0.1" value="4.25" />
+      </div>
+
+      <div class="control-item">
+        <label for="autoMax">Auto Max (s)
+          <span id="autoMaxValue" class="value">8.5</span>
+        </label>
+        <input id="autoMax" type="range" min="0.2" max="12.0" step="0.1" value="8.5" />
+      </div>
+
+      <div class="control-item">
+        <label for="centerBias">Center Bias
+          <span id="centerBiasValue" class="value">0.60</span>
+        </label>
+        <input id="centerBias" type="range" min="0.0" max="1.0" step="0.01" value="0.6" />
+      </div>
+    </div>
+
+    <!-- DROP TIMING -->
+    <div class="section">
+      <div class="section-title">Drop Timing</div>
+
+      <div class="control-item">
+        <label for="durMin">Duration Min
+          <span id="durMinValue" class="value">10.2</span>
+        </label>
+        <input id="durMin" type="range" min="0.2" max="20.0" step="0.1" value="10.2" />
+      </div>
+
+      <div class="control-item">
+        <label for="durMax">Duration Max
+          <span id="durMaxValue" class="value">23.8</span>
+        </label>
+        <input id="durMax" type="range" min="0.2" max="30.0" step="0.1" value="23.8" />
+      </div>
+
+      <div class="control-item">
+        <label for="fadeMin">Fade Min
+          <span id="fadeMinValue" class="value">5.1</span>
+        </label>
+        <input id="fadeMin" type="range" min="0.0" max="12.0" step="0.1" value="5.1" />
+      </div>
+
+      <div class="control-item">
+        <label for="fadeMax">Fade Max
+          <span id="fadeMaxValue" class="value">10.2</span>
+        </label>
+        <input id="fadeMax" type="range" min="0.0" max="20.0" step="0.1" value="10.2" />
+      </div>
+
+      <div class="control-item">
+        <label for="strengthMin">Strength Min
+          <span id="strengthMinValue" class="value">0.65</span>
+        </label>
+        <input id="strengthMin" type="range" min="0.0" max="1.0" step="0.01" value="0.65" />
+      </div>
+
+      <div class="control-item">
+        <label for="strengthMax">Strength Max
+          <span id="strengthMaxValue" class="value">1.0</span>
+        </label>
+        <input id="strengthMax" type="range" min="0.0" max="1.0" step="0.01" value="1.0" />
+      </div>
+    </div>
+
+    <!-- EXPANSION TIMING -->
+    <div class="section">
+      <div class="section-title">Expansion Timing</div>
+
+      <div class="control-item">
+        <label for="expansionSpeed">Speed
+          <span id="expansionSpeedValue" class="value">1.00x</span>
+        </label>
+        <input id="expansionSpeed" type="range" min="0.1" max="3.0" step="0.05" value="1.0" />
+      </div>
+
+      <div class="control-item">
+        <label for="expCurve">Curve</label>
+        <select id="expCurve">
+          <option value="Linear">Linear</option>
+          <option value="Power In">Power In</option>
+          <option value="Power Out">Power Out</option>
+          <option value="Power InOut" selected>Power InOut</option>
+          <option value="Sigmoid">Sigmoid</option>
+          <option value="Generalized Smooth">Generalized Smooth</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label for="expK">Curve K
+          <span id="expKValue" class="value">2.2</span>
+        </label>
+        <input id="expK" type="range" min="0.5" max="6.0" step="0.05" value="2.2" />
+      </div>
+
+      <div class="control-item">
+        <label for="expMid">Sigmoid Mid
+          <span id="expMidValue" class="value">0.50</span>
+        </label>
+        <input id="expMid" type="range" min="0.05" max="0.95" step="0.01" value="0.5" />
+      </div>
+
+      <div class="control-item">
+        <label for="expSharp">Sigmoid Sharp
+          <span id="expSharpValue" class="value">10.0</span>
+        </label>
+        <input id="expSharp" type="range" min="1.0" max="30.0" step="0.25" value="10.0" />
+      </div>
+    </div>
+
+    <!-- SHAPE VARIABILITY -->
+    <div class="section">
+      <div class="section-title">Shape Variability</div>
+
+      <div class="control-item">
+        <label for="aspectMin">Aspect Min
+          <span id="aspectMinValue" class="value">0.75</span>
+        </label>
+        <input id="aspectMin" type="range" min="0.3" max="2.0" step="0.01" value="0.75" />
+      </div>
+
+      <div class="control-item">
+        <label for="aspectMax">Aspect Max
+          <span id="aspectMaxValue" class="value">1.35</span>
+        </label>
+        <input id="aspectMax" type="range" min="0.3" max="2.0" step="0.01" value="1.35" />
+      </div>
+
+      <div class="control-item">
+        <label for="shapeAmpMin">Wobble Amp Min
+          <span id="shapeAmpMinValue" class="value">0.01</span>
+        </label>
+        <input id="shapeAmpMin" type="range" min="0.0" max="0.25" step="0.001" value="0.01" />
+      </div>
+
+      <div class="control-item">
+        <label for="shapeAmpMax">Wobble Amp Max
+          <span id="shapeAmpMaxValue" class="value">0.08</span>
+        </label>
+        <input id="shapeAmpMax" type="range" min="0.0" max="0.35" step="0.001" value="0.08" />
+      </div>
+
+      <div class="control-item">
+        <label for="shapeFreqMin">Wobble Freq Min
+          <span id="shapeFreqMinValue" class="value">2.0</span>
+        </label>
+        <input id="shapeFreqMin" type="range" min="0.5" max="12.0" step="0.1" value="2.0" />
+      </div>
+
+      <div class="control-item">
+        <label for="shapeFreqMax">Wobble Freq Max
+          <span id="shapeFreqMaxValue" class="value">7.0</span>
+        </label>
+        <input id="shapeFreqMax" type="range" min="0.5" max="20.0" step="0.1" value="7.0" />
+      </div>
+
+      <div class="control-item">
+        <label>
+          <input type="checkbox" id="noRotation" />
+          No Rotation
+        </label>
+      </div>
+
+      <div class="control-item">
+        <label for="rotSpeedMin">Rot Speed Min
+          <span id="rotSpeedMinValue" class="value">-0.3</span>
+        </label>
+        <input id="rotSpeedMin" type="range" min="-1.5" max="1.5" step="0.01" value="-0.3" />
+      </div>
+
+      <div class="control-item">
+        <label for="rotSpeedMax">Rot Speed Max
+          <span id="rotSpeedMaxValue" class="value">0.3</span>
+        </label>
+        <input id="rotSpeedMax" type="range" min="-1.5" max="1.5" step="0.01" value="0.3" />
+      </div>
+    </div>
+
+    <!-- FLUID LOOK -->
+    <div class="section">
+      <div class="section-title">Fluid Look</div>
+
+      <div class="control-item">
+        <label for="blendMode">Blend Mode</label>
+        <select id="blendMode">
+          <option value="Normal" selected>Normal</option>
+          <option value="Add">Add</option>
+          <option value="Multiply">Multiply</option>
+          <option value="Screen">Screen</option>
+          <option value="Overlay">Overlay</option>
+          <option value="Soft Light">Soft Light</option>
+          <option value="Hard Light">Hard Light</option>
+          <option value="Color Dodge">Color Dodge</option>
+          <option value="Color Burn">Color Burn</option>
+          <option value="Darken">Darken</option>
+          <option value="Lighten">Lighten</option>
+          <option value="Difference">Difference</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label for="warpBase">Warp Base
+          <span id="warpBaseValue" class="value">0.012</span>
+        </label>
+        <input id="warpBase" type="range" min="0.0" max="0.08" step="0.001" value="0.012" />
+      </div>
+
+      <div class="control-item">
+        <label for="decay">Decay
+          <span id="decayValue" class="value">0.003</span>
+        </label>
+        <input id="decay" type="range" min="0.0" max="0.02" step="0.0005" value="0.003" />
+      </div>
+
+      <div class="control-item">
+        <label for="feather">Feather
+          <span id="featherValue" class="value">0.02</span>
+        </label>
+        <input id="feather" type="range" min="0.001" max="0.10" step="0.001" value="0.02" />
+      </div>
+
+      <div class="control-item">
+        <label for="edgeFreq">Edge Freq
+          <span id="edgeFreqValue" class="value">18.0</span>
+        </label>
+        <input id="edgeFreq" type="range" min="1.0" max="60.0" step="0.5" value="18.0" />
+      </div>
+
+      <div class="control-item">
+        <label for="edgeAmp">Edge Amp
+          <span id="edgeAmpValue" class="value">1.0</span>
+        </label>
+        <input id="edgeAmp" type="range" min="0.0" max="3.0" step="0.01" value="1.0" />
+      </div>
+
+      <div class="control-item">
+        <label for="diffuse">Diffuse
+          <span id="diffuseValue" class="value">0.06</span>
+        </label>
+        <input id="diffuse" type="range" min="0.0" max="0.35" step="0.005" value="0.06" />
+      </div>
+
+      <div class="control-item">
+        <label for="rimW">Rim Width
+          <span id="rimWValue" class="value">0.015</span>
+        </label>
+        <input id="rimW" type="range" min="0.0" max="0.08" step="0.001" value="0.015" />
+      </div>
+
+      <div class="control-item">
+        <label for="rimI">Rim Intensity
+          <span id="rimIValue" class="value">0.28</span>
+        </label>
+        <input id="rimI" type="range" min="0.0" max="1.0" step="0.01" value="0.28" />
+      </div>
+
+      <div class="control-item">
+        <label for="edgeRoughMin">Edge Rough Min
+          <span id="edgeRoughMinValue" class="value">0.03</span>
+        </label>
+        <input id="edgeRoughMin" type="range" min="0.0" max="0.30" step="0.001" value="0.03" />
+      </div>
+
+      <div class="control-item">
+        <label for="edgeRoughMax">Edge Rough Max
+          <span id="edgeRoughMaxValue" class="value">0.12</span>
+        </label>
+        <input id="edgeRoughMax" type="range" min="0.0" max="0.45" step="0.001" value="0.12" />
+      </div>
+    </div>
+
+    <!-- AUDIO MAPPING -->
+    <div class="section">
+      <div class="section-title">Audio Mapping</div>
+
+      <div class="control-item">
+        <label>
+          <input type="checkbox" id="bassTriggersDrops" checked />
+          Bass → Drops
+        </label>
+      </div>
+
+      <div class="control-item">
+        <label for="bassThresh">Bass Threshold
+          <span id="bassThreshValue" class="value">0.18</span>
+        </label>
+        <input id="bassThresh" type="range" min="0.01" max="0.6" step="0.01" value="0.18" />
+      </div>
+
+      <div class="control-item">
+        <label for="bassCooldown">Bass Cooldown (s)
+          <span id="bassCooldownValue" class="value">1.0</span>
+        </label>
+        <input id="bassCooldown" type="range" min="0.2" max="3.0" step="0.05" value="1.0" />
+      </div>
+
+      <div class="control-item">
+        <label>
+          <input type="checkbox" id="audioWarp" checked />
+          Amp → Warp
+        </label>
+      </div>
+
+      <div class="control-item">
+        <label for="warpAudio">Warp Audio Gain
+          <span id="warpAudioValue" class="value">0.03</span>
+        </label>
+        <input id="warpAudio" type="range" min="0.0" max="0.10" step="0.001" value="0.03" />
+      </div>
+
+      <div class="control-item">
+        <label>
+          <input type="checkbox" id="audioEdge" checked />
+          High → Edge Detail
+        </label>
+      </div>
+
+      <div class="control-item">
+        <label>
+          <input type="checkbox" id="audioDiffuse" checked />
+          Mid → Diffuse
+        </label>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

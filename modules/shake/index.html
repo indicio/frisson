@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Shake - Audio-Reactive Webcam</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <script src="../../shared/libs/three-r128/three.min.js"></script>
+    <script type="module" src="../../shared/mediaFeed.js"></script>
+    <script>
+        let scene, camera, renderer, video, videoTexture, material, plane;
+        let audioLevel = 0;
+        let smoothedAudioLevel = 0;
+        let stream = null;
+        let animationId = null;
+        let container = null;
+        let controlsChannel = null;
+
+        const controls = {
+            audioSensitivity: 1.0,
+            globalIntensity: 1.0,
+            globalBrightness: 0,
+            globalContrast: 1.0,
+            globalBlend: 1.0,
+            globalBlur: 0,
+            globalSaturation: 1.0,
+            shakeMaxPosition: 0.02,
+            shakeMaxRotation: 0.1,
+            shakeSmoothness: 0.7,
+            shakeAudioSensitivity: 1.0,
+            shakeRefractionAmount: 0,
+            shakeRefractionIntensity: 1.0
+        };
+
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform sampler2D tVideo;
+            uniform float time;
+            uniform float audioLevel;
+            uniform float globalIntensity;
+            uniform float globalBrightness;
+            uniform float globalContrast;
+            uniform float globalBlend;
+            uniform float globalBlur;
+            uniform float globalSaturation;
+            uniform float shakeMaxPosition;
+            uniform float shakeMaxRotation;
+            uniform float shakeSmoothness;
+            uniform float shakeAudioSensitivity;
+            uniform float shakeRefractionAmount;
+            uniform float shakeRefractionIntensity;
+            
+            varying vec2 vUv;
+            
+            float random(vec2 st) {
+                return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+            }
+            
+            float noise(vec2 st) {
+                vec2 i = floor(st);
+                vec2 f = fract(st);
+                float a = random(i);
+                float b = random(i + vec2(1.0, 0.0));
+                float c = random(i + vec2(0.0, 1.0));
+                float d = random(i + vec2(1.0, 1.0));
+                vec2 u = f * f * (3.0 - 2.0 * f);
+                return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+            }
+            
+            vec2 cameraShakeUV(vec2 uv) {
+                float shakeAmount = audioLevel * shakeAudioSensitivity;
+                shakeAmount = clamp(shakeAmount, 0.0, 1.0);
+                
+                vec2 shakeOffset = vec2(
+                    noise(vec2(time * 10.0, 0.0)) - 0.5,
+                    noise(vec2(time * 10.0, 100.0)) - 0.5
+                ) * shakeMaxPosition * shakeAmount;
+                
+                float shakeAngle = (noise(vec2(time * 8.0, 200.0)) - 0.5) * shakeMaxRotation * shakeAmount;
+                
+                vec2 centered = uv - 0.5;
+                float cosAngle = cos(shakeAngle);
+                float sinAngle = sin(shakeAngle);
+                vec2 rotated = vec2(
+                    centered.x * cosAngle - centered.y * sinAngle,
+                    centered.x * sinAngle + centered.y * cosAngle
+                );
+                
+                return rotated + 0.5 + shakeOffset;
+            }
+            
+            vec3 blurEffect(vec2 uv, float blurAmount) {
+                if (blurAmount <= 0.0) {
+                    return texture2D(tVideo, uv).rgb;
+                }
+                
+                vec3 color = vec3(0.0);
+                float totalWeight = 0.0;
+                float stepSize = blurAmount * 0.001;
+                
+                for (float x = -1.0; x <= 1.0; x += 1.0) {
+                    for (float y = -1.0; y <= 1.0; y += 1.0) {
+                        vec2 offset = vec2(x, y) * stepSize;
+                        float weight = 1.0 / (1.0 + length(vec2(x, y)));
+                        color += texture2D(tVideo, clamp(uv + offset, 0.0, 1.0)).rgb * weight;
+                        totalWeight += weight;
+                    }
+                }
+                
+                return color / totalWeight;
+            }
+            
+            void main() {
+                vec2 uv = vUv;
+                vec2 shakeUV = cameraShakeUV(uv);
+                
+                vec3 color;
+                
+                if (shakeRefractionAmount > 0.0) {
+                    vec2 shakeOffset = vec2(
+                        noise(vec2(time * 10.0, 0.0)) - 0.5,
+                        noise(vec2(time * 10.0, 100.0)) - 0.5
+                    ) * shakeMaxPosition * clamp(audioLevel * shakeAudioSensitivity, 0.0, 1.0);
+                    
+                    vec2 refractionDir = normalize(vec2(-shakeOffset.y, shakeOffset.x));
+                    float refractionOffset = shakeRefractionAmount * shakeRefractionIntensity;
+                    
+                    vec2 rUV = clamp(shakeUV + refractionDir * refractionOffset, 0.0, 1.0);
+                    vec2 gUV = shakeUV;
+                    vec2 bUV = clamp(shakeUV - refractionDir * refractionOffset, 0.0, 1.0);
+                    
+                    float r = texture2D(tVideo, rUV).r;
+                    float g = texture2D(tVideo, gUV).g;
+                    float b = texture2D(tVideo, bUV).b;
+                    
+                    color = vec3(r, g, b);
+                } else {
+                    color = texture2D(tVideo, shakeUV).rgb;
+                }
+                
+                if (globalBlur > 0.0) {
+                    color = blurEffect(shakeUV, globalBlur);
+                }
+                
+                color = mix(texture2D(tVideo, uv).rgb, color, globalIntensity);
+                color += globalBrightness;
+                color = (color - 0.5) * globalContrast + 0.5;
+                
+                // Apply saturation
+                float luminance = dot(color, vec3(0.299, 0.587, 0.114));
+                color = mix(vec3(luminance), color, globalSaturation);
+                
+                color = mix(texture2D(tVideo, uv).rgb, color, globalBlend);
+                
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            // Don't append to body - will be appended to container in initModule
+            
+            const geometry = new THREE.PlaneGeometry(2, 2);
+            const defaultTexture = new THREE.DataTexture(
+                new Uint8Array([0, 0, 0, 255]),
+                1, 1,
+                THREE.RGBAFormat
+            );
+            defaultTexture.needsUpdate = true;
+            
+            material = new THREE.ShaderMaterial({
+                vertexShader,
+                fragmentShader,
+                uniforms: {
+                    tVideo: { value: defaultTexture },
+                    time: { value: 0 },
+                    audioLevel: { value: 0 },
+                    globalIntensity: { value: 1.0 },
+                    globalBrightness: { value: 0 },
+                    globalContrast: { value: 1.0 },
+                    globalBlend: { value: 1.0 },
+                    globalBlur: { value: 0 },
+                    globalSaturation: { value: 1.0 },
+                    shakeMaxPosition: { value: 0.02 },
+                    shakeMaxRotation: { value: 0.1 },
+                    shakeSmoothness: { value: 0.7 },
+                    shakeAudioSensitivity: { value: 1.0 },
+                    shakeRefractionAmount: { value: 0 },
+                    shakeRefractionIntensity: { value: 1.0 }
+                }
+            });
+            
+            plane = new THREE.Mesh(geometry, material);
+            scene.add(plane);
+            
+            window.addEventListener('resize', handleResize);
+        }
+
+        function handleResize() {
+            if (!renderer) return;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+function startWebcam() {
+            const attach = () => {
+                const media = window.frissonMedia;
+                if (!media) return false;
+                media.bindCamera((el) => {
+                    if (videoTexture) {
+                        videoTexture.dispose();
+                        videoTexture = null;
+                    }
+                    video = el || null;
+                    if (!video || !material) {
+                        if (material && material.uniforms && material.uniforms.tVideo) material.uniforms.tVideo.value = null;
+                        return;
+                    }
+                    videoTexture = new THREE.VideoTexture(video);
+                    videoTexture.minFilter = THREE.LinearFilter;
+                    videoTexture.magFilter = THREE.LinearFilter;
+                    videoTexture.format = THREE.RGBFormat;
+                    videoTexture.needsUpdate = true;
+                    material.uniforms.tVideo.value = videoTexture;
+                });
+                return true;
+            };
+            if (!attach()) window.addEventListener('frisson-media-ready', attach, { once: true });
+        }
+
+        function stopWebcam() {
+            if (videoTexture) {
+                videoTexture.dispose();
+                videoTexture = null;
+            }
+            video = null;
+            if (material && material.uniforms && material.uniforms.tVideo) material.uniforms.tVideo.value = null;
+        }
+
+                function animate() {
+            animationId = requestAnimationFrame(animate);
+            
+            const time = performance.now() * 0.001;
+            
+            if (material) {
+                material.uniforms.time.value = time;
+                material.uniforms.audioLevel.value = smoothedAudioLevel;
+                material.uniforms.globalIntensity.value = controls.globalIntensity;
+                material.uniforms.globalBrightness.value = controls.globalBrightness;
+                material.uniforms.globalContrast.value = controls.globalContrast;
+                material.uniforms.globalBlend.value = controls.globalBlend;
+                material.uniforms.globalBlur.value = controls.globalBlur;
+                material.uniforms.globalSaturation.value = controls.globalSaturation;
+                material.uniforms.shakeMaxPosition.value = controls.shakeMaxPosition;
+                material.uniforms.shakeMaxRotation.value = controls.shakeMaxRotation;
+                material.uniforms.shakeSmoothness.value = controls.shakeSmoothness;
+                material.uniforms.shakeAudioSensitivity.value = controls.shakeAudioSensitivity;
+                material.uniforms.shakeRefractionAmount.value = controls.shakeRefractionAmount;
+                material.uniforms.shakeRefractionIntensity.value = controls.shakeRefractionIntensity;
+                
+                if (videoTexture && video && video.readyState >= 2) {
+                    videoTexture.needsUpdate = true;
+                }
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        /**
+         * Handle audio updates from loader
+         */
+        function handleAudioUpdate(event) {
+            if (event.data && event.data.type === 'AUDIO_UPDATE') {
+                const audioLevelRaw = event.data.audioLevel || 0;
+                audioLevel = audioLevelRaw * controls.audioSensitivity;
+                audioLevel = Math.min(audioLevel, 1.0);
+                smoothedAudioLevel = smoothedAudioLevel * 0.9 + audioLevel * 0.1;
+            }
+        }
+
+        /**
+         * Handle control messages from controls panel
+         */
+        function handleControlMessage(event) {
+            if (event.data.type === 'PARAM_CHANGE') {
+                const { param, value } = event.data;
+                handleParamChange(param, value);
+            }
+        }
+
+        /**
+         * Handle parameter changes
+         */
+        function handleParamChange(param, value) {
+            switch(param) {
+                case 'startWebcam':
+                    startWebcam();
+                    break;
+                case 'stopWebcam':
+                    stopWebcam();
+                    break;
+                case 'audioSensitivity':
+                    controls.audioSensitivity = parseFloat(value);
+                    break;
+                case 'globalIntensity':
+                    controls.globalIntensity = parseFloat(value);
+                    break;
+                case 'globalBrightness':
+                    controls.globalBrightness = parseFloat(value);
+                    break;
+                case 'globalContrast':
+                    controls.globalContrast = parseFloat(value);
+                    break;
+                case 'globalBlend':
+                    controls.globalBlend = parseFloat(value);
+                    break;
+                case 'globalBlur':
+                    controls.globalBlur = parseFloat(value);
+                    break;
+                case 'globalSaturation':
+                    controls.globalSaturation = parseFloat(value);
+                    break;
+                case 'shakeMaxPosition':
+                    controls.shakeMaxPosition = parseFloat(value);
+                    break;
+                case 'shakeMaxRotation':
+                    controls.shakeMaxRotation = parseFloat(value);
+                    break;
+                case 'shakeSmoothness':
+                    controls.shakeSmoothness = parseFloat(value);
+                    break;
+                case 'shakeAudioSensitivity':
+                    controls.shakeAudioSensitivity = parseFloat(value);
+                    break;
+                case 'shakeRefractionAmount':
+                    controls.shakeRefractionAmount = parseFloat(value);
+                    break;
+                case 'shakeRefractionIntensity':
+                    controls.shakeRefractionIntensity = parseFloat(value);
+                    break;
+            }
+        }
+
+        // --- MODULE API ---
+        const moduleAPI = {
+            async initModule({ container: containerElement, audio, controlsChannel: channel }) {
+                console.log('Shake initModule called', { 
+                    hasContainer: !!containerElement, 
+                    hasAudio: !!audio, 
+                    hasChannel: !!channel 
+                });
+                
+                container = containerElement;
+                controlsChannel = channel;
+                
+                if (controlsChannel) {
+                    controlsChannel.onmessage = handleControlMessage;
+                }
+                
+                // Listen for audio updates from loader
+                window.addEventListener('message', handleAudioUpdate);
+                
+                window.addEventListener('resize', handleResize);
+                
+                // Initialize Three.js
+                initThreeJS();
+                
+                // Add renderer to container if needed
+                if (container && renderer && renderer.domElement) {
+                    if (!container.contains(renderer.domElement)) {
+                        container.appendChild(renderer.domElement);
+                    }
+                } else {
+                    console.warn('Shake: container or renderer.domElement not available', { 
+                        hasContainer: !!container, 
+                        hasRenderer: !!renderer,
+                        hasDomElement: !!(renderer && renderer.domElement)
+                    });
+                }
+                
+                handleResize();
+                startWebcam();
+            },
+            
+            start() {
+                if (!animationId) {
+                    animate();
+                }
+            },
+            
+            stop() {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            },
+            
+            destroy() {
+                stop();
+                stopWebcam();
+                window.removeEventListener('resize', handleResize);
+                window.removeEventListener('message', handleAudioUpdate);
+                
+                if (controlsChannel) {
+                    controlsChannel.close();
+                }
+                
+                if (container && renderer && renderer.domElement && container.contains(renderer.domElement)) {
+                    container.removeChild(renderer.domElement);
+                }
+            }
+        };
+
+        // Expose API immediately (before loader calls initModule)
+        window.moduleAPI = moduleAPI;
+        
+        console.log('Shake module API exposed', { hasInitModule: !!moduleAPI.initModule });
+    </script>
+</body>
+</html>

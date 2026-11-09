@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playlist Tray - Standalone Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Manrope', BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #0a0a0a;
+      color: #ffffff;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Demo content area */
+    .demo-content {
+      padding: 2rem;
+      height: calc(100vh - 80px);
+      overflow-y: auto;
+    }
+
+    .demo-content h1 {
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    .demo-content p {
+      color: #aaa;
+      line-height: 1.6;
+    }
+
+    /* Playlist Tray */
+    .playlist-tray {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #1a1a1a;
+      border-top: 1px solid #333;
+      z-index: 1000;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .playlist-tray.closed {
+      transform: translateY(calc(100% - 60px));
+    }
+
+    /* Tray Header */
+    .playlist-tray-header {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      background: #2a2a2a;
+      border-bottom: 1px solid #333;
+      cursor: pointer;
+    }
+
+    .playlist-tray-header h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #fff;
+      user-select: none;
+    }
+
+    .playlist-tray-toggle {
+      background: transparent;
+      border: none;
+      color: #aaa;
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      transition: transform 0.3s ease, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .playlist-tray-toggle:hover {
+      color: #fff;
+    }
+
+    .playlist-tray.open .playlist-tray-toggle {
+      transform: rotate(180deg);
+    }
+
+    /* Tray Content */
+    .playlist-tray-content {
+      display: none;
+      padding: 1.5rem 0;
+      max-height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+
+    .playlist-tray.open .playlist-tray-content {
+      display: block;
+    }
+
+    /* Playlist Items Container */
+    .playlist-items {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding-bottom: 1rem;
+      overflow-x: auto;
+      min-height: 200px;
+    }
+
+    /* Playlist Item Card */
+    .playlist-item {
+      flex-shrink: 0;
+      width: 280px;
+      background: #2a2a2a;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      cursor: move;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .playlist-item:hover {
+      border-color: #555;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .playlist-item.playing {
+      border-color: #4a90e2;
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+    }
+
+    .playlist-item.dragging {
+      opacity: 0.5;
+      transform: scale(0.95);
+    }
+
+    /* Drag Handle */
+    .playlist-item-drag-handle {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 24px;
+      height: 24px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      transition: color 0.2s;
+    }
+
+    .playlist-item-drag-handle:hover {
+      color: #aaa;
+    }
+
+    .playlist-item-drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .playlist-item-drag-handle::before {
+      content: '⋮⋮';
+      font-size: 0.875rem;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    /* Item Thumbnail */
+    .playlist-item-thumbnail {
+      width: 100%;
+      height: 120px;
+      background: #1a1a1a;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #444;
+      overflow: hidden;
+    }
+
+    .playlist-item-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Item Name */
+    .playlist-item-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Item Controls */
+    .playlist-item-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .playlist-item-control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .playlist-item-control-group label {
+      font-size: 0.75rem;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .playlist-item-control-group select,
+    .playlist-item-control-group input[type="number"] {
+      padding: 0.5rem;
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.875rem;
+    }
+
+    .playlist-item-control-group select:focus,
+    .playlist-item-control-group input[type="number"]:focus {
+      outline: none;
+      border-color: #4a90e2;
+    }
+
+    .duration-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .duration-control input[type="range"] {
+      flex: 1;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .duration-control input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #4a90e2;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .duration-control input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #4a90e2;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+    .duration-value {
+      min-width: 50px;
+      text-align: right;
+      font-size: 0.875rem;
+      color: #aaa;
+    }
+
+    /* Remove Button */
+    .playlist-item-remove {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      width: 24px;
+      height: 24px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      border-radius: 50%;
+      color: #ef4444;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      line-height: 1;
+      opacity: 0;
+      transition: opacity 0.2s, background 0.2s;
+    }
+
+    .playlist-item:hover .playlist-item-remove {
+      opacity: 1;
+    }
+
+    .playlist-item-remove:hover {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    /* Add Module Button */
+    .add-module-btn {
+      flex-shrink: 0;
+      width: 280px;
+      height: 200px;
+      background: #2a2a2a;
+      border: 2px dashed #555;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #aaa;
+    }
+
+    .add-module-btn:hover {
+      border-color: #4a90e2;
+      color: #4a90e2;
+      background: #2a2a3a;
+    }
+
+    .add-module-btn::before {
+      content: '+';
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .add-module-btn span {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Playback Controls */
+    .playback-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: #2a2a2a;
+      border-top: 1px solid #333;
+      margin-top: 1rem;
+    }
+
+    .playback-btn {
+      padding: 0.75rem 1.5rem;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 80px;
+    }
+
+    .playback-btn:hover {
+      background: #3a3a3a;
+      border-color: #555;
+    }
+
+    .playback-btn.primary {
+      background: #4a90e2;
+      border-color: #4a90e2;
+    }
+
+    .playback-btn.primary:hover {
+      background: #5aa0f2;
+      border-color: #5aa0f2;
+    }
+
+    .playback-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Add Module Modal */
+    .add-module-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .add-module-modal.open {
+      display: flex;
+    }
+
+    .add-module-modal-content {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .add-module-modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .add-module-modal-header h3 {
+      font-size: 1.25rem;
+      color: #fff;
+    }
+
+    .add-module-modal-close {
+      background: transparent;
+      border: none;
+      color: #aaa;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      line-height: 1;
+    }
+
+    .add-module-modal-close:hover {
+      color: #fff;
+    }
+
+    .add-module-modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .available-modules-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .available-module-card {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .available-module-card:hover {
+      border-color: #4a90e2;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .available-module-card h4 {
+      font-size: 1rem;
+      color: #fff;
+      margin: 0;
+    }
+
+    .available-module-card p {
+      font-size: 0.875rem;
+      color: #aaa;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .available-module-card button {
+      padding: 0.5rem 1rem;
+      background: #4a90e2;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .available-module-card button:hover {
+      background: #5aa0f2;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  </style>
+</head>
+<body>
+  <!-- Demo Content -->
+  <div class="demo-content">
+    <h1>Playlist Tray Demo</h1>
+    <p>This is a demo of the playlist tray component. The tray is fixed to the bottom of the screen. Click the header to toggle it open/closed.</p>
+    <p>The playlist tray allows you to:</p>
+    <ul style="color: #aaa; margin-left: 2rem; margin-top: 1rem;">
+      <li>Add modules to a playlist</li>
+      <li>Set favorite presets for each module</li>
+      <li>Configure duration for each module</li>
+      <li>Reorder items via drag-and-drop</li>
+      <li>Control playback with play/pause/stop</li>
+    </ul>
+  </div>
+
+  <!-- Playlist Tray -->
+  <div id="playlist-tray" class="playlist-tray closed">
+    <!-- Tray Header -->
+    <div class="playlist-tray-header" id="playlist-tray-header">
+      <h2>Playlist</h2>
+      <button class="playlist-tray-toggle" id="playlist-tray-toggle" aria-label="Toggle Playlist Tray">
+        ▼
+      </button>
+    </div>
+
+    <!-- Tray Content -->
+    <div class="playlist-tray-content">
+      <!-- Playlist Items -->
+      <div class="playlist-items" id="playlist-items">
+        <!-- Items will be dynamically added here -->
+      </div>
+
+      <!-- Add Module Button -->
+      <div class="add-module-btn" id="add-module-btn">
+        <span>Add Module</span>
+      </div>
+
+      <!-- Playback Controls -->
+      <div class="playback-controls">
+        <button class="playback-btn primary" id="play-btn">Play</button>
+        <button class="playback-btn" id="pause-btn" disabled>Pause</button>
+        <button class="playback-btn" id="stop-btn" disabled>Stop</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Module Modal -->
+  <div class="add-module-modal" id="add-module-modal">
+    <div class="add-module-modal-content">
+      <div class="add-module-modal-header">
+        <h3>Add Module to Playlist</h3>
+        <button class="add-module-modal-close" id="modal-close">×</button>
+      </div>
+      <div class="add-module-modal-body">
+        <div class="available-modules-list" id="available-modules-list">
+          <!-- Available modules will be dynamically added here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data Model
+    const availableModules = [
+      { id: 'kaleidoscope', name: 'Kaleidoscope', description: 'Audio-reactive kaleidoscope visualizer with shader effects' },
+      { id: 'metaballs', name: 'Metaballs', description: 'Shader-based audio-reactive metaballs with presets' },
+      { id: 'starfield', name: 'Starfield Tunnel', description: '3D tunnel visualization with stars and rings' },
+      { id: 'inkdrop', name: 'Inkdrop', description: 'Sound-reactive ink in water particle system' },
+      { id: 'paint-swirl', name: 'Paint Swirl', description: 'Fluid swirl visualization with interactive controls' },
+      { id: 'orbiter', name: 'Orbiter', description: '3D particle system with audio-reactive emitters' },
+      { id: 'webbing', name: 'Webbing', description: 'Dual emitter visualizer with particle connections' },
+      { id: 'supercam', name: 'Supercam', description: 'Audio-reactive webcam visualizer with multiple effects' }
+    ];
+
+    let playlist = [];
+    let currentIndex = -1;
+    let isPlaying = false;
+    let isPaused = false;
+    let playbackTimer = null;
+    let draggedElement = null;
+    let dragOffset = 0;
+
+    // DOM Elements
+    const tray = document.getElementById('playlist-tray');
+    const trayHeader = document.getElementById('playlist-tray-header');
+    const trayToggle = document.getElementById('playlist-tray-toggle');
+    const playlistItems = document.getElementById('playlist-items');
+    const addModuleBtn = document.getElementById('add-module-btn');
+    const addModuleModal = document.getElementById('add-module-modal');
+    const modalClose = document.getElementById('modal-close');
+    const availableModulesList = document.getElementById('available-modules-list');
+    const playBtn = document.getElementById('play-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const stopBtn = document.getElementById('stop-btn');
+
+    // Initialize
+    function init() {
+      renderAvailableModules();
+      renderPlaylist();
+      setupEventListeners();
+      
+      // Open tray by default for demo
+      toggleTray();
+    }
+
+    // Toggle tray open/closed
+    function toggleTray() {
+      tray.classList.toggle('open');
+      tray.classList.toggle('closed');
+    }
+
+    // Render available modules in modal
+    function renderAvailableModules() {
+      availableModulesList.innerHTML = '';
+      availableModules.forEach(module => {
+        const card = document.createElement('div');
+        card.className = 'available-module-card';
+        card.innerHTML = `
+          <h4>${module.name}</h4>
+          <p>${module.description}</p>
+          <button onclick="addModuleToPlaylist('${module.id}')">Add to Playlist</button>
+        `;
+        availableModulesList.appendChild(card);
+      });
+    }
+
+    // Add module to playlist
+    window.addModuleToPlaylist = function(moduleId) {
+      const module = availableModules.find(m => m.id === moduleId);
+      if (!module) return;
+
+      const playlistItem = {
+        id: 'item-' + Date.now(),
+        moduleId: module.id,
+        moduleName: module.name,
+        favorite: 'Default',
+        duration: 30,
+        order: playlist.length
+      };
+
+      playlist.push(playlistItem);
+      renderPlaylist();
+      closeModal();
+    };
+
+    // Render playlist items
+    function renderPlaylist() {
+      playlistItems.innerHTML = '';
+      
+      // Sort by order
+      const sortedPlaylist = [...playlist].sort((a, b) => a.order - b.order);
+
+      sortedPlaylist.forEach((item, index) => {
+        const card = createPlaylistItemCard(item, index);
+        playlistItems.appendChild(card);
+      });
+
+      // Add "Add Module" button after items
+      const addBtn = addModuleBtn.cloneNode(true);
+      addBtn.id = 'add-module-btn';
+      playlistItems.appendChild(addBtn);
+      addBtn.addEventListener('click', openModal);
+
+      // Update playback buttons
+      updatePlaybackButtons();
+    }
+
+    // Create playlist item card
+    function createPlaylistItemCard(item, index) {
+      const card = document.createElement('div');
+      card.className = 'playlist-item';
+      card.dataset.itemId = item.id;
+      card.dataset.order = item.order;
+      
+      if (currentIndex === index && isPlaying) {
+        card.classList.add('playing');
+      }
+
+      // Thumbnail placeholder (using emoji or first letter)
+      const thumbnail = item.moduleName.charAt(0).toUpperCase();
+
+      card.innerHTML = `
+        <button class="playlist-item-remove" onclick="removePlaylistItem('${item.id}')" title="Remove">×</button>
+        <div class="playlist-item-drag-handle" title="Drag to reorder"></div>
+        <div class="playlist-item-thumbnail">${thumbnail}</div>
+        <div class="playlist-item-name" title="${item.moduleName}">${item.moduleName}</div>
+        <div class="playlist-item-controls">
+          <div class="playlist-item-control-group">
+            <label>Favorite</label>
+            <select onchange="updatePlaylistItem('${item.id}', 'favorite', this.value)">
+              <option value="Default" ${item.favorite === 'Default' ? 'selected' : ''}>Default</option>
+              <option value="High Energy" ${item.favorite === 'High Energy' ? 'selected' : ''}>High Energy</option>
+              <option value="Chill" ${item.favorite === 'Chill' ? 'selected' : ''}>Chill</option>
+              <option value="Ambient" ${item.favorite === 'Ambient' ? 'selected' : ''}>Ambient</option>
+            </select>
+          </div>
+          <div class="playlist-item-control-group">
+            <label>Duration (seconds)</label>
+            <div class="duration-control">
+              <input type="range" min="5" max="300" step="5" value="${item.duration}" 
+                     oninput="updatePlaylistItemDuration('${item.id}', this.value)">
+              <span class="duration-value">${item.duration}s</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Setup drag and drop
+      setupDragAndDrop(card, item);
+
+      return card;
+    }
+
+    // Setup drag and drop
+    function setupDragAndDrop(card, item) {
+      const handle = card.querySelector('.playlist-item-drag-handle');
+      
+      handle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        draggedElement = card;
+        dragOffset = e.clientX - card.getBoundingClientRect().left;
+        card.classList.add('dragging');
+        
+        document.addEventListener('mousemove', handleDrag);
+        document.addEventListener('mouseup', handleDragEnd);
+      });
+    }
+
+    // Handle drag
+    function handleDrag(e) {
+      if (!draggedElement) return;
+
+      const items = Array.from(playlistItems.querySelectorAll('.playlist-item'));
+      const draggedRect = draggedElement.getBoundingClientRect();
+      const draggedIndex = items.indexOf(draggedElement);
+
+      // Find which item we're over
+      let targetIndex = draggedIndex;
+      for (let i = 0; i < items.length; i++) {
+        if (i === draggedIndex) continue;
+        const rect = items[i].getBoundingClientRect();
+        const center = rect.left + rect.width / 2;
+        
+        if (e.clientX < center && draggedRect.left < rect.left) {
+          targetIndex = i;
+          break;
+        } else if (e.clientX > center && draggedRect.right > rect.right) {
+          targetIndex = i + 1;
+        }
+      }
+
+      targetIndex = Math.max(0, Math.min(targetIndex, items.length - 1));
+
+      // Reorder visually
+      if (targetIndex !== draggedIndex) {
+        if (targetIndex < draggedIndex) {
+          playlistItems.insertBefore(draggedElement, items[targetIndex]);
+        } else {
+          playlistItems.insertBefore(draggedElement, items[targetIndex].nextSibling);
+        }
+      }
+    }
+
+    // Handle drag end
+    function handleDragEnd() {
+      if (!draggedElement) return;
+
+      draggedElement.classList.remove('dragging');
+      
+      // Update order in playlist
+      const items = Array.from(playlistItems.querySelectorAll('.playlist-item'));
+      items.forEach((item, index) => {
+        const itemId = item.dataset.itemId;
+        const playlistItem = playlist.find(p => p.id === itemId);
+        if (playlistItem) {
+          playlistItem.order = index;
+        }
+      });
+
+      // Re-render to ensure consistency
+      renderPlaylist();
+      
+      draggedElement = null;
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', handleDragEnd);
+    }
+
+    // Update playlist item
+    window.updatePlaylistItem = function(itemId, field, value) {
+      const item = playlist.find(p => p.id === itemId);
+      if (item) {
+        item[field] = value;
+      }
+    };
+
+    // Update playlist item duration
+    window.updatePlaylistItemDuration = function(itemId, value) {
+      const item = playlist.find(p => p.id === itemId);
+      if (item) {
+        item.duration = parseInt(value);
+        // Update display
+        const card = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (card) {
+          const durationValue = card.querySelector('.duration-value');
+          if (durationValue) {
+            durationValue.textContent = value + 's';
+          }
+        }
+      }
+    };
+
+    // Remove playlist item
+    window.removePlaylistItem = function(itemId) {
+      playlist = playlist.filter(p => p.id !== itemId);
+      // Reorder remaining items
+      playlist.forEach((item, index) => {
+        item.order = index;
+      });
+      
+      // If removed item was playing, stop
+      const itemIndex = playlist.findIndex(p => p.id === itemId);
+      if (itemIndex === currentIndex || currentIndex >= playlist.length) {
+        stopPlayback();
+      }
+      
+      renderPlaylist();
+    };
+
+    // Open modal
+    function openModal() {
+      addModuleModal.classList.add('open');
+    }
+
+    // Close modal
+    function closeModal() {
+      addModuleModal.classList.remove('open');
+    }
+
+    // Playback functions
+    function startPlayback() {
+      if (playlist.length === 0) {
+        alert('Playlist is empty. Add modules first.');
+        return;
+      }
+
+      isPlaying = true;
+      isPaused = false;
+      currentIndex = currentIndex < 0 ? 0 : currentIndex;
+      
+      playCurrentItem();
+      updatePlaybackButtons();
+    }
+
+    function pausePlayback() {
+      isPaused = true;
+      if (playbackTimer) {
+        clearTimeout(playbackTimer);
+        playbackTimer = null;
+      }
+      updatePlaybackButtons();
+    }
+
+    function resumePlayback() {
+      if (!isPlaying || !isPaused) return;
+      
+      isPaused = false;
+      playCurrentItem();
+      updatePlaybackButtons();
+    }
+
+    function stopPlayback() {
+      isPlaying = false;
+      isPaused = false;
+      currentIndex = -1;
+      
+      if (playbackTimer) {
+        clearTimeout(playbackTimer);
+        playbackTimer = null;
+      }
+      
+      renderPlaylist(); // Remove playing highlight
+      updatePlaybackButtons();
+    }
+
+    function playCurrentItem() {
+      if (!isPlaying || isPaused || currentIndex >= playlist.length) {
+        stopPlayback();
+        return;
+      }
+
+      // Update UI to highlight current item
+      renderPlaylist();
+      
+      // Get current item
+      const sortedPlaylist = [...playlist].sort((a, b) => a.order - b.order);
+      const currentItem = sortedPlaylist[currentIndex];
+      
+      if (!currentItem) {
+        stopPlayback();
+        return;
+      }
+
+      console.log(`Playing: ${currentItem.moduleName} for ${currentItem.duration} seconds`);
+
+      // Schedule next item
+      playbackTimer = setTimeout(() => {
+        currentIndex++;
+        playCurrentItem();
+      }, currentItem.duration * 1000);
+    }
+
+    function updatePlaybackButtons() {
+      if (isPlaying && !isPaused) {
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+        stopBtn.disabled = false;
+        playBtn.textContent = 'Playing...';
+      } else if (isPaused) {
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = false;
+        playBtn.textContent = 'Resume';
+      } else {
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = true;
+        playBtn.textContent = 'Play';
+      }
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Tray toggle
+      trayHeader.addEventListener('click', toggleTray);
+      trayToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleTray();
+      });
+
+      // Add module button
+      addModuleBtn.addEventListener('click', openModal);
+
+      // Modal close
+      modalClose.addEventListener('click', closeModal);
+      addModuleModal.addEventListener('click', (e) => {
+        if (e.target === addModuleModal) {
+          closeModal();
+        }
+      });
+
+      // Playback buttons
+      playBtn.addEventListener('click', () => {
+        if (isPaused) {
+          resumePlayback();
+        } else {
+          startPlayback();
+        }
+      });
+      pauseBtn.addEventListener('click', pausePlayback);
+      stopBtn.addEventListener('click', stopPlayback);
+    }
+
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gradient Map Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    .gradient-color-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .gradient-color-grid label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .status-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary, #9ca3af);
+      margin-top: 0.5rem;
+    }
+    .error-banner {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      background: rgba(244, 63, 94, 0.15);
+      color: #fecdd3;
+      font-size: 0.85rem;
+      display: none;
+    }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Gradient Map</h1></header>
+
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Global Adjustments</h3>
+
+          <div class="control-item">
+            <label class="control-label">
+              Audio Sensitivity
+              <span class="value" id="audioSensitivityValue">1.00</span>
+            </label>
+            <input type="range" id="audioSensitivity" min="0" max="3" step="0.1" value="1">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">
+              Effect Intensity
+              <span class="value" id="globalIntensityValue">1.00</span>
+            </label>
+            <input type="range" id="globalIntensity" min="0" max="1" step="0.01" value="1">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">
+              Global Brightness
+              <span class="value" id="globalBrightnessValue">0.00</span>
+            </label>
+            <input type="range" id="globalBrightness" min="-0.5" max="0.5" step="0.01" value="0">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">
+              Global Contrast
+              <span class="value" id="globalContrastValue">1.00</span>
+            </label>
+            <input type="range" id="globalContrast" min="0.5" max="2" step="0.05" value="1">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">
+              Blend With Original
+              <span class="value" id="globalBlendValue">1.00</span>
+            </label>
+            <input type="range" id="globalBlend" min="0" max="1" step="0.01" value="1">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">
+              Blur Amount
+              <span class="value" id="globalBlurValue">0.0</span>
+            </label>
+            <input type="range" id="globalBlur" min="0" max="10" step="0.1" value="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Gradient Palette</h3>
+
+          <div class="control-item">
+            <label class="control-label">Color Theme</label>
+            <select id="colorTheme">
+              <option value="custom" selected>Custom</option>
+              <option value="neonHeat">Neon Heat</option>
+              <option value="arcticMirage">Arctic Mirage</option>
+              <option value="ultraviolet">Ultraviolet Bloom</option>
+              <option value="desertGlow">Desert Glow</option>
+              <option value="holoWave">Holographic Wave</option>
+            </select>
+          </div>
+
+          <div class="control-item">
+            <button class="btn secondary" id="randomizePalette" style="width: 100%;">Randomize Palette</button>
+          </div>
+
+          <div class="control-item">
+            <div class="gradient-color-grid" id="gradientColorInputs">
+              <label>
+                Dark
+                <input type="color" id="gradientColor1" value="#000000">
+              </label>
+              <label>
+                Mid
+                <input type="color" id="gradientColor2" value="#808080">
+              </label>
+              <label>
+                Light
+                <input type="color" id="gradientColor3" value="#ffffff">
+              </label>
+            </div>
+            <p class="status-text" id="presetHint">Color pickers available when theme is Custom.</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Gradient Response</h3>
+
+          <div class="control-item">
+            <label class="control-label">
+              Gradient Contrast
+              <span class="value" id="gradientContrastValue">1.00</span>
+            </label>
+            <input type="range" id="gradientContrast" min="0.5" max="2" step="0.05" value="1">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">
+              Gradient Brightness
+              <span class="value" id="gradientBrightnessValue">0.00</span>
+            </label>
+            <input type="range" id="gradientBrightness" min="-0.5" max="0.5" step="0.01" value="0">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">
+              Gradient Blend
+              <span class="value" id="gradientBlendValue">1.00</span>
+            </label>
+            <input type="range" id="gradientBlend" min="0" max="1" step="0.01" value="1">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Transitions & Sequencing</h3>
+
+          <div class="control-item">
+            <label class="control-label">
+              Transition Duration (s)
+              <span class="value" id="transitionDurationValue">2.0</span>
+            </label>
+            <input type="range" id="transitionDuration" min="0" max="10" step="0.1" value="2">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">
+              <input type="checkbox" id="autoSequence"> Auto Sequence Themes
+            </label>
+          </div>
+
+          <div class="control-item" id="sequenceControls" style="display: none;">
+            <label class="control-label">
+              Sequence Interval (s)
+              <span class="value" id="autoSequenceIntervalValue">30</span>
+            </label>
+            <input type="range" id="autoSequenceInterval" min="5" max="120" step="1" value="30">
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button class="btn primary" id="saveFavoriteBtn">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

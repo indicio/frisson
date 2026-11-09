@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbiter Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Orbiter</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>View</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Camera Mode
+            </label>
+            <select id="rotationMode">
+              <option value="auto">Orbit Auto</option>
+              <option value="manual">Manual</option>
+              <option value="audio-orbit">Audio Orbit</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Orbit</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Circle Mode
+            </label>
+            <select id="circleMode">
+              <option value="static">Static</option>
+              <option value="audio-size">Audio Size</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Emitter Shape
+            </label>
+            <select id="emitterShape">
+              <option value="circle">Circle</option>
+              <option value="cube">Cube</option>
+              <option value="sphere" selected>Sphere</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Circle Size
+              <span class="value" id="circleRadius-value">7</span>
+            </label>
+            <input 
+              type="range" 
+              id="circleRadius" 
+              min="4" 
+              max="20" 
+              step="1" 
+              value="7"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Rotation Speed
+              <span class="value" id="rotSpeed-value">0.24</span>
+            </label>
+            <input 
+              type="range" 
+              id="rotSpeed" 
+              min="0.07" 
+              max="1.0" 
+              step="0.01" 
+              value="0.24"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Sensitivities & Response</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Sensitivity
+              <span class="value" id="sensitivity-value">0.18</span>
+            </label>
+            <input 
+              type="range" 
+              id="sensitivity" 
+              min="0.08" 
+              max="0.5" 
+              step="0.01" 
+              value="0.18"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Frequency Min
+              <span class="value" id="freqMin-value">8%</span>
+            </label>
+            <input 
+              type="range" 
+              id="freqMin" 
+              min="0" 
+              max="45" 
+              step="1" 
+              value="8"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Frequency Max
+              <span class="value" id="freqMax-value">78%</span>
+            </label>
+            <input 
+              type="range" 
+              id="freqMax" 
+              min="55" 
+              max="100" 
+              step="1" 
+              value="78"
+            >
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Particles</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Particle Shape</label>
+            <select id="particleShape">
+              <option value="sphere">Sphere</option>
+              <option value="square">Square</option>
+              <option value="line">Line Segment</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Particle Rate
+              <span class="value" id="particleRate-value">2</span>
+            </label>
+            <input 
+              type="range" 
+              id="particleRate" 
+              min="1" 
+              max="8" 
+              step="1" 
+              value="2"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Particle Size
+              <span class="value" id="particleSize-value">0.25</span>
+            </label>
+            <input 
+              type="range" 
+              id="particleSize" 
+              min="0.10" 
+              max="0.45" 
+              step="0.01" 
+              value="0.25"
+            >
+          </div>
+          
+          <div class="control-item" id="lineLenGroup" style="display:none;">
+            <label class="control-label">
+              Line Length
+              <span class="value" id="lineLen-value">0.7</span>
+            </label>
+            <input 
+              type="range" 
+              id="lineLen" 
+              min="0.1" 
+              max="2.0" 
+              step="0.01" 
+              value="0.7"
+            >
+          </div>
+          
+          <div class="control-item" id="lineOriGroup" style="display:none;">
+            <label class="control-label">Line Orientation</label>
+            <select id="lineOri">
+              <option value="along">Along Velocity</option>
+              <option value="fixed-x">Fixed X</option>
+              <option value="fixed-y">Fixed Y</option>
+              <option value="fixed-z">Fixed Z</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Decay Rate
+              <span class="value" id="decayRate-value">0.022</span>
+            </label>
+            <input 
+              type="range" 
+              id="decayRate" 
+              min="0.007" 
+              max="0.045" 
+              step="0.001" 
+              value="0.022"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Color Theme</label>
+            <select id="colorTheme">
+              <option value="spectrum" selected>Spectrum</option>
+              <option value="rainbow">Rainbow</option>
+              <option value="neon">Neon</option>
+              <option value="ice">Ice</option>
+              <option value="fire">Fire</option>
+              <option value="cosmic">Cosmic</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Visual</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Background Color</label>
+            <input 
+              type="color" 
+              id="backgroundColor" 
+              value="#000000"
+            >
+          </div>
+          
+          <div class="control-item">
+            <button id="randomizeBtn" class="btn primary" data-randomize-settings style="width: 100%;">Randomize</button>
+          </div>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+  
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

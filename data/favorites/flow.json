@@ -1,0 +1,28 @@
+{
+  "autoflow": {
+    "params": {
+      "swirlStrength": 3.1,
+      "flowSpeed": 0.9,
+      "turbulence": 1.3,
+      "particleSize": 2.2,
+      "brightness": 1.2,
+      "particleDensity": 80,
+      "particleInteraction": 0.2,
+      "viscosity": 0.8,
+      "flowInfluence": 1.9,
+      "pointerInfluence": 0.9,
+      "audioInfluence": 0.1,
+      "bgColor": "#020309",
+      "coolColor": "#35ca57",
+      "warmColor": "#316e5d",
+      "autoExplode": true,
+      "explodeInterval": 9,
+      "autoRandomize": true,
+      "randomizeInterval": 15,
+      "particleCount": 10000,
+      "subparticleCount": 3
+    },
+    "timestamp": 1774808815216,
+    "updated": 1774808815216
+  }
+}

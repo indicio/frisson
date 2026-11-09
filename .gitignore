@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+.vscode/
+.sfdx/
+.env
+.env.*
+
+# GitHub rejects files over 100 MB. This clip stays on disk; the video manifest still names it.
+media/video/fire.mov

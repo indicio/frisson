@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbiting Wheels Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Orbiting Wheels</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Master Controls</h3>
+          
+          <button id="masterRandomizeBtn" class="btn primary" data-randomize-settings style="width: 100%; margin-bottom: 15px;">Randomize All</button>
+          
+          <div class="control-item">
+            <label class="control-label">Background Color</label>
+            <input type="color" id="bgColor" value="#050509">
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Driver System</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Driver Rate
+              <span class="value" id="driverRateValue">1.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="driverRate" 
+              min="0.1" 
+              max="5" 
+              step="0.1" 
+              value="1"
+            >
+            <small style="display: block; opacity: 0.6; margin-top: 4px; font-size: 10px;">Speed of parameter sweeps</small>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Master Color & Layout</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Color Theme</label>
+            <select id="masterPalette">
+              <option value="rainbow">Rainbow</option>
+              <option value="mono">Monochrome</option>
+              <option value="complementary">Complementary</option>
+              <option value="triad">Triad</option>
+              <option value="analogWarm">Analogous Warm</option>
+              <option value="analogCool">Analogous Cool</option>
+              <option value="randomPerDisc">Random per Disc</option>
+              <option value="fire">Fire</option>
+              <option value="ocean">Ocean</option>
+              <option value="neon">Neon</option>
+              <option value="dusk">Dusk</option>
+              <option value="frost">Frost</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Layout Mode</label>
+            <select id="layoutMode">
+              <option value="free">Free / Scattered</option>
+              <option value="aligned">Aligned Shrinking</option>
+              <option value="orbit3d">3D Orbit</option>
+              <option value="tunnel">Tunnel</option>
+            </select>
+          </div>
+          
+          <div class="control-item" id="alignedControls" style="display: none;">
+            <label class="control-label">
+              Aligned Offset
+              <span class="value" id="alignedOffsetValue">4.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="alignedOffset" 
+              min="0" 
+              max="20" 
+              step="0.5" 
+              value="4"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="alignedOffsetDriver" style="width: auto;">
+              <label for="alignedOffsetDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Camera</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Camera Mode</label>
+            <select id="cameraMode">
+              <option value="static">Static</option>
+              <option value="slowOrbit">Slow Orbit</option>
+              <option value="bassDollyOrbit">Bass Dolly Orbit</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Camera Orbit Speed
+              <span class="value" id="cameraOrbitSpeedValue">0.12</span>
+            </label>
+            <input 
+              type="range" 
+              id="cameraOrbitSpeed" 
+              min="0" 
+              max="0.5" 
+              step="0.01" 
+              value="0.12"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="cameraOrbitSpeedDriver" style="width: auto;">
+              <label for="cameraOrbitSpeedDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Camera Dolly Amount
+              <span class="value" id="cameraDollyAmountValue">0.60</span>
+            </label>
+            <input 
+              type="range" 
+              id="cameraDollyAmount" 
+              min="0" 
+              max="1" 
+              step="0.05" 
+              value="0.6"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="cameraDollyAmountDriver" style="width: auto;">
+              <label for="cameraDollyAmountDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="control-group" id="orbitControls" style="display: none;">
+          <h3>Orbit (3D Mode)</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Orbit Depth (Z)
+              <span class="value" id="orbitDepthValue">6.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="orbitDepth" 
+              min="0" 
+              max="30" 
+              step="0.5" 
+              value="6"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="orbitDepthDriver" style="width: auto;">
+              <label for="orbitDepthDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Orbit Radius Mult
+              <span class="value" id="orbitRadiusMultValue">1.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="orbitRadiusMult" 
+              min="0.3" 
+              max="2" 
+              step="0.05" 
+              value="1"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="orbitRadiusMultDriver" style="width: auto;">
+              <label for="orbitRadiusMultDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Orbit Speed
+              <span class="value" id="orbitSpeedValue">0.25</span>
+            </label>
+            <input 
+              type="range" 
+              id="orbitSpeed" 
+              min="0" 
+              max="1" 
+              step="0.02" 
+              value="0.25"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="orbitSpeedDriver" style="width: auto;">
+              <label for="orbitSpeedDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Orbit Tilt X (°)
+              <span class="value" id="orbitTiltXValue">15</span>
+            </label>
+            <input 
+              type="range" 
+              id="orbitTiltX" 
+              min="-90" 
+              max="90" 
+              step="1" 
+              value="15"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="orbitTiltXDriver" style="width: auto;">
+              <label for="orbitTiltXDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Orbit Tilt Y (°)
+              <span class="value" id="orbitTiltYValue">20</span>
+            </label>
+            <input 
+              type="range" 
+              id="orbitTiltY" 
+              min="-90" 
+              max="90" 
+              step="1" 
+              value="20"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="orbitTiltYDriver" style="width: auto;">
+              <label for="orbitTiltYDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="control-group" id="tunnelControls" style="display: none;">
+          <h3>Tunnel (Tunnel Mode)</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Tunnel Depth
+              <span class="value" id="tunnelDepthValue">80</span>
+            </label>
+            <input 
+              type="range" 
+              id="tunnelDepth" 
+              min="20" 
+              max="200" 
+              step="5" 
+              value="80"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="tunnelDepthDriver" style="width: auto;">
+              <label for="tunnelDepthDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Tunnel Speed
+              <span class="value" id="tunnelSpeedValue">5.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="tunnelSpeed" 
+              min="0" 
+              max="20" 
+              step="0.5" 
+              value="5"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="tunnelSpeedDriver" style="width: auto;">
+              <label for="tunnelSpeedDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Dynamics & Look</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Audio Sensitivity
+              <span class="value" id="masterAudioSensValue">1.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="masterAudioSens" 
+              min="0" 
+              max="2" 
+              step="0.05" 
+              value="1"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="masterAudioSensDriver" style="width: auto;">
+              <label for="masterAudioSensDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Spin Multiplier
+              <span class="value" id="masterSpinMultValue">1.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="masterSpinMult" 
+              min="0" 
+              max="2" 
+              step="0.05" 
+              value="1"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="masterSpinMultDriver" style="width: auto;">
+              <label for="masterSpinMultDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Drift Multiplier
+              <span class="value" id="masterDriftMultValue">1.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="masterDriftMult" 
+              min="0" 
+              max="2" 
+              step="0.05" 
+              value="1"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="masterDriftMultDriver" style="width: auto;">
+              <label for="masterDriftMultDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Global Scale
+              <span class="value" id="masterGlobalScaleValue">1.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="masterGlobalScale" 
+              min="0.5" 
+              max="2" 
+              step="0.05" 
+              value="1"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="masterGlobalScaleDriver" style="width: auto;">
+              <label for="masterGlobalScaleDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Disc Count Multiplier
+              <span class="value" id="masterDiscCountMultValue">1.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="masterDiscCountMult" 
+              min="0.25" 
+              max="2" 
+              step="0.05" 
+              value="1"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="masterDiscCountMultDriver" style="width: auto;">
+              <label for="masterDiscCountMultDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Disc Size Multiplier
+              <span class="value" id="masterDiscSizeMultValue">1.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="masterDiscSizeMult" 
+              min="0.25" 
+              max="2" 
+              step="0.05" 
+              value="1"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="masterDiscSizeMultDriver" style="width: auto;">
+              <label for="masterDiscSizeMultDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Glow Strength
+              <span class="value" id="masterGlowStrengthValue">0.80</span>
+            </label>
+            <input 
+              type="range" 
+              id="masterGlowStrength" 
+              min="0" 
+              max="1" 
+              step="0.05" 
+              value="0.8"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="masterGlowStrengthDriver" style="width: auto;">
+              <label for="masterGlowStrengthDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Opacity Effect
+              <span class="value" id="masterOpacityEffectValue">1.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="masterOpacityEffect" 
+              min="0" 
+              max="2" 
+              step="0.05" 
+              value="1"
+            >
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 10px; opacity: 0.7;">
+              <input type="checkbox" id="masterOpacityEffectDriver" style="width: auto;">
+              <label for="masterOpacityEffectDriver" style="cursor: pointer;">Driver</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Wheels</h3>
+          
+          <button id="randomizeBtn" class="btn primary" style="width: 100%; margin-bottom: 15px;">Randomize All Wheels</button>
+          <button id="addWheelBtn" class="btn secondary" style="width: 100%; margin-bottom: 15px;">Add Wheel</button>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+  
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+
+

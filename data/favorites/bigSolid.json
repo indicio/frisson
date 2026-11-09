@@ -1,0 +1,65 @@
+{
+  "fruit-loops": {
+    "params": {
+      "sensitivity": 1.5,
+      "smoothing": 0.85,
+      "timeBasedMode": true,
+      "sequenceDuration": 15,
+      "palette": "rainbow",
+      "color1": "#785121",
+      "color2": "#21ee92",
+      "color3": "#8f12f5",
+      "color4": "#7d8bdc",
+      "brightnessBias": -0.3,
+      "minTransitionSpeed": 0.008,
+      "maxTransitionSpeed": 0.23,
+      "flashThreshold": 0.95,
+      "holdMode": true,
+      "holdColor": "#8f12f5"
+    },
+    "timestamp": 1774808938252,
+    "updated": 1774808938252
+  },
+  "hells-wallpaper": {
+    "params": {
+      "sensitivity": 1.5,
+      "smoothing": 0.85,
+      "timeBasedMode": false,
+      "sequenceDuration": 15,
+      "palette": "rainbow",
+      "color1": "#785121",
+      "color2": "#21ee92",
+      "color3": "#8f12f5",
+      "color4": "#7d8bdc",
+      "brightnessBias": -0.3,
+      "minTransitionSpeed": 0.008,
+      "maxTransitionSpeed": 0.23,
+      "flashThreshold": 0.55,
+      "holdMode": true,
+      "holdColor": "#d10000"
+    },
+    "timestamp": 1774808981943,
+    "updated": 1774808981943
+  },
+  "pony-club": {
+    "params": {
+      "sensitivity": 1.5,
+      "smoothing": 0.85,
+      "timeBasedMode": false,
+      "sequenceDuration": 15,
+      "palette": "custom",
+      "color1": "#785121",
+      "color2": "#21ee92",
+      "color3": "#8f12f5",
+      "color4": "#7d8bdc",
+      "brightnessBias": 0,
+      "minTransitionSpeed": 0.005,
+      "maxTransitionSpeed": 0.15,
+      "flashThreshold": 0.15,
+      "holdMode": true,
+      "holdColor": "#ff00ea"
+    },
+    "timestamp": 1774837819980,
+    "updated": 1774837819980
+  }
+}

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webbing Controls</title>
+    <link rel="stylesheet" href="../../shared/ui.css">
+    <style>
+        .inline-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+    <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Webbing</h1></header>
+        
+        <div class="controls-grid">
+            <div class="controls-column">
+                <div class="control-group">
+                    <h3>Emitter Settings</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Orbit Radius
+                            <span class="value" id="orbitRadius-value">250</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="orbitRadius" min="50" max="500" value="250" step="10">
+                        </div>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Orbit Speed
+                            <span class="value" id="orbitSpeed-value">0.04</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="orbitSpeed" min="0" max="0.2" value="0.04" step="0.001">
+                        </div>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Particle Count
+                            <span class="value" id="particleCount-value">50</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="particleCount" min="10" max="200" value="50" step="5">
+                        </div>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Spawn Rate
+                            <span class="value" id="spawnRate-value">1</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="spawnRate" min="0" max="1" value="1" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Amplitude Threshold
+                            <span class="value" id="amplitudeThreshold-value">0.015</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="amplitudeThreshold" min="0" max="0.1" value="0.015" step="0.001">
+                        </div>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Connection Distance
+                            <span class="value" id="connectionDistance-value">200</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="connectionDistance" min="50" max="500" value="200" step="10">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Particle Size</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Min Size
+                            <span class="value" id="minSize-value">2</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="minSize" min="1" max="20" value="2" step="0.5">
+                        </div>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Max Size
+                            <span class="value" id="maxSize-value">8</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="maxSize" min="1" max="50" value="8" step="0.5">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Particle Speed</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Min Speed
+                            <span class="value" id="minSpeed-value">1</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="minSpeed" min="0" max="10" value="1" step="0.1">
+                        </div>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Max Speed
+                            <span class="value" id="maxSpeed-value">5</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="maxSpeed" min="0" max="20" value="5" step="0.1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-column">
+                <div class="control-group">
+                    <h3>Particle Lifespan</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Min Lifespan
+                            <span class="value" id="minLifespan-value">1</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="minLifespan" min="0.5" max="10" value="1" step="0.5">
+                        </div>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Max Lifespan
+                            <span class="value" id="maxLifespan-value">14</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="maxLifespan" min="1" max="30" value="14" step="0.5">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Colors</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">Theme</label>
+                        <select id="colorTheme">
+                            <option value="ocean">Ocean</option>
+                            <option value="sunset">Sunset</option>
+                            <option value="neon">Neon</option>
+                            <option value="forest">Forest</option>
+                            <option value="fire">Fire</option>
+                            <option value="purple">Purple</option>
+                            <option value="rainbow">Rainbow</option>
+                            <option value="monochrome">⚫ Monochrome</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Low Frequency Color
+                            <span class="value" id="lowColor-value">#0000ff</span>
+                        </label>
+                        <input type="color" id="lowColor" value="#0000ff">
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            High Frequency Color
+                            <span class="value" id="highColor-value">#ff0000</span>
+                        </label>
+                        <input type="color" id="highColor" value="#ff0000">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Connection Lines</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Line Color
+                            <span class="value" id="connectionColor-value">#ffffff</span>
+                        </label>
+                        <input type="color" id="connectionColor" value="#ffffff">
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Line Thickness
+                            <span class="value" id="connectionThickness-value">1</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="connectionThickness" min="0.5" max="10" value="1" step="0.5">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Frequency Thresholds</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Low Threshold
+                            <span class="value" id="lowFreq-value">200</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="lowFreq" min="0" max="1000" value="200" step="10">
+                        </div>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            High Threshold
+                            <span class="value" id="highFreq-value">2000</span>
+                        </label>
+                        <div class="inline-controls">
+                            <input type="range" id="highFreq" min="500" max="5000" value="2000" step="50">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Visual</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">Background Color</label>
+                        <input type="color" id="backgroundColor" value="#000000">
+                    </div>
+                    
+                    <div class="control-item">
+                        <button id="randomizeBtn" class="btn primary" data-randomize-settings style="width: 100%;">Randomize Settings</button>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+    </div>
+    
+    <div class="favorites-panel">
+        <h3>Favorites</h3>
+        <div class="favorites-section">
+            <div class="favorites-input-group">
+                <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+            </div>
+            <div id="favoritesList" class="favorites-list"></div>
+        </div>
+    </div>
+
+    <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

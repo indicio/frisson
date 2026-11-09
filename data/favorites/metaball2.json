@@ -1,0 +1,38 @@
+{
+  "baby-colors": {
+    "params": {
+      "speed": 2.4,
+      "ballCount": 6,
+      "lowSens": 1,
+      "midSens": 1.9,
+      "highSens": 1,
+      "masterAudioGain": 1,
+      "threshold": 2.5,
+      "glow": 2,
+      "baseSize": 0.15,
+      "color1": "#fb0001",
+      "color2": "#fb0000",
+      "bgColor": "#077eda"
+    },
+    "timestamp": 1774833637256,
+    "updated": 1774833637256
+  },
+  "vampire": {
+    "params": {
+      "speed": 0.7,
+      "ballCount": 10,
+      "lowSens": 1,
+      "midSens": 1.9,
+      "highSens": 1,
+      "masterAudioGain": 1,
+      "threshold": 2.5,
+      "glow": 2,
+      "baseSize": 0.1,
+      "color1": "#fa0102",
+      "color2": "#fa0102",
+      "bgColor": "#660000"
+    },
+    "timestamp": 1774833704368,
+    "updated": 1774833704368
+  }
+}

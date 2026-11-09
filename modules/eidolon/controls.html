@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eidolon Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Eidolon</h1></header>
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Model</h3>
+          <div class="control-item"><label class="control-label">Load PLY</label><input type="file" id="plyFile" accept=".ply"></div>
+          <div class="control-item"><label class="control-label">Scale <span class="value" id="modelScale-v">1.00</span></label><input type="range" id="modelScale" min="0.1" max="3" step="0.01" value="1"></div>
+          <div class="control-item"><label class="control-label">Opacity <span class="value" id="opacity-v">1.00</span></label><input type="range" id="opacity" min="0" max="1" step="0.01" value="1"></div>
+        </div>
+        <div class="control-group">
+          <h3>Camera</h3>
+          <div class="control-item"><label class="control-label">Auto Orbit</label><input type="checkbox" id="autoOrbit" checked></div>
+          <div class="control-item"><label class="control-label">Orbit Speed <span class="value" id="orbitSpeed-v">0.12</span></label><input type="range" id="orbitSpeed" min="0" max="1" step="0.01" value="0.12"></div>
+          <div class="control-item"><label class="control-label">Distance <span class="value" id="cameraDistance-v">4.0</span></label><input type="range" id="cameraDistance" min="1" max="12" step="0.1" value="4"></div>
+          <div class="control-item"><label class="control-label">FOV <span class="value" id="fov-v">55</span></label><input type="range" id="fov" min="30" max="100" step="1" value="55"></div>
+        </div>
+        <div class="control-group">
+          <h3>Explosion</h3>
+          <div class="control-item"><label class="control-label">Amount <span class="value" id="explosionAmount-v">0.20</span></label><input type="range" id="explosionAmount" min="0" max="1" step="0.01" value="0.2"></div>
+          <div class="control-item"><label class="control-label">Distance <span class="value" id="explosionDistance-v">1.50</span></label><input type="range" id="explosionDistance" min="0" max="5" step="0.05" value="1.5"></div>
+          <div class="control-item"><label class="control-label">Spread <span class="value" id="explosionSpread-v">1.00</span></label><input type="range" id="explosionSpread" min="0" max="2" step="0.01" value="1"></div>
+          <div class="control-item"><label class="control-label">Randomness <span class="value" id="explosionRandomness-v">0.25</span></label><input type="range" id="explosionRandomness" min="0" max="1" step="0.01" value="0.25"></div>
+          <div class="control-item"><label class="control-label">Direction</label>
+            <select id="explosionDirection" class="control-input">
+              <option value="radial">Radial</option><option value="up">Up</option><option value="down">Down</option>
+              <option value="left">Left</option><option value="right">Right</option><option value="forward">Forward</option><option value="back">Back</option>
+            </select>
+          </div>
+          <div class="control-item"><label class="control-label">Dir. Strength <span class="value" id="explosionDirectionStrength-v">0.00</span></label><input type="range" id="explosionDirectionStrength" min="0" max="1" step="0.01" value="0"></div>
+        </div>
+      </div>
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Orbit / Spiral / Float</h3>
+          <div class="control-item"><label class="control-label">Orbit Amt <span class="value" id="orbitAmount-v">0.00</span></label><input type="range" id="orbitAmount" min="0" max="1" step="0.01" value="0"></div>
+          <div class="control-item"><label class="control-label">Spiral Amt <span class="value" id="spiralAmount-v">0.00</span></label><input type="range" id="spiralAmount" min="0" max="1" step="0.01" value="0"></div>
+          <div class="control-item"><label class="control-label">Float Amt <span class="value" id="floatAmount-v">0.00</span></label><input type="range" id="floatAmount" min="0" max="1" step="0.01" value="0"></div>
+          <div class="control-item"><label class="control-label">Turbulence <span class="value" id="turbulenceAmount-v">0.00</span></label><input type="range" id="turbulenceAmount" min="0" max="1" step="0.01" value="0"></div>
+        </div>
+        <div class="control-group">
+          <h3>Reconstruction</h3>
+          <div class="control-item"><label class="control-label">Reconstruction <span class="value" id="reconstruction-v">0.92</span></label><input type="range" id="reconstruction" min="0" max="1" step="0.01" value="0.92"></div>
+          <div class="control-item"><label class="control-label">Style</label>
+            <select id="reconstructionStyle" class="control-input">
+              <option value="global">Global</option><option value="outside-in">Outside → In</option><option value="inside-out">Inside → Out</option>
+              <option value="bottom-top">Bottom → Top</option><option value="top-bottom">Top → Bottom</option>
+              <option value="random">Random</option><option value="wave">Wave</option><option value="spiral">Spiral</option>
+            </select>
+          </div>
+          <div class="control-item performance-btns" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+            <button class="btn secondary" data-action="explode">EXPLODE</button>
+            <button class="btn secondary" data-action="reconstruct">RECONSTRUCT</button>
+            <button class="btn secondary" data-action="impact">IMPACT</button>
+            <button class="btn secondary" data-action="freeze">FREEZE</button>
+            <button class="btn secondary" data-action="reset">RESET</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <h3>Physics</h3>
+          <div class="control-item"><label class="control-label">Enable</label><input type="checkbox" id="physicsEnabled"></div>
+          <div class="control-item"><label class="control-label">Home Attraction <span class="value" id="homeAttraction-v">0.45</span></label><input type="range" id="homeAttraction" min="0" max="2" step="0.01" value="0.45"></div>
+        </div>
+        <div class="control-group">
+          <h3>Audio</h3>
+          <div class="control-item"><label class="control-label">Sensitivity <span class="value" id="audioSensitivity-v">1.00</span></label><input type="range" id="audioSensitivity" min="0" max="3" step="0.01" value="1"></div>
+          <div class="control-item"><label class="control-label">Attack <span class="value" id="audioAttack-v">0.06</span></label><input type="range" id="audioAttack" min="0.01" max="0.5" step="0.01" value="0.06"></div>
+          <div class="control-item"><label class="control-label">Release <span class="value" id="audioRelease-v">0.38</span></label><input type="range" id="audioRelease" min="0.05" max="0.95" step="0.01" value="0.38"></div>
+          <div class="control-item"><label class="control-label">Audio Depth <span class="value" id="audioDepth-v">0.65</span></label><input type="range" id="audioDepth" min="0" max="1" step="0.01" value="0.65"></div>
+        </div>
+        <div class="control-group">
+          <h3>Presets</h3>
+          <div class="control-item"><label class="control-label">Preset</label>
+            <select id="preset" class="control-input">
+              <option value="default">Default</option><option value="solid">Solid</option><option value="breathing">Breathing</option>
+              <option value="pulse">Pulse</option><option value="impact">Impact</option><option value="ghost">Ghost</option>
+              <option value="dissolve">Dissolve</option><option value="supernova">Supernova</option><option value="gravity">Gravity</option>
+              <option value="vortex">Vortex</option><option value="atomic">Atomic</option><option value="shimmer">Shimmer</option>
+            </select>
+          </div>
+          <div class="control-item"><label class="control-label">Sampling % <span class="value" id="samplingPercent-v">100</span></label><input type="range" id="samplingPercent" min="10" max="100" step="5" value="100"></div>
+          <div class="control-item"><label class="control-label">Render Scale <span class="value" id="renderScale-v">1.00</span></label><input type="range" id="renderScale" min="0.25" max="1" step="0.05" value="1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wormhole Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    #star-controls, #ring-controls, #square-controls {
+      display: none;
+    }
+    #star-controls.active, #ring-controls.active, #square-controls.active {
+      display: block;
+    }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Wormhole</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Global</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Tunnel Shape</label>
+            <select id="tunnelShape">
+              <option value="cylinder">Cylinder</option>
+              <option value="spiral">Spiral</option>
+              <option value="funnel-expand">Funnel (Expanding)</option>
+              <option value="funnel-contract">Funnel (Contracting)</option>
+              <option value="figure8">Figure-8</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Color Mode</label>
+            <select id="colorMode">
+              <option value="solid">Solid Color</option>
+              <option value="rainbow">Rainbow Cycle</option>
+              <option value="audio-reactive">Audio Reactive</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Element Color (Base)</label>
+            <input type="color" id="elementColor" value="#4a9eff">
+            <span class="value" id="elementColor-value">#4a9eff</span>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Background Color</label>
+            <input type="color" id="backgroundColor" value="#000000">
+            <span class="value" id="backgroundColor-value">#000000</span>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Speed
+              <span class="value" id="speed-value">0.5</span>
+            </label>
+            <input 
+              type="range" 
+              id="speed" 
+              min="0.1" 
+              max="1" 
+              step="0.1" 
+              value="0.5"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Audio Sensitivity
+              <span class="value" id="audioSensitivity-value">1.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="audioSensitivity" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Shape</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Shape Type</label>
+            <select id="shape">
+              <option value="stars">Stars (Line Segments)</option>
+              <option value="rings">Rings</option>
+              <option value="squares">Squares</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Star-specific controls -->
+        <div class="control-group" id="star-controls">
+          <h3>Star Settings</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Flow Direction</label>
+            <select id="flowDirection">
+              <option value="forward">Forward</option>
+              <option value="reverse">Reverse</option>
+              <option value="orbital">Orbital</option>
+              <option value="chaotic">Chaotic</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Star Density
+              <span class="value" id="starDensity-value">5000</span>
+            </label>
+            <input 
+              type="range" 
+              id="starDensity" 
+              min="1000" 
+              max="10000" 
+              step="500" 
+              value="5000"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Line Length
+              <span class="value" id="lineLength-value">2.5</span>
+            </label>
+            <input 
+              type="range" 
+              id="lineLength" 
+              min="0.5" 
+              max="10" 
+              step="0.1" 
+              value="2.5"
+            >
+          </div>
+        </div>
+        
+        <!-- Ring-specific controls -->
+        <div class="control-group" id="ring-controls">
+          <h3>Ring Settings</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Ring Count
+              <span class="value" id="ringCount-value">50</span>
+            </label>
+            <input 
+              type="range" 
+              id="ringCount" 
+              min="10" 
+              max="200" 
+              step="5" 
+              value="50"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Ring Thickness
+              <span class="value" id="ringThickness-value">0.20</span>
+            </label>
+            <input 
+              type="range" 
+              id="ringThickness" 
+              min="0.05" 
+              max="2" 
+              step="0.05" 
+              value="0.2"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Ring Spacing
+              <span class="value" id="ringSpacing-value">4.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="ringSpacing" 
+              min="1" 
+              max="10" 
+              step="0.5" 
+              value="4.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Ring Radius
+              <span class="value" id="ringRadius-value">15</span>
+            </label>
+            <input 
+              type="range" 
+              id="ringRadius" 
+              min="5" 
+              max="50" 
+              step="1" 
+              value="15"
+            >
+          </div>
+        </div>
+        
+        <!-- Square-specific controls -->
+        <div class="control-group" id="square-controls">
+          <h3>Square Settings</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Square Count
+              <span class="value" id="squareCount-value">50</span>
+            </label>
+            <input 
+              type="range" 
+              id="squareCount" 
+              min="10" 
+              max="200" 
+              step="5" 
+              value="50"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Square Spacing
+              <span class="value" id="squareSpacing-value">4.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="squareSpacing" 
+              min="1" 
+              max="10" 
+              step="0.5" 
+              value="4.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Square Size
+              <span class="value" id="squareSize-value">15</span>
+            </label>
+            <input 
+              type="range" 
+              id="squareSize" 
+              min="5" 
+              max="50" 
+              step="1" 
+              value="15"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Border Thickness
+              <span class="value" id="borderThickness-value">2.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="borderThickness" 
+              min="0" 
+              max="5" 
+              step="0.1" 
+              value="2"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Rotation Speed
+              <span class="value" id="rotationSpeed-value">0.5</span>
+            </label>
+            <input 
+              type="range" 
+              id="rotationSpeed" 
+              min="0" 
+              max="2" 
+              step="0.1" 
+              value="0.5"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Rotation Direction</label>
+            <select id="rotationDirection">
+              <option value="forward">Forward</option>
+              <option value="reverse">Reverse</option>
+              <option value="alternating">Alternating</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Rotation Axis</label>
+            <select id="rotationAxis">
+              <option value="z">Z-Axis Only</option>
+              <option value="xyz">All Axes</option>
+              <option value="xy">X & Y Axes</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Scene</h3>
+          
+          <button id="randomizeBtn" class="btn primary" data-randomize-settings style="width: 100%; margin-bottom: 15px;">Randomize Settings</button>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+  
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhythmic Bauhaus Grid</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', Courier, monospace; }
+        canvas { display: block; }
+
+        /* CONTROL PANEL */
+        #controls {
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid #333; color: #ddd;
+            padding: 15px; width: 220px; z-index: 100;
+            border-radius: 4px;
+        }
+        .group { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #333; }
+        .group:last-child { border-bottom: none; margin-bottom: 0; }
+        
+        label { display: block; font-size: 11px; font-weight: bold; color: #888; margin-bottom: 8px; text-transform: uppercase; }
+        select, input[type=range] { width: 100%; background: #222; border: 1px solid #444; color: white; outline: none; cursor: pointer; }
+        
+        .shape-toggles { display: flex; gap: 10px; font-size: 12px; }
+        .shape-toggles label { display: inline-flex; align-items: center; font-weight: normal; text-transform: none; color: #ccc; }
+        .shape-toggles input { margin-right: 5px; width: auto; }
+        
+        /* Dynamic visibility for feature-specific controls */
+        .feature-controls { display: none; }
+        .feature-controls.visible { display: block; }
+
+        /* BUTTONS */
+        button.action-btn {
+            width: 100%; padding: 10px; margin-top: 5px;
+            background: #333; color: white; border: 1px solid #555;
+            text-transform: uppercase; font-size: 11px; cursor: pointer;
+            transition: background 0.2s;
+        }
+        button.action-btn:hover { background: #555; }
+
+        /* OVERLAY */
+        #overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; display: flex; justify-content: center; align-items: center;
+            z-index: 200; transition: opacity 0.5s; cursor: pointer;
+        }
+        .start-msg {
+            border: 1px solid #fff; padding: 20px 40px; color: #fff;
+            text-transform: uppercase; letter-spacing: 4px;
+            background: rgba(255,255,255,0.1);
+        }
+        #overlay:hover .start-msg { background: #fff; color: #000; }
+    </style>
+</head>
+<body>
+
+<!-- Controls are now in separate controls.html file -->
+<div id="controls" style="display: none;"></div>
+
+<script src="../../shared/libs/three-r128/three.min.js"></script>
+<script src="../../shared/libs/gsap/gsap.min.js"></script>
+<script type="module" src="../../shared/mediaFeed.js"></script>
+
+<script>
+    // --- CONFIG ---
+    const CONFIG = {
+        cols: 16,
+        rows: 9,
+        cellSize: 1.0,
+        theme: 'bauhaus',
+        sensitivity: 0.6, // Audio influence on rotation probability
+        baseActivity: 0.002, // Chance to rotate per frame even without audio
+        wedgeFlipRate: 0.002, // Base rate for wedge flipping
+        colorTransitionDuration: 1.0, // Duration for color transitions in seconds
+        showGrid: true, // Show/hide underlying grid
+        audioReactive: true, // Enable/disable audio reactivity
+        colorSequence: false, // Enable color sequencing through palette
+        sequenceRate: 1.0, // Rate of color sequence (cycles per second)
+        timeOffset: 10, // Time offset multiplier for elements
+        scalingAmount: 15, // Audio-reactive scaling amount (0-100, maps to 0.0-0.3)
+        scalingOffset: 10, // Scaling sequence offset multiplier for elements
+        activeShapes: ['square', 'circle', 'wedge', 'triangle'] // Active shape types
+    };
+
+    const THEMES = {
+        bauhaus: [0xE63946, 0xF1FAEE, 0xA8DADC, 0x457B9D, 0x1D3557],
+        swiss:   [0xD90429, 0xEF233C, 0xEDF2F4, 0x8D99AE, 0x2B2D42],
+        midnight:[0x3a0ca3, 0x4361ee, 0x4cc9f0, 0x7209b7, 0xf72585],
+        forest:  [0x264653, 0x2A9D8F, 0xE9C46A, 0xF4A261, 0x1B4332],
+        sunset:  [0xFF6B6B, 0xFFE66D, 0xFF8C42, 0xFF4B3E, 0xFFA07A],
+        ocean:   [0x006994, 0x00A8CC, 0x7FB3D3, 0x4A90E2, 0x1E3A8A],
+        neon:    [0xFF00FF, 0x00FFFF, 0x00FF00, 0xFFFF00, 0xFF0080],
+        earth:   [0x8B4513, 0xD2691E, 0xCD853F, 0xDEB887, 0xF4A460]
+    };
+
+    // --- SCENE ---
+    const scene = new THREE.Scene();
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Don't append to body - will be appended to container in initModule
+    // document.body.appendChild(renderer.domElement);
+
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 100);
+    camera.position.z = 10;
+
+    // --- GEOMETRIES ---
+    // Create triangle as half of a square dissected diagonally
+    // Square is from -0.5 to 0.5 in both dimensions
+    // Triangle: bottom-left, bottom-right, top-right (diagonal cut from bottom-left to top-right)
+    const triangleShape = new THREE.Shape();
+    triangleShape.moveTo(-0.5, -0.5); // Bottom left
+    triangleShape.lineTo(0.5, -0.5);  // Bottom right
+    triangleShape.lineTo(0.5, 0.5);   // Top right
+    triangleShape.lineTo(-0.5, -0.5); // Close back to bottom left
+    
+    const geoms = {
+        square: new THREE.PlaneGeometry(1, 1),
+        circle: new THREE.CircleGeometry(0.45, 40), // Exceeds 1.0 cell (radius 0.6 = diameter 1.2)
+        wedge:  new THREE.CircleGeometry(1, 40, 0, Math.PI/2), // Radius 0.75 (exceeds cell)
+        triangle: new THREE.ShapeGeometry(triangleShape)
+    };
+
+    // --- GRID STATE ---
+    const gridGroup = new THREE.Group();
+    scene.add(gridGroup);
+    let tiles = [];
+
+    function buildGrid() {
+        gridGroup.clear();
+        tiles = [];
+
+        // Center offsets
+        const w = CONFIG.cols * CONFIG.cellSize;
+        const h = CONFIG.rows * CONFIG.cellSize;
+        const offX = -w/2 + CONFIG.cellSize/2;
+        const offY = -h/2 + CONFIG.cellSize/2;
+
+        for(let x=0; x<CONFIG.cols; x++) {
+            for(let y=0; y<CONFIG.rows; y++) {
+                const container = new THREE.Group();
+                container.position.set(offX + x, offY + y, 0);
+
+                // Background
+                const bg = new THREE.Mesh(geoms.square, new THREE.MeshBasicMaterial({ color: 0x111111 }));
+                bg.position.z = -0.1;
+                bg.visible = CONFIG.showGrid;
+                container.add(bg);
+
+                // Pivot (for rotation)
+                const pivot = new THREE.Group();
+                container.add(pivot);
+
+                // Foreground
+                const fg = new THREE.Mesh(geoms.square, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+                pivot.add(fg);
+
+                gridGroup.add(container);
+
+                tiles.push({
+                    container, pivot, bg, fg,
+                    type: 'square',
+                    isAnimating: false,
+                    currentRot: 0, // Keep track of rotation Z
+                    targetBgColor: 0x111111,
+                    targetFgColor: 0xffffff,
+                    tileIndex: x + y * CONFIG.cols, // Index for offset calculation
+                    lastColorUpdate: 0, // Track last color update time
+                    colorSequence: null // Random color sequence for this tile
+                });
+            }
+        }
+        
+        reshuffleShapes();
+        if (CONFIG.colorSequence) {
+            initializeColorSequences();
+        }
+        handleResize();
+    }
+
+    // --- SHAPE DISTRIBUTION ---
+    function getActiveTypes() {
+        // Use CONFIG.activeShapes if set, otherwise default to all shapes
+        if (CONFIG.activeShapes && Array.isArray(CONFIG.activeShapes) && CONFIG.activeShapes.length > 0) {
+            return CONFIG.activeShapes;
+        }
+        // Default to all shapes
+        return ['square', 'circle', 'wedge', 'triangle'];
+    }
+
+    // --- COLOR SEQUENCE INITIALIZATION ---
+    function initializeColorSequences() {
+        const palette = THEMES[CONFIG.theme];
+        const paletteLength = palette.length;
+        
+        tiles.forEach(tile => {
+            // Create a random sequence of colors from the palette
+            // Shuffle the palette and use all colors
+            const shuffled = [...palette].sort(() => Math.random() - 0.5);
+            tile.colorSequence = shuffled;
+        });
+    }
+
+    async function randomizeColors(animateColors = true) {
+        // Import colorPalette and generate a random palette
+        const { generateRandomPalette } = await import('../../shared/colorPalette.js');
+        const randomPalette = generateRandomPalette();
+        
+        // Convert hex strings to hex numbers for Three.js
+        // generateRandomPalette returns {c1, c2, c3} as hex strings like "#FF0000"
+        const hexToNumber = (hexString) => parseInt(hexString.replace('#', ''), 16);
+        const palette = [
+            hexToNumber(randomPalette.c1),
+            hexToNumber(randomPalette.c2),
+            hexToNumber(randomPalette.c3)
+        ];
+
+        tiles.forEach(tile => {
+            const c1 = palette[Math.floor(Math.random() * palette.length)];
+            let c2 = palette[Math.floor(Math.random() * palette.length)];
+            while(c1 === c2) c2 = palette[Math.floor(Math.random() * palette.length)];
+
+            // Store target colors
+            tile.targetBgColor = c1;
+            tile.targetFgColor = c2;
+
+            // Animate color transition or set immediately
+            if (animateColors) {
+                // Animate background color
+                gsap.to(tile.bg.material.color, {
+                    r: ((c1 >> 16) & 0xFF) / 255,
+                    g: ((c1 >> 8) & 0xFF) / 255,
+                    b: (c1 & 0xFF) / 255,
+                    duration: CONFIG.colorTransitionDuration,
+                    ease: "power2.out"
+                });
+
+                // Animate foreground color
+                gsap.to(tile.fg.material.color, {
+                    r: ((c2 >> 16) & 0xFF) / 255,
+                    g: ((c2 >> 8) & 0xFF) / 255,
+                    b: (c2 & 0xFF) / 255,
+                    duration: CONFIG.colorTransitionDuration,
+                    ease: "power2.out"
+                });
+            } else {
+                tile.bg.material.color.setHex(c1);
+                tile.fg.material.color.setHex(c2);
+            }
+        });
+    }
+
+    function reshuffleShapes(animateColors = false) {
+        const palette = THEMES[CONFIG.theme];
+        const types = getActiveTypes();
+
+        tiles.forEach(tile => {
+            const type = types[Math.floor(Math.random() * types.length)];
+            const c1 = palette[Math.floor(Math.random() * palette.length)];
+            let c2 = palette[Math.floor(Math.random() * palette.length)];
+            while(c1 === c2) c2 = palette[Math.floor(Math.random() * palette.length)];
+
+            // Set Geometry
+            tile.type = type;
+            tile.fg.geometry = geoms[type];
+
+            // Store target colors
+            tile.targetBgColor = c1;
+            tile.targetFgColor = c2;
+
+            // Animate color transition or set immediately
+            if (animateColors) {
+                // Get current colors
+                const currentBg = tile.bg.material.color.getHex();
+                const currentFg = tile.fg.material.color.getHex();
+
+                // Animate background color
+                gsap.to(tile.bg.material.color, {
+                    r: ((c1 >> 16) & 0xFF) / 255,
+                    g: ((c1 >> 8) & 0xFF) / 255,
+                    b: (c1 & 0xFF) / 255,
+                    duration: CONFIG.colorTransitionDuration,
+                    ease: "power2.out"
+                });
+
+                // Animate foreground color
+                gsap.to(tile.fg.material.color, {
+                    r: ((c2 >> 16) & 0xFF) / 255,
+                    g: ((c2 >> 8) & 0xFF) / 255,
+                    b: (c2 & 0xFF) / 255,
+                    duration: CONFIG.colorTransitionDuration,
+                    ease: "power2.out"
+                });
+            } else {
+                tile.bg.material.color.setHex(c1);
+                tile.fg.material.color.setHex(c2);
+            }
+
+            // Reset Mesh Position within Pivot
+            tile.fg.position.set(0,0,0);
+            tile.fg.rotation.set(0,0,0);
+
+            // Reset Pivot Rotation
+            const randRot = Math.floor(Math.random() * 4) * (Math.PI/2);
+            tile.pivot.rotation.z = randRot;
+            tile.currentRot = randRot;
+
+            // Offset fix for Wedges (Radius 1.0 needs to pivot at corner)
+            if (type === 'wedge') {
+                // -0.5 moves center (pointy end) to bottom-left of cell (half of radius 1.0)
+                tile.fg.position.set(-0.5, -0.5, 0);
+            }
+        });
+    }
+
+    function randomizeSettings() {
+        // Randomize theme
+        const themeKeys = Object.keys(THEMES);
+        const randomTheme = themeKeys[Math.floor(Math.random() * themeKeys.length)];
+        CONFIG.theme = randomTheme;
+
+        // Randomize sensitivity (0-100)
+        const randomSensitivity = Math.floor(Math.random() * 101);
+        CONFIG.sensitivity = randomSensitivity;
+
+        // Randomize grid density
+        const densities = ['8,5', '16,9', '24,14'];
+        const randomDensity = densities[Math.floor(Math.random() * densities.length)];
+        const [c, r] = randomDensity.split(',').map(Number);
+        CONFIG.cols = c;
+        CONFIG.rows = r;
+
+        // Randomize color transition rate (0.1-3.0)
+        const randomTransitionRate = Math.round((0.1 + Math.random() * 2.9) * 10) / 10;
+        CONFIG.colorTransitionDuration = randomTransitionRate;
+
+        // Randomize wedge flip rate (0-100)
+        const randomWedgeFlipRate = Math.floor(Math.random() * 101);
+        CONFIG.wedgeFlipRate = randomWedgeFlipRate;
+
+        // Randomize show grid
+        const randomShowGrid = Math.random() > 0.5;
+        CONFIG.showGrid = randomShowGrid;
+        tiles.forEach(tile => {
+            tile.bg.visible = CONFIG.showGrid;
+        });
+
+        // Randomize audio reactive
+        const randomAudioReactive = Math.random() > 0.5;
+        CONFIG.audioReactive = randomAudioReactive;
+
+        // Randomize scaling amount (0-100)
+        const randomScalingAmount = Math.floor(Math.random() * 101);
+        CONFIG.scalingAmount = randomScalingAmount;
+
+        // Randomize scaling offset (0-100)
+        const randomScalingOffset = Math.floor(Math.random() * 101);
+        CONFIG.scalingOffset = randomScalingOffset;
+
+        // Randomize color sequence
+        const randomColorSequence = Math.random() > 0.5;
+        CONFIG.colorSequence = randomColorSequence;
+
+        // Randomize sequence rate (0.1-5.0)
+        const randomSequenceRate = Math.round((0.1 + Math.random() * 4.9) * 10) / 10;
+        CONFIG.sequenceRate = randomSequenceRate;
+
+        // Randomize time offset (0-100)
+        const randomTimeOffset = Math.floor(Math.random() * 101);
+        CONFIG.timeOffset = randomTimeOffset;
+
+        // Randomize active shapes (at least one must be selected)
+        const shapeTypes = ['square', 'circle', 'wedge', 'triangle'];
+        const numShapes = Math.floor(Math.random() * 4) + 1;
+        const selectedShapes = [];
+        while(selectedShapes.length < numShapes) {
+            const idx = Math.floor(Math.random() * shapeTypes.length);
+            if(!selectedShapes.includes(shapeTypes[idx])) {
+                selectedShapes.push(shapeTypes[idx]);
+            }
+        }
+        // Store selected shapes in CONFIG (controls will handle UI updates)
+        CONFIG.activeShapes = selectedShapes;
+
+        // Send all randomized values back to controls to update UI
+        if (controlsChannel) {
+            controlsChannel.postMessage({
+                type: 'PARAM_UPDATES',
+                updates: {
+                    theme: randomTheme,
+                    sensitivity: randomSensitivity,
+                    density: randomDensity,
+                    transitionRate: randomTransitionRate,
+                    wedgeFlipRate: randomWedgeFlipRate,
+                    showGrid: randomShowGrid,
+                    audioReactive: randomAudioReactive,
+                    scalingAmount: randomScalingAmount,
+                    scalingOffset: randomScalingOffset,
+                    colorSequence: randomColorSequence,
+                    sequenceRate: randomSequenceRate,
+                    timeOffset: randomTimeOffset,
+                    shapes: selectedShapes
+                }
+            });
+        }
+
+        // Rebuild grid if density changed
+        buildGrid();
+        updateControlVisibility(); // Update control visibility after randomization
+    }
+
+    // --- RESIZE (COVER MODE) ---
+    function handleResize() {
+        const aspect = window.innerWidth / window.innerHeight;
+        const gW = CONFIG.cols * CONFIG.cellSize;
+        const gH = CONFIG.rows * CONFIG.cellSize;
+        
+        let camW, camH;
+        // Crop logic to cover screen
+        if (aspect > gW/gH) {
+            camW = gW; camH = gW / aspect;
+        } else {
+            camH = gH; camW = gH * aspect;
+        }
+        
+        camera.left = -camW/2; camera.right = camW/2;
+        camera.top = camH/2; camera.bottom = -camH/2;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    window.addEventListener('resize', handleResize);
+
+    // --- AUDIO ENGINE ---
+    let analyser, dataArray, audioActive = false;
+    let audioStream = null;
+    
+    // --- MAIN LOOP ---
+    function animate() {
+        animationId = requestAnimationFrame(animate);
+
+        let bass = 0;
+        let treble = 0;
+        let energy = 0;
+
+        const bins = (audioData && audioData.getFFTData && audioData.getFFTData()) || window.frissonMedia?.fft?.();
+        if (CONFIG.audioReactive && bins && bins.length) {
+            const bassEnd = Math.max(1, Math.min(5, bins.length));
+            const trebleStart = Math.min(bins.length - 1, Math.floor(bins.length * 0.55));
+            let bassSum = 0;
+            let trebleSum = 0;
+            let trebleCount = 0;
+            for (let i = 0; i < bassEnd; i++) bassSum += bins[i];
+            for (let i = trebleStart; i < bins.length; i++) { trebleSum += bins[i]; trebleCount++; }
+            bass = bassSum / bassEnd / 255;
+            treble = trebleCount ? trebleSum / trebleCount / 255 : 0;
+            
+            // Energy calculation for rotation chance
+            energy = (bass * 0.4) + (treble * 0.6); // Favor hi-hats/snares for rotation
+        } else {
+            // Idle randomness (no audio reactivity)
+            energy = 0.1;
+            bass = 0; // No scaling when audio reactive is disabled
+        }
+
+        // --- LOGIC: INTERMITTENT ROTATION ---
+        // Calculate probability threshold for this frame
+        // Sensitivity ranges 0-100. Map to 0.0 to 0.1 per frame probability
+        const sens = CONFIG.sensitivity / 1000; // Scaling factor
+        // Use wedgeFlipRate for base activity, scaled by audio energy
+        // At 0: no flips (0 rate)
+        // At 100: 50% slower than previous max (0.025 instead of 0.05)
+        const baseFlipRate = (CONFIG.wedgeFlipRate / 1000) * 0.25;
+        // Only add audio energy if audio reactive is enabled
+        const chance = baseFlipRate + (CONFIG.audioReactive ? (energy * sens) : 0);
+
+        // --- COLOR SEQUENCING ---
+        if (CONFIG.colorSequence) {
+            const currentTime = Date.now() / 1000; // Current time in seconds
+            
+            tiles.forEach(tile => {
+                // Initialize sequence if not set
+                if (!tile.colorSequence || tile.colorSequence.length === 0) {
+                    initializeColorSequences();
+                }
+                
+                const sequence = tile.colorSequence;
+                const sequenceLength = sequence.length;
+                
+                // Calculate offset time for this tile
+                const offset = (tile.tileIndex * CONFIG.timeOffset) / 1000; // Convert to seconds
+                const timeWithOffset = (currentTime * CONFIG.sequenceRate) + offset;
+                
+                // Cycle through this tile's sequence (0 to sequenceLength, wrapping)
+                const colorIndex = Math.floor(timeWithOffset) % sequenceLength;
+                const nextColorIndex = (colorIndex + 1) % sequenceLength;
+                const t = (timeWithOffset % 1); // Fractional part for interpolation
+                
+                // Get current and next colors from this tile's sequence
+                const currentColor = sequence[colorIndex];
+                const nextColor = sequence[nextColorIndex];
+                
+                // Interpolate between colors
+                const r1 = ((currentColor >> 16) & 0xFF) / 255;
+                const g1 = ((currentColor >> 8) & 0xFF) / 255;
+                const b1 = (currentColor & 0xFF) / 255;
+                
+                const r2 = ((nextColor >> 16) & 0xFF) / 255;
+                const g2 = ((nextColor >> 8) & 0xFF) / 255;
+                const b2 = (nextColor & 0xFF) / 255;
+                
+                // Smooth interpolation
+                const r = r1 + (r2 - r1) * t;
+                const g = g1 + (g2 - g1) * t;
+                const b = b1 + (b2 - b1) * t;
+                
+                // Update background color
+                tile.bg.material.color.setRGB(r, g, b);
+                
+                // Update foreground color (use next color in sequence, offset by 1)
+                const fgColorIndex = (colorIndex + 1) % sequenceLength;
+                const fgNextColorIndex = (fgColorIndex + 1) % sequenceLength;
+                const fgColor = sequence[fgColorIndex];
+                const fgNextColor = sequence[fgNextColorIndex];
+                
+                const fgr1 = ((fgColor >> 16) & 0xFF) / 255;
+                const fgg1 = ((fgColor >> 8) & 0xFF) / 255;
+                const fgb1 = (fgColor & 0xFF) / 255;
+                
+                const fgr2 = ((fgNextColor >> 16) & 0xFF) / 255;
+                const fgg2 = ((fgNextColor >> 8) & 0xFF) / 255;
+                const fgb2 = (fgNextColor & 0xFF) / 255;
+                
+                const fgr = fgr1 + (fgr2 - fgr1) * t;
+                const fgg = fgg1 + (fgg2 - fgg1) * t;
+                const fgb = fgb1 + (fgb2 - fgb1) * t;
+                
+                tile.fg.material.color.setRGB(fgr, fgg, fgb);
+            });
+        }
+
+        tiles.forEach(tile => {
+            // 1. PULSE (Scale) - Only for Squares/Circles
+            // Wedges are strictly scale 1.0 as requested
+            if (tile.type !== 'wedge') {
+                // Map scaling amount (0-100) to scale factor (0.0-0.3)
+                const scaleFactor = (CONFIG.scalingAmount / 100) * 0.3;
+                // Apply scaling offset for wave effect across tiles
+                const offset = (tile.tileIndex * CONFIG.scalingOffset) / 1000;
+                const timeWithOffset = (Date.now() / 1000) + offset;
+                // Create wave effect by modulating bass with offset
+                const waveModulation = 0.5 + 0.5 * Math.sin(timeWithOffset * 1.5);
+                const bassWithOffset = bass * waveModulation;
+                const pulse = 1.0 - (bassWithOffset * scaleFactor); // Scale down with bass
+                tile.fg.scale.lerp(new THREE.Vector3(pulse, pulse, 1), 0.2);
+            } else {
+                // Force scale 1 for wedges just in case
+                tile.fg.scale.set(1,1,1);
+            }
+
+            // 2. ROTATION - Only for Wedges
+            // You could allow others to rotate, but request emphasized wedges
+            if (tile.type === 'wedge' && !tile.isAnimating) {
+                
+                // Roll the dice
+                if (Math.random() < chance) {
+                    triggerRotation(tile);
+                }
+            }
+        });
+
+        renderer.render(scene, camera);
+    }
+
+    function triggerRotation(tile) {
+        tile.isAnimating = true;
+        
+        // 90 degree increment
+        // Random direction? Let's stick to Clockwise for rhythm, or random.
+        const direction = Math.random() > 0.5 ? 1 : -1;
+        const newRot = tile.currentRot + (direction * (Math.PI / 2));
+
+        // Snap instantly to new rotation (no animation)
+        tile.pivot.rotation.z = newRot;
+        tile.currentRot = newRot;
+        tile.isAnimating = false;
+    }
+
+    // --- BROADCASTCHANNEL COMMUNICATION ---
+    let controlsChannel = null;
+    let audioData = null;
+    let container = null;
+    let animationId = null;
+
+    /**
+     * Handle control messages from controls panel
+     */
+    function handleControlMessage(event) {
+        if (event.data.type === 'PARAM_CHANGE') {
+            const { param, value } = event.data;
+            handleParamChange(param, value);
+        }
+    }
+
+    /**
+     * Handle window messages
+     */
+    function handleWindowMessage(event) {
+        if (event.data.type === 'PARAM_CHANGE') {
+            const { param, value } = event.data;
+            handleParamChange(param, value);
+        } else if (event.data.type === 'AUDIO_UPDATE') {
+            audioAmplitude = event.data.audioLevel || 0;
+        }
+    }
+
+    /**
+     * Handle parameter changes
+     */
+    function handleParamChange(param, value) {
+        switch(param) {
+            case 'density':
+                const [c, r] = value.split(',').map(Number);
+                CONFIG.cols = c;
+                CONFIG.rows = r;
+                buildGrid();
+                break;
+            case 'shapes':
+                // Update active shapes in CONFIG
+                if (Array.isArray(value)) {
+                    CONFIG.activeShapes = value;
+                    reshuffleShapes();
+                }
+                break;
+            case 'reshuffle':
+                reshuffleShapes();
+                break;
+            case 'theme':
+                CONFIG.theme = value;
+                if (CONFIG.colorSequence) {
+                    initializeColorSequences();
+                }
+                reshuffleShapes(true);
+                break;
+            case 'colorTransitionDuration':
+                CONFIG.colorTransitionDuration = value;
+                break;
+            case 'colorSequence':
+                CONFIG.colorSequence = value;
+                if (CONFIG.colorSequence) {
+                    initializeColorSequences();
+                }
+                updateControlVisibility();
+                break;
+            case 'sequenceRate':
+                CONFIG.sequenceRate = value;
+                break;
+            case 'timeOffset':
+                CONFIG.timeOffset = value;
+                break;
+            case 'audioReactive':
+                CONFIG.audioReactive = value;
+                updateControlVisibility();
+                break;
+            case 'sensitivity':
+                CONFIG.sensitivity = value;
+                break;
+            case 'scalingAmount':
+                CONFIG.scalingAmount = value;
+                break;
+            case 'scalingOffset':
+                CONFIG.scalingOffset = value;
+                break;
+            case 'wedgeFlipRate':
+                CONFIG.wedgeFlipRate = value;
+                break;
+            case 'showGrid':
+                CONFIG.showGrid = value;
+                tiles.forEach(tile => {
+                    tile.bg.visible = CONFIG.showGrid;
+                });
+                break;
+            case 'randomizeColors':
+                randomizeColors(true);
+                break;
+            case 'randomizeSettings':
+                randomizeSettings();
+                break;
+        }
+    }
+
+    // --- DYNAMIC CONTROL VISIBILITY ---
+    function updateControlVisibility() {
+        // This is handled in controls.html now, but kept for compatibility
+    }
+
+    // --- MODULE API ---
+    const moduleAPI = {
+        async initModule({ container: containerElement, audio, controlsChannel: channel }) {
+            console.log('Bauhaus initModule called', { 
+                hasContainer: !!containerElement, 
+                hasAudio: !!audio, 
+                hasChannel: !!channel 
+            });
+            
+            container = containerElement;
+            audioData = audio;
+            controlsChannel = channel;
+            
+            if (controlsChannel) {
+                controlsChannel.onmessage = handleControlMessage;
+            }
+            
+            window.addEventListener('message', handleWindowMessage);
+            window.addEventListener('resize', handleResize);
+
+            // Add renderer to container if needed
+            if (!renderer) {
+                console.error('Bauhaus: renderer not initialized');
+                return;
+            }
+            
+            if (container && renderer.domElement) {
+                if (!container.contains(renderer.domElement)) {
+                    container.appendChild(renderer.domElement);
+                }
+            } else {
+                console.warn('Bauhaus: container or renderer.domElement not available', { 
+                    hasContainer: !!container, 
+                    hasRenderer: !!renderer,
+                    hasDomElement: !!(renderer && renderer.domElement)
+                });
+            }
+            
+            handleResize();
+            buildGrid();
+            updateControlVisibility();
+            
+            console.log('Bauhaus initModule completed', {
+                tilesCount: tiles.length,
+                hasRenderer: !!renderer,
+                hasContainer: !!container
+            });
+        },
+        
+        start() {
+            if (!animationId) {
+                animate();
+            }
+        },
+        
+        stop() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        },
+        
+        destroy() {
+            stop();
+            window.removeEventListener('message', handleWindowMessage);
+            window.removeEventListener('resize', handleResize);
+            
+            if (controlsChannel) {
+                controlsChannel.close();
+            }
+            
+            // Clean up audio stream if created
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+                audioStream = null;
+            }
+            
+            tiles = [];
+            if (container && container.contains(renderer.domElement)) {
+                container.removeChild(renderer.domElement);
+            }
+        }
+    };
+
+    // Expose API immediately (before loader calls initModule)
+    window.moduleAPI = moduleAPI;
+    
+    console.log('Bauhaus module API exposed', { hasInitModule: !!moduleAPI.initModule });
+
+    // Init (will be called by loader)
+    // Don't build grid here - wait for initModule to be called
+    // buildGrid();
+    // updateControlVisibility();
+
+</script>
+</body>
+</html>

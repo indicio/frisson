@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "description": "Registry of video files under media/video/. Browsers cannot scan directories; add entries when you drop new files in.",
+  "basePath": "/media/video",
+  "videos": [
+    {
+      "id": "city-timelapse",
+      "file": "city-timelapse.mp4"
+    },
+    {
+      "id": "train",
+      "file": "train.mp4"
+    },
+    {
+      "id": "fire",
+      "file": "fire.mov"
+    }
+  ]
+}

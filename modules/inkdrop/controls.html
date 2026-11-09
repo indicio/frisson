@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inkdrop Controls</title>
+    <link rel="stylesheet" href="../../shared/ui.css">
+    <style>
+        .slider-container {
+            margin: 15px 0;
+        }
+        .toggle-container {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        .toggle-label {
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background: var(--accent);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+    <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Inkdrop</h1></header>
+        
+        <div class="controls-grid">
+            <div class="controls-column">
+                <div class="control-group">
+                    <h3>Generation</h3>
+
+                    <div class="control-item">
+                        <label class="control-label">
+                            Rate
+                            <span class="value" id="dropRateValue">8/min</span>
+                        </label>
+                        <input type="range" id="dropRate" min="0" max="60" value="8" step="1">
+                    </div>
+
+                    <div class="control-item">
+                        <label class="control-label">
+                            Variation
+                            <span class="value" id="dropVariationValue">40%</span>
+                        </label>
+                        <input type="range" id="dropVariation" min="0" max="100" value="40" step="1">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Actions</h3>
+                    
+                    <div class="control-item">
+                        <button id="addInk" class="btn primary" style="width: 100%;">Add Ink Drop</button>
+                    </div>
+                    
+                    <div class="control-item">
+                        <button id="clearBtn" class="btn" style="width: 100%;">Clear Canvas</button>
+                    </div>
+                    
+                    <div class="control-item">
+                        <button id="randomizeBtn" class="btn" data-randomize-settings style="width: 100%;">Randomize Settings</button>
+                    </div>
+                    
+                    <div class="control-item">
+                        <div class="toggle-container">
+                            <label class="toggle-label">Auto-Randomize (10s):</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoRandomize">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Particles</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Sensitivity
+                            <span class="value" id="sensValue">50</span>
+                        </label>
+                        <input type="range" id="sensitivity" min="1" max="100" value="50">
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Diffusion
+                            <span class="value" id="diffValue">50</span>
+                        </label>
+                        <input type="range" id="diffusion" min="1" max="100" value="50">
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Min Particle Size
+                            <span class="value" id="minSizeValue">1</span>
+                        </label>
+                        <input type="range" id="minParticleSize" min="0.5" max="20" value="1" step="0.5">
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Max Particle Size
+                            <span class="value" id="maxSizeValue">5</span>
+                        </label>
+                        <input type="range" id="maxParticleSize" min="0.5" max="30" value="5" step="0.5">
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Gravity
+                            <span class="value" id="gravityValue">0</span>
+                        </label>
+                        <input type="range" id="gravity" min="-100" max="100" value="0" step="1">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-column">
+                <div class="control-group">
+                    <h3>Flow</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Spin Rate
+                            <span class="value" id="spinRateValue">0</span>
+                        </label>
+                        <input type="range" id="spinRate" min="0" max="200" value="0" step="1">
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">Spin Direction</label>
+                        <select id="spinDirection">
+                            <option value="1">Clockwise</option>
+                            <option value="-1">Counterclockwise</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label class="control-label">
+                            Spin Turbulence
+                            <span class="value" id="spinTurbulenceValue">0</span>
+                        </label>
+                        <input type="range" id="spinTurbulence" min="0" max="100" value="0" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Visual</h3>
+                    
+                    <div class="control-item">
+                        <label class="control-label">Color Theme</label>
+                        <select id="colorTheme">
+                            <option value="ocean">Ocean</option>
+                            <option value="sunset">Sunset</option>
+                            <option value="neon">Neon</option>
+                            <option value="forest">Forest</option>
+                            <option value="fire">Fire</option>
+                            <option value="purple">Purple Dream</option>
+                            <option value="rainbow">Rainbow</option>
+                            <option value="monochrome">⚫ Monochrome</option>
+                        </select>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+    </div>
+    
+    <div class="favorites-panel">
+        <h3>Favorites</h3>
+        <div class="favorites-section">
+            <div class="favorites-input-group">
+                <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+            </div>
+            <div id="favoritesList" class="favorites-list"></div>
+        </div>
+    </div>
+    
+    <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>

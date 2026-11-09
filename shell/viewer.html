@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizer Viewer</title>
+  <link rel="stylesheet" href="./css/viewer.css">
+</head>
+<body>
+  <!-- Viewer Display Container -->
+  <div id="viewer-container">
+    <!-- Module will be loaded here -->
+  </div>
+
+  <!-- Image Layer Container -->
+  <div id="image-layer-container"></div>
+
+  <canvas id="mapping-output" hidden></canvas>
+  <div id="mapping-modules" hidden></div>
+  <canvas id="mapping-overlay" hidden></canvas>
+
+  <!-- Status overlay -->
+  <div id="status-overlay">
+    <div id="status-message">No module loaded</div>
+  </div>
+
+  <script type="module" src="./viewer.js"></script>
+</body>
+</html>
+

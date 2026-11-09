@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Big Solid Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    .custom-colors-group {
+      display: none;
+    }
+    .custom-colors-group.visible {
+      display: block;
+    }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Big Solid</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Audio</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Sensitivity
+              <span class="value" id="sensitivity-value">1.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="sensitivity" 
+              min="0" 
+              max="2" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Smoothing
+              <span class="value" id="smoothing-value">0.70</span>
+            </label>
+            <input 
+              type="range" 
+              id="smoothing" 
+              min="0" 
+              max="1" 
+              step="0.05" 
+              value="0.7"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Color</h3>
+          
+          <div class="control-item">
+            <label class="control-label" style="display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" id="timeBasedMode">
+              Time-Based Mode
+            </label>
+          </div>
+          
+          <div class="control-item" id="sequenceDurationGroup" style="display: none;">
+            <label class="control-label">
+              Sequence Duration (seconds)
+              <span class="value" id="sequenceDuration-value">30.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="sequenceDuration" 
+              min="1" 
+              max="120" 
+              step="1" 
+              value="30"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Palette</label>
+            <select id="palette">
+              <option value="warm">Warm</option>
+              <option value="cool">Cool</option>
+              <option value="neon">Neon</option>
+              <option value="monochrome">Monochrome</option>
+              <option value="sunset">Sunset</option>
+              <option value="ocean">Ocean</option>
+              <option value="forest">Forest</option>
+              <option value="purple">Purple</option>
+              <option value="rainbow">Rainbow</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          
+          <div class="control-item custom-colors-group" id="customColorsGroup">
+            <label class="control-label">Custom Colors</label>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 24px; margin-top: 14px;">
+              <div>
+                <label style="font-size: 12px;">Color 1</label>
+                <input type="color" id="color1" value="#ff0000">
+              </div>
+              <div>
+                <label style="font-size: 12px;">Color 2</label>
+                <input type="color" id="color2" value="#ffa500">
+              </div>
+              <div>
+                <label style="font-size: 12px;">Color 3</label>
+                <input type="color" id="color3" value="#ffff00">
+              </div>
+              <div>
+                <label style="font-size: 12px;">Color 4</label>
+                <input type="color" id="color4" value="#00ff00">
+              </div>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Brightness Bias
+              <span class="value" id="brightness-value">0.00</span>
+            </label>
+            <input 
+              type="range" 
+              id="brightness" 
+              min="-1" 
+              max="1" 
+              step="0.1" 
+              value="0"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Motion</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Min Transition Speed
+              <span class="value" id="minSpeed-value">0.0050</span>
+            </label>
+            <input 
+              type="range" 
+              id="minSpeed" 
+              min="0" 
+              max="0.05" 
+              step="0.001" 
+              value="0.005"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Max Transition Speed
+              <span class="value" id="maxSpeed-value">0.1500</span>
+            </label>
+            <input 
+              type="range" 
+              id="maxSpeed" 
+              min="0" 
+              max="1" 
+              step="0.01" 
+              value="0.15"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Flash</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Flash Threshold
+              <span class="value" id="flashThreshold-value">0.90</span>
+            </label>
+            <input 
+              type="range" 
+              id="flashThreshold" 
+              min="0" 
+              max="1" 
+              step="0.05" 
+              value="0.9"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label" style="display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" id="holdMode">
+              Hold Color (Flash Only)
+            </label>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Hold Color</label>
+            <input type="color" id="holdColor" value="#808080">
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Scene</h3>
+          
+          <button id="randomizeBtn" class="btn primary" data-randomize-settings style="width: 100%; margin-bottom: 15px;">Randomize Settings</button>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+  
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,110 @@
+{
+  "bauhaus": {
+    "params": {
+      "density": "16,9",
+      "shapes": [
+        "square",
+        "circle",
+        "wedge",
+        "triangle"
+      ],
+      "theme": "bauhaus",
+      "colorTransitionDuration": 1,
+      "colorSequence": true,
+      "sequenceRate": 0.3,
+      "timeOffset": 10,
+      "audioReactive": true,
+      "sensitivity": 60,
+      "scalingAmount": 15,
+      "scalingOffset": 10,
+      "wedgeFlipRate": 20,
+      "showGrid": true
+    },
+    "timestamp": 1774821138520,
+    "updated": 1774821138520
+  },
+  "wedges": {
+    "params": {
+      "density": "8,5",
+      "shapes": [
+        "triangle"
+      ],
+      "theme": "swiss",
+      "colorTransitionDuration": 1.8,
+      "colorSequence": true,
+      "sequenceRate": 1.5,
+      "timeOffset": 10,
+      "audioReactive": true,
+      "sensitivity": 7,
+      "scalingAmount": 0,
+      "scalingOffset": 91,
+      "wedgeFlipRate": 20,
+      "showGrid": true
+    },
+    "timestamp": 1774821291142,
+    "updated": 1774821291142
+  },
+  "midnight moons": {
+    "params": {
+      "density": "8,5",
+      "shapes": [
+        "wedge"
+      ],
+      "theme": "midnight",
+      "colorTransitionDuration": 0.3,
+      "colorSequence": true,
+      "sequenceRate": 0.7,
+      "timeOffset": 10,
+      "audioReactive": true,
+      "sensitivity": 7,
+      "scalingAmount": 0,
+      "scalingOffset": 91,
+      "wedgeFlipRate": 20,
+      "showGrid": true
+    },
+    "timestamp": 1774821344156,
+    "updated": 1774821344156
+  },
+  "pixelated": {
+    "params": {
+      "density": "24,14",
+      "shapes": [
+        "square"
+      ],
+      "theme": "midnight",
+      "colorTransitionDuration": 1.8,
+      "colorSequence": true,
+      "sequenceRate": 1.5,
+      "timeOffset": 10,
+      "audioReactive": true,
+      "sensitivity": 7,
+      "scalingAmount": 0,
+      "scalingOffset": 91,
+      "wedgeFlipRate": 20,
+      "showGrid": true
+    },
+    "timestamp": 1775077683942,
+    "updated": 1775077683942
+  },
+  "discoball": {
+    "params": {
+      "density": "24,14",
+      "shapes": [
+        "circle"
+      ],
+      "theme": "ocean",
+      "colorTransitionDuration": 1.8,
+      "colorSequence": true,
+      "sequenceRate": 1.5,
+      "timeOffset": 10,
+      "audioReactive": true,
+      "sensitivity": 7,
+      "scalingAmount": 0,
+      "scalingOffset": 91,
+      "wedgeFlipRate": 20,
+      "showGrid": true
+    },
+    "timestamp": 1775225461987,
+    "updated": 1775225461987
+  }
+}

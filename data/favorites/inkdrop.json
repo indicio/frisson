@@ -1,0 +1,32 @@
+{
+  "auto-worms": {
+    "params": {
+      "sensitivity": 80,
+      "diffusion": 23,
+      "minParticleSize": 3.5,
+      "maxParticleSize": 13.5,
+      "gravity": 43,
+      "spinRate": 172,
+      "spinDirection": -1,
+      "spinTurbulence": 18,
+      "colorTheme": "ocean"
+    },
+    "timestamp": 1774809624092,
+    "updated": 1774809624092
+  },
+  "fire torrent": {
+    "params": {
+      "sensitivity": 43,
+      "diffusion": 54,
+      "minParticleSize": 5,
+      "maxParticleSize": 16,
+      "gravity": 1,
+      "spinRate": 142,
+      "spinDirection": 1,
+      "spinTurbulence": 51,
+      "colorTheme": "fire"
+    },
+    "timestamp": 1774809747239,
+    "updated": 1774809747239
+  }
+}

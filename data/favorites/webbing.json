@@ -1,0 +1,28 @@
+{
+  "baseline": {
+    "params": {
+      "orbitRadius": 250,
+      "orbitSpeed": 0.04,
+      "particleCount": 50,
+      "spawnRate": 1,
+      "amplitudeThreshold": 0.015,
+      "connectionDistance": 200,
+      "minSize": 2,
+      "maxSize": 8,
+      "minSpeed": 1,
+      "maxSpeed": 5,
+      "minLifespan": 1,
+      "maxLifespan": 14,
+      "colorTheme": "ocean",
+      "lowColor": "#0000ff",
+      "highColor": "#ff0000",
+      "connectionColor": "#ffffff",
+      "connectionThickness": 1,
+      "lowFreq": 200,
+      "highFreq": 2000,
+      "backgroundColor": "#000000"
+    },
+    "timestamp": 1774808831269,
+    "updated": 1774808831269
+  }
+}

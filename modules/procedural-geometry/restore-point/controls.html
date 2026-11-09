@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procedural Geometry Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+  <style>
+    .frisson-controls .control-panel .section { margin-bottom: 14px; padding-bottom: 12px; }
+    .frisson-controls .control-panel .section-title { margin-bottom: 8px; }
+    .frisson-controls .control-panel .control-item:not(:has(> input[type='checkbox'])):not(:has(> input[type='color'])) {
+      display: grid;
+      grid-template-columns: minmax(108px, 38%) minmax(0, 1fr);
+      align-items: center;
+      column-gap: 10px;
+      margin: 0 0 4px;
+    }
+    .frisson-controls .control-panel .control-label {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.25;
+      min-width: 0;
+    }
+    .frisson-controls .control-panel .control-item:has(> input[type='checkbox']),
+    .frisson-controls .control-panel .control-item:has(> input[type='color']) { margin-bottom: 4px; }
+    .frisson-controls .control-panel input[type='range'] { height: 16px; }
+    .frisson-controls .control-panel input[type='range']::-webkit-slider-runnable-track { height: 16px; border-radius: 8px; }
+    .frisson-controls .control-panel input[type='range']::-webkit-slider-thumb { margin-top: 2px; }
+    .frisson-controls .control-panel input[type='range']::-moz-range-track { height: 16px; border-radius: 8px; }
+    .frisson-controls .control-panel :is(select, input[type='text'], input[type='number']) { width: 100%; min-height: 30px; padding: 4px 8px; }
+    .stack-row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+    .stack-row button.name { flex: 1; text-align: left; min-height: 30px; }
+    .stack-row button.name.active { background: var(--accent); color: #111b29; }
+    .row-actions { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+    .when { display: block; }
+    body.pg-ready .when { display: none; }
+    body.pg-ready .when.on { display: block; }
+    .frisson-controls .control-panel .control-item.preset-field:not(:has(> input[type='checkbox'])):not(:has(> input[type='color'])) {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      grid-column: 1 / -1;
+      width: min(100%, 28rem);
+      min-height: 36px;
+      margin: 0 0 8px;
+      padding: 0 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+    }
+    .frisson-controls .control-panel .preset-field .control-label { margin: 0; color: var(--text-tertiary); white-space: nowrap; }
+    .frisson-controls .control-panel .preset-field select { flex: 1; min-width: 0; height: 34px; border: 0; background: transparent; padding-left: 0; box-shadow: none; }
+    .field-note { grid-column: 1 / -1; margin: 2px 0 6px; }
+  </style>
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Procedural Geometry</h1></header>
+    <small>Concentric, parallel, and radial geometry with extreme width and gap progressions, stacked deformation, and audio modulation.</small>
+
+    <div class="section">
+      <div class="section-title">Presets</div>
+      <div class="control-item preset-field">
+        <label class="control-label" for="preset">Factory preset</label>
+        <select id="preset" aria-label="Factory preset">
+          <option value="classic-op-art">Classic Op Art</option>
+          <option value="extreme-bands">Extreme Bands</option>
+          <option value="breathing-rings">Breathing Rings</option>
+          <option value="liquid-lines">Liquid Lines</option>
+          <option value="topographic">Topographic</option>
+          <option value="vortex-tunnel" selected>Vortex Tunnel</option>
+          <option value="geometric-chaos">Geometric Chaos</option>
+          <option value="psychedelic-spiral">Psychedelic Spiral</option>
+          <option value="bass-reactor">Bass Reactor</option>
+          <option value="pitch-chromatic">Pitch Chromatic</option>
+          <option value="ripple-field">Ripple Field</option>
+          <option value="morphing-polygons">Morphing Polygons</option>
+        </select>
+      </div>
+      <button id="resetPreset" type="button">Reset preset</button>
+      <button id="randomizeSettings" type="button" class="btn primary" data-randomize-settings>Randomize Settings</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Geometry</div>
+      <div class="control-item">
+        <label class="control-label" for="shape">Shape</label>
+        <select id="shape" data-path="form.shape">
+          <option value="horizontal">Horizontal lines</option>
+          <option value="vertical">Vertical lines</option>
+          <option value="diagonal">Diagonal lines</option>
+          <option value="sine">Parallel sine waves</option>
+          <option value="triangle-wave">Parallel triangle waves</option>
+          <option value="saw">Parallel sawtooth waves</option>
+          <option value="square-wave">Parallel square waves</option>
+          <option value="compound">Compound waveforms</option>
+          <option value="crosshatch">Crosshatch grid</option>
+          <option value="circles">Circles</option>
+          <option value="ellipses">Ellipses</option>
+          <option value="squares">Squares</option>
+          <option value="rectangles">Rectangles</option>
+          <option value="diamonds">Diamonds</option>
+          <option value="triangles">Triangles</option>
+          <option value="polygons">Polygons</option>
+          <option value="stars">Stars</option>
+          <option value="organic">Organic contours</option>
+          <option value="rounded">Rounded polygons</option>
+          <option value="spokes">Radial spokes</option>
+          <option value="spiral-arch">Archimedean spiral</option>
+          <option value="spiral-log">Logarithmic spiral</option>
+          <option value="spiral-arms">Multi-arm spiral</option>
+          <option value="polygon-tunnel" selected>Polygon tunnel</option>
+        </select>
+      </div>
+      <div class="when" data-for="sides">
+        <div class="control-item"><label class="control-label">Sides <span class="value" data-value="form.sides"></span></label><input data-path="form.sides" type="range" min="3" max="16" step="1"></div>
+      </div>
+      <div class="when" data-for="star">
+        <div class="control-item"><label class="control-label">Star points <span class="value" data-value="form.starPoints"></span></label><input data-path="form.starPoints" type="range" min="3" max="16" step="1"></div>
+        <div class="control-item"><label class="control-label">Inner radius <span class="value" data-value="form.starInner"></span></label><input data-path="form.starInner" type="range" min="0.05" max="0.95" step="0.01"></div>
+      </div>
+      <div class="when" data-for="ellipse">
+        <div class="control-item"><label class="control-label">Aspect <span class="value" data-value="form.ellipseAspect"></span></label><input data-path="form.ellipseAspect" type="range" min="0.3" max="3" step="0.01"></div>
+      </div>
+      <div class="when" data-for="spiral">
+        <div class="control-item"><label class="control-label">Pitch <span class="value" data-value="form.spiralPitch"></span></label><input data-path="form.spiralPitch" type="range" min="4" max="40" step="0.5"></div>
+        <div class="control-item"><label class="control-label">Turns <span class="value" data-value="form.spiralTurns"></span></label><input data-path="form.spiralTurns" type="range" min="1" max="12" step="0.5"></div>
+      </div>
+      <div class="when" data-for="arms">
+        <div class="control-item"><label class="control-label">Arms <span class="value" data-value="form.spiralArms"></span></label><input data-path="form.spiralArms" type="range" min="1" max="8" step="1"></div>
+      </div>
+      <div class="when" data-for="organic">
+        <div class="control-item"><label class="control-label">Contour seed <span class="value" data-value="form.seed"></span></label><input data-path="form.seed" type="range" min="1" max="40" step="1"></div>
+      </div>
+      <div class="when" data-for="wave">
+        <div class="control-item">
+          <label class="control-label">Waveform</label>
+          <select data-path="form.waveType">
+            <option value="sine">Sine</option>
+            <option value="triangle">Triangle</option>
+            <option value="saw">Sawtooth</option>
+            <option value="square">Square</option>
+            <option value="compound">Compound</option>
+          </select>
+        </div>
+        <div class="control-item"><label class="control-label">Wave amplitude <span class="value" data-value="form.waveAmp"></span></label><input data-path="form.waveAmp" type="range" min="0" max="200" step="1"></div>
+        <div class="control-item"><label class="control-label">Wave frequency <span class="value" data-value="form.waveFreq"></span></label><input data-path="form.waveFreq" type="range" min="0.2" max="12" step="0.1"></div>
+      </div>
+      <div class="when" data-for="step">
+        <div class="control-item"><label class="control-label">Rotation step <span class="value" data-value="form.rotationStep"></span></label><input data-path="form.rotationStep" type="range" min="-45" max="45" step="0.5"></div>
+      </div>
+      <div class="control-item"><label class="control-label">Base rotation <span class="value" data-value="form.rotation"></span></label><input data-path="form.rotation" type="range" min="-180" max="180" step="1"></div>
+      <div class="control-item"><label class="control-label">Center X <span class="value" data-value="form.centerX"></span></label><input data-path="form.centerX" type="range" min="-1" max="1" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Center Y <span class="value" data-value="form.centerY"></span></label><input data-path="form.centerY" type="range" min="-1" max="1" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Scale <span class="value" data-value="form.scale"></span></label><input data-path="form.scale" type="range" min="0.25" max="2.5" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Element cap <span class="value" data-value="form.limit"></span></label><input data-path="form.limit" type="range" min="4" max="80" step="1"></div>
+      <div class="control-item"><label class="control-label">Quality <span class="value" data-value="form.quality"></span></label><input data-path="form.quality" type="range" min="0.35" max="1" step="0.01"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Width</div>
+      <div id="width-fields">
+        <div class="control-item"><label class="control-label" for="width-base">Base</label><input id="width-base" data-path="width.base" type="range" min="0.5" max="300" step="0.5" value="2.2"></div>
+        <div class="control-item"><label class="control-label" for="width-min">Minimum</label><input id="width-min" data-path="width.min" type="range" min="0" max="200" step="0.5" value="0.5"></div>
+        <div class="control-item"><label class="control-label" for="width-max">Maximum</label><input id="width-max" data-path="width.max" type="range" min="1" max="400" step="1" value="300"></div>
+        <div class="control-item"><label class="control-label" for="width-amplitude">Amplitude</label><input id="width-amplitude" data-path="width.amplitude" type="range" min="0" max="200" step="0.5" value="1.4"></div>
+        <div class="control-item"><label class="control-label" for="width-period">Period</label><input id="width-period" data-path="width.period" type="range" min="1" max="32" step="1" value="7"></div>
+        <div class="control-item"><label class="control-label" for="width-phase">Phase</label><input id="width-phase" data-path="width.phase" type="range" min="0" max="1" step="0.01" value="0"></div>
+        <div class="control-item"><label class="control-label" for="width-phaseSpeed">Phase speed</label><input id="width-phaseSpeed" data-path="width.phaseSpeed" type="range" min="-2" max="2" step="0.01" value="0"></div>
+        <div class="control-item"><label class="control-label" for="width-curve">Curve</label><select id="width-curve" data-path="width.curve"><option value="uniform">Uniform</option><option value="linear">Linear</option><option value="triangle">Triangle</option><option value="sine" selected>Sine</option><option value="sawtooth">Sawtooth</option><option value="exponential">Exponential</option><option value="alternating">Alternating</option><option value="stepped">Stepped</option><option value="random">Seeded random</option><option value="sequence">Custom sequence</option></select></div>
+        <div class="control-item"><label class="control-label" for="width-space">Evaluate by</label><select id="width-space" data-path="width.space"><option value="index" selected>Element index</option><option value="spatial">Spatial position</option></select></div>
+        <div class="control-item"><label class="control-label" for="width-direction">Direction</label><select id="width-direction" data-path="width.direction"><option value="1" selected>Forward</option><option value="-1">Reverse</option></select></div>
+        <div class="control-item"><label class="control-label" for="width-sequence">Sequence</label><input id="width-sequence" data-path="width.sequence" type="text" value="2, 8, 24, 80, 24, 8"></div>
+        <div class="control-item"><label class="control-label" for="width-seed">Seed</label><input id="width-seed" data-path="width.seed" type="range" min="1" max="40" step="1" value="1"></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Gap</div>
+      <div id="gap-fields">
+        <div class="control-item"><label class="control-label" for="gap-base">Base</label><input id="gap-base" data-path="gap.base" type="range" min="0" max="400" step="0.5" value="24"></div>
+        <div class="control-item"><label class="control-label" for="gap-min">Minimum</label><input id="gap-min" data-path="gap.min" type="range" min="0" max="200" step="0.5" value="0"></div>
+        <div class="control-item"><label class="control-label" for="gap-max">Maximum</label><input id="gap-max" data-path="gap.max" type="range" min="1" max="400" step="1" value="400"></div>
+        <div class="control-item"><label class="control-label" for="gap-amplitude">Amplitude</label><input id="gap-amplitude" data-path="gap.amplitude" type="range" min="0" max="200" step="0.5" value="0"></div>
+        <div class="control-item"><label class="control-label" for="gap-period">Period</label><input id="gap-period" data-path="gap.period" type="range" min="1" max="32" step="1" value="8"></div>
+        <div class="control-item"><label class="control-label" for="gap-phase">Phase</label><input id="gap-phase" data-path="gap.phase" type="range" min="0" max="1" step="0.01" value="0"></div>
+        <div class="control-item"><label class="control-label" for="gap-phaseSpeed">Phase speed</label><input id="gap-phaseSpeed" data-path="gap.phaseSpeed" type="range" min="-2" max="2" step="0.01" value="0"></div>
+        <div class="control-item"><label class="control-label" for="gap-curve">Curve</label><select id="gap-curve" data-path="gap.curve"><option value="uniform" selected>Uniform</option><option value="linear">Linear</option><option value="triangle">Triangle</option><option value="sine">Sine</option><option value="sawtooth">Sawtooth</option><option value="exponential">Exponential</option><option value="alternating">Alternating</option><option value="stepped">Stepped</option><option value="random">Seeded random</option><option value="sequence">Custom sequence</option></select></div>
+        <div class="control-item"><label class="control-label" for="gap-space">Evaluate by</label><select id="gap-space" data-path="gap.space"><option value="index" selected>Element index</option><option value="spatial">Spatial position</option></select></div>
+        <div class="control-item"><label class="control-label" for="gap-direction">Direction</label><select id="gap-direction" data-path="gap.direction"><option value="1" selected>Forward</option><option value="-1">Reverse</option></select></div>
+        <div class="control-item"><label class="control-label" for="gap-sequence">Sequence</label><input id="gap-sequence" data-path="gap.sequence" type="text" value="2, 8, 24, 80, 24, 8"></div>
+        <div class="control-item"><label class="control-label" for="gap-seed">Seed</label><input id="gap-seed" data-path="gap.seed" type="range" min="1" max="40" step="1" value="1"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Deformation</div>
+      <div id="deform-list"></div>
+      <div class="row-actions">
+        <button type="button" id="addDeform">Add</button>
+        <button type="button" id="duplicateDeform">Duplicate</button>
+        <button type="button" id="removeDeform">Remove</button>
+        <button type="button" id="upDeform">Up</button>
+        <button type="button" id="downDeform">Down</button>
+      </div>
+      <div id="deform-editor"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Animation</div>
+      <div class="control-item"><label class="control-label">Speed <span class="value" data-value="anim.speed"></span></label><input data-path="anim.speed" type="range" min="0" max="3" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Translate X <span class="value" data-value="anim.translateX"></span></label><input data-path="anim.translateX" type="range" min="-200" max="200" step="1"></div>
+      <div class="control-item"><label class="control-label">Scroll / translate Y <span class="value" data-value="anim.translateY"></span></label><input data-path="anim.translateY" type="range" min="-200" max="200" step="1"></div>
+      <div class="control-item"><label class="control-label">Rotation <span class="value" data-value="anim.rotation"></span></label><input data-path="anim.rotation" type="range" min="-180" max="180" step="1"></div>
+      <div class="control-item"><label class="control-label">Expansion <span class="value" data-value="anim.expand"></span></label><input data-path="anim.expand" type="range" min="-200" max="200" step="1"></div>
+      <div class="control-item"><label class="control-label">Wave phase speed <span class="value" data-value="anim.wavePhase"></span></label><input data-path="anim.wavePhase" type="range" min="-3" max="3" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Turbulence evolution <span class="value" data-value="anim.turbEvolve"></span></label><input data-path="anim.turbEvolve" type="range" min="0" max="2" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Ripple speed <span class="value" data-value="anim.ripple"></span></label><input data-path="anim.ripple" type="range" min="0" max="3" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Hue cycle <span class="value" data-value="anim.hue"></span></label><input data-path="anim.hue" type="range" min="-90" max="90" step="1"></div>
+      <div class="control-item"><label class="control-label">Polygon rotation <span class="value" data-value="anim.polyRot"></span></label><input data-path="anim.polyRot" type="range" min="-90" max="90" step="1"></div>
+      <div class="control-item"><label class="control-label">Morph speed <span class="value" data-value="anim.morph"></span></label><input data-path="anim.morph" type="range" min="0" max="2" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Morph amount <span class="value" data-value="form.morph"></span></label><input data-path="form.morph" type="range" min="0" max="1" step="0.01"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Audio modulation</div>
+      <div class="control-item"><label class="control-label">Sensitivity <span class="value" data-value="audioGain"></span></label><input data-path="audioGain" type="range" min="0" max="4" step="0.01"></div>
+      <div id="route-list"></div>
+      <div class="row-actions">
+        <button type="button" id="addRoute">Add route</button>
+        <button type="button" id="removeRoute">Remove</button>
+      </div>
+      <div id="route-editor"></div>
+      <p class="hint">Pitch uses autocorrelation and holds the last confident note. Routes change the live value only; the sliders keep the base setting.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Color</div>
+      <div class="control-item"><label class="control-label">Foreground</label><input data-path="color.fg" type="color"></div>
+      <div class="control-item"><label class="control-label">Background</label><input data-path="color.bg" type="color"></div>
+      <div class="control-item"><label class="control-label">Hue <span class="value" data-value="color.hue"></span></label><input data-path="color.hue" type="range" min="0" max="360" step="1"></div>
+      <div class="control-item"><label class="control-label">Background hue <span class="value" data-value="color.bgHue"></span></label><input data-path="color.bgHue" type="range" min="0" max="360" step="1"></div>
+      <div class="control-item"><label class="control-label">Saturation <span class="value" data-value="color.saturation"></span></label><input data-path="color.saturation" type="range" min="0" max="2" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Brightness <span class="value" data-value="color.brightness"></span></label><input data-path="color.brightness" type="range" min="0" max="2" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Background brightness <span class="value" data-value="color.bgBrightness"></span></label><input data-path="color.bgBrightness" type="range" min="0" max="1" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Opacity <span class="value" data-value="color.opacity"></span></label><input data-path="color.opacity" type="range" min="0" max="1" step="0.01"></div>
+      <div class="control-item">
+        <label class="control-label">Palette</label>
+        <select data-path="color.palette">
+          <option value="none">Solid</option>
+          <option value="cyan">Cyan</option>
+          <option value="magma">Magma</option>
+          <option value="ice">Ice</option>
+          <option value="complement">Complement</option>
+        </select>
+      </div>
+      <div class="control-item"><label class="control-label">Palette mix <span class="value" data-value="color.paletteMix"></span></label><input data-path="color.paletteMix" type="range" min="0" max="1" step="0.01"></div>
+      <div class="control-item"><label class="control-label">Invert</label><input data-path="color.invert" type="checkbox"></div>
+    </div>
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary" type="button">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+/* Common controls surface. Module styles only describe specialized widgets. */
+body.frisson-controls {
+  --bg-primary: #17191c;
+  --bg-secondary: #22252a;
+  --bg-tertiary: #2d3138;
+  --border-color: #3d424b;
+  --text-primary: #f1f3f5;
+  --text-secondary: #bcc2cb;
+  --text-tertiary: #989faa;
+  --accent: #85b8fa;
+  --accent-hover: #acd0ff;
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.frisson-controls .control-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 16px 20px 24px;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+.frisson-controls .control-flow,
+.frisson-controls .control-panel:not(:has(> .control-flow)) {
+  columns: var(--control-columns, 1);
+  column-gap: 22px;
+  column-fill: balance;
+}
+.frisson-controls :is(.control-flow, .control-panel) > :is(.controls-heading, header, small, p, .hint, .controls-grid, .vp-grid) {
+  column-span: all;
+}
+body.frisson-controls.in-tray .controls-heading,
+.frisson-controls.in-tray .controls-heading { display: none; }
+.frisson-controls .controls-heading { margin: 0; }
+.frisson-controls .controls-heading p { color: var(--text-tertiary); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.frisson-controls .controls-heading h1 { font-size: 20px; font-weight: 500; line-height: 1.4; margin: 8px 0 0; }
+.frisson-controls .controls-grid, .frisson-controls .vp-grid {
+  display: block;
+  columns: var(--control-columns, 1);
+  column-gap: 22px;
+  column-fill: balance;
+}
+.frisson-controls .controls-column {
+  display: contents;
+}
+.frisson-controls .row:has(> .control-item):not(:has(input[type='color'])) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.frisson-controls .row:has(> .control-item):not(:has(input[type='color'])) > .control-item {
+  flex: none;
+  width: 100%;
+  margin: 0;
+}
+.frisson-controls .row:has(input[type='color']) {
+  display: contents;
+}
+.frisson-controls .controls-column, .frisson-controls .row > div { min-width: 0; }
+.frisson-controls .control-group, .frisson-controls .section {
+  margin: 0 0 10px;
+  padding: 0 0 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  min-width: 0;
+  width: 100%;
+  break-inside: avoid;
+}
+.frisson-controls .control-group:last-child, .frisson-controls .section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.frisson-controls .control-group h3, .frisson-controls .section-title {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: #f7f8fa;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  margin: 0 0 8px;
+}
+.frisson-controls .control-item { margin: 0 0 8px; min-width: 0; }
+.frisson-controls .control-item:has(input[type='range']) {
+  display: grid;
+  grid-template-columns: minmax(104px, 36%) minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+}
+.frisson-controls .control-item:has(input[type='range']) > :is(label, .control-label) {
+  margin: 0;
+}
+.frisson-controls label:has(> input[type='range']) {
+  display: grid;
+  grid-template-columns: minmax(104px, 36%) minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+  margin-bottom: 8px;
+}
+.frisson-controls .control-item:last-child { margin-bottom: 0; }
+.frisson-controls label,
+.frisson-controls .control-label,
+.frisson-controls .toggle-label {
+  font-weight: 400;
+}
+.frisson-controls .control-label,
+.frisson-controls .control-item > label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  color: #8b939f;
+}
+.frisson-controls label:has(> input[type='range']) {
+  font-size: 12px;
+  font-weight: 400;
+  color: #8b939f;
+}
+.frisson-controls .control-label:has(> .value:last-child) { justify-content: space-between; }
+.frisson-controls .control-label .value { color: var(--text-primary); font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.frisson-controls :is(input, select, textarea, button) { font: inherit; max-width: 100%; }
+.frisson-controls :is(select, input[type='text'], input[type='number'], textarea) {
+  min-height: 36px;
+  padding: 7px 10px;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: none;
+  border-radius: 8px;
+  min-width: 0;
+}
+.frisson-controls input[type='file'] { width: 100%; font-size: 12px; color: var(--text-secondary); }
+.frisson-controls input[type='file']::file-selector-button { padding: 8px; margin-right: 8px; background: var(--bg-secondary); color: var(--text-primary); border: none; border-radius: 8px; cursor: pointer; }
+.frisson-controls :is(button, .btn) { min-height: 36px; padding: 7px 12px; border: none; border-radius: 8px; font-size: 12px; font-weight: 500; box-shadow: none; }
+.frisson-controls button.primary { background: var(--accent); border-color: var(--accent); color: #111b29; }
+.frisson-controls button.primary:hover { background: var(--accent-hover); }
+.frisson-controls button:disabled { opacity: .45; cursor: not-allowed; }
+.frisson-controls :is(input, select, textarea, button, summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.frisson-controls input[type='range'] {
+  display: block;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.frisson-controls input[type='range']::-webkit-slider-runnable-track {
+  height: 22px;
+  border: none;
+  border-radius: 11px;
+  background: #22262c;
+}
+.frisson-controls input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: none;
+}
+.frisson-controls input[type='range']::-moz-range-track {
+  height: 22px;
+  border: none;
+  border-radius: 11px;
+  background: #22262c;
+}
+.frisson-controls input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.frisson-controls input[type='color'],
+.frisson-controls .palette-color,
+.frisson-controls .bg-grad-custom input[type='color'] {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  flex: 0 0 36px;
+}
+.frisson-controls input[type='color']::-webkit-color-swatch-wrapper { padding: 0; }
+.frisson-controls input[type='color']::-webkit-color-swatch { border: none; border-radius: 0; }
+.frisson-controls input[type='color']::-moz-color-swatch { border: none; border-radius: 0; }
+.frisson-controls .control-group:has(input[type='color']),
+.frisson-controls .section:has(input[type='color']) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 28px;
+  row-gap: 18px;
+  align-items: center;
+}
+.frisson-controls .control-group:has(input[type='color']) > *:not(.control-item:has(> input[type='color'])),
+.frisson-controls .section:has(input[type='color']) > *:not(.control-item:has(> input[type='color'])) {
+  grid-column: 1 / -1;
+}
+.frisson-controls .control-group:has(input[type='color']) > .control-item,
+.frisson-controls .section:has(input[type='color']) > .control-item,
+.frisson-controls .row:has(input[type='color']) > .control-item {
+  margin: 0;
+}
+.frisson-controls .control-group:has(input[type='color']) > :is(h3, .section-title),
+.frisson-controls .section:has(input[type='color']) > :is(h3, .section-title) {
+  margin: 0;
+}
+.frisson-controls .control-item:not(:has(input[type='color'])) {
+  grid-column: 1 / -1;
+}
+.frisson-controls :is(.control-item, div):has(> input[type='color']):not(:has(> input[type='color'] ~ input[type='color'])) {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-height: 36px;
+}
+.frisson-controls :is(.control-item, div):has(> input[type='color']) > input[type='color'] { order: 1; }
+.frisson-controls :is(.control-item, div):has(> input[type='color']) > :is(label, .control-label) {
+  order: 2;
+  margin: 0;
+  flex: 0 1 auto;
+  justify-content: flex-start;
+}
+.frisson-controls :is(.control-item, div):has(> input[type='color']) > .value { order: 3; margin-left: 4px; }
+.frisson-controls label:has(> input[type='color']) {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.frisson-controls label:has(> input[type='color']) > input[type='color'] { order: -1; }
+.frisson-controls .gradient-color-grid,
+.frisson-controls .palette-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 24px;
+  align-items: center;
+  margin: 4px 0 0;
+}
+.frisson-controls .palette-row label,
+.frisson-controls .bg-grad-custom label,
+.frisson-controls .gradient-color-grid label {
+  width: auto;
+  margin: 0;
+  font-size: 13px;
+}
+.frisson-controls .bg-grad-custom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px 24px;
+  align-items: center;
+  margin: 16px 0 0;
+}
+.frisson-controls .bg-grad-custom select { grid-column: 1 / -1; margin: 0; }
+.frisson-controls details > summary {
+  margin: 8px 0;
+  color: #d7dce3;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.frisson-controls details > button { margin-top: 16px; }
+.frisson-controls :is(input[type='checkbox'], input[type='radio']) { width: 18px; height: 18px; flex: 0 0 18px; accent-color: var(--accent); }
+.frisson-controls .control-item:has(> input[type='checkbox']) { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 32px; }
+.frisson-controls .control-item:has(> input[type='checkbox']) > label { margin: 0; flex: 1; cursor: pointer; }
+.frisson-controls label:has(> input[type='checkbox']) { justify-content: flex-start; cursor: pointer; min-height: 32px; }
+.frisson-controls .toggle-container { padding: 0; margin: 0; border: 0; border-radius: 0; background: none; min-height: 32px; }
+.frisson-controls .toggle-label { font-size: 12px; color: var(--text-secondary); }
+.frisson-controls .toggle-switch { width: 18px; height: 18px; }
+.frisson-controls .toggle-switch input { opacity: 1; width: 18px; height: 18px; }
+.frisson-controls .toggle-slider { display: none; }
+.frisson-controls .hint, .frisson-controls .vp-hint, .frisson-controls .control-panel small, .frisson-controls .control-item small { display: block; margin-top: 8px; font-size: 12px; line-height: 1.5; color: var(--text-tertiary); }
+.frisson-controls .control-panel > small { margin-bottom: 20px; }
+.frisson-controls .row { gap: 12px; flex-wrap: wrap; }
+.frisson-controls [data-randomize-settings] { display: none !important; }
+.frisson-controls :is(.section, .control-group):has(.preset-buttons) {
+  column-span: all;
+}
+.frisson-controls .preset-buttons {
+  grid-template-columns: repeat(auto-fit, minmax(max(8.75rem, 20%), 1fr));
+  gap: 8px;
+}
+.frisson-controls .favorites-panel {
+  position: static;
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: 380px;
+  max-height: 58vh;
+  max-height: 58dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 14px 20px 16px;
+  background: #2a3038;
+  border-top: 1px solid #3c4450;
+  box-shadow: none;
+  overflow: hidden;
+}
+.frisson-controls .favorites-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  margin: 0;
+  color: #f7f8fa;
+  cursor: pointer;
+  user-select: none;
+}
+.frisson-controls .favorites-panel h3::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid currentColor;
+}
+.frisson-controls .favorites-panel.is-collapsed {
+  min-height: 0;
+  max-height: none;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.frisson-controls .favorites-panel.is-collapsed h3::before {
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid currentColor;
+  border-right: 0;
+}
+.frisson-controls .favorites-panel.is-collapsed .favorites-section { display: none; }
+.frisson-controls .favorites-panel .favorites-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.frisson-controls .favorites-input-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 0;
+  flex: none;
+}
+.frisson-controls .favorites-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 1 22rem;
+  min-width: 12rem;
+}
+.frisson-controls .favorites-name-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: #8b939f;
+}
+.frisson-controls .favorites-field input,
+.frisson-controls .favorites-input-group input {
+  width: 100%;
+  height: 36px;
+  margin: 0;
+}
+.frisson-controls .favorites-input-group > button {
+  height: 36px;
+  min-width: 0;
+  margin: 0;
+  align-self: flex-end;
+}
+.frisson-controls .favorites-input-group > .favorites-reload { margin-left: auto; }
+.controls-favorites.frisson-controls {
+  --bg-primary: #17191c;
+  --bg-secondary: #22252a;
+  --bg-tertiary: #2d3138;
+  --border-color: #3d424b;
+  --text-primary: #f1f3f5;
+  --text-secondary: #bcc2cb;
+  --text-tertiary: #989faa;
+  --accent: #85b8fa;
+  --accent-hover: #acd0ff;
+  color: var(--text-primary);
+}
+.frisson-controls .favorites-list,
+.frisson-controls #favoritesList {
+  flex: 1 1 auto;
+  min-height: 200px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(17rem, 20%), 1fr));
+  gap: 8px;
+  align-content: start;
+  margin: 0;
+  overflow: auto;
+}
+.frisson-controls .favorite-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  margin: 0;
+  min-width: 0;
+  background: #353c46;
+  border: 1px solid #46505c;
+  border-radius: 8px;
+}
+.frisson-controls .favorite-item button {
+  height: 32px;
+  padding: 0 8px;
+  min-width: 0;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.frisson-controls .favorite-item button:first-child {
+  grid-column: auto;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.frisson-controls .favorites-empty { grid-column: 1 / -1; color: var(--text-tertiary); font-size: 12px; padding: 6px 0; }
+.frisson-controls .favorites-list > .favorites-reload { grid-column: 1 / -1; justify-self: start; margin: 0; height: 32px; width: auto; }
+.frisson-controls .status, .frisson-controls .connection-status { font-size: 12px; text-align: left; border-radius: 6px; }
+@media (max-width: 640px) {
+  .frisson-controls .favorites-input-group { flex-wrap: wrap; }
+  .frisson-controls .favorites-field { flex-basis: 100%; }
+  .frisson-controls .favorites-reload { margin-left: 0; }
+}
+@media (min-width: 720px) {
+  .frisson-controls .control-panel { padding: 24px; }
+  .frisson-controls .favorites-panel { padding: 14px 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frisson-controls *, .frisson-controls *::before, .frisson-controls *::after { transition: none !important; }
+}

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bauhaus Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Bauhaus</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Grid & Layout</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Grid Density</label>
+            <select id="density">
+              <option value="8,5">Low (8x5)</option>
+              <option value="16,9" selected>Medium (16x9)</option>
+              <option value="24,14">High (24x14)</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Active Shapes</label>
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="chk-sq" checked>
+                <span>Square</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="chk-ci" checked>
+                <span>Circle</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="chk-we" checked>
+                <span>Wedge</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="chk-tri" checked>
+                <span>Triangle</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="control-item">
+            <button class="btn primary" id="btn-reshuffle" style="width: 100%;">Reshuffle Grid Layout</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Theme & Colors</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Theme</label>
+            <select id="theme">
+              <option value="bauhaus">Bauhaus</option>
+              <option value="swiss">Swiss</option>
+              <option value="midnight">Midnight</option>
+              <option value="forest">Forest</option>
+              <option value="sunset">Sunset</option>
+              <option value="ocean">Ocean</option>
+              <option value="neon">Neon</option>
+              <option value="earth">Earth</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Color Transition Rate
+              <span class="value" id="transitionRate-value">1.0</span>
+            </label>
+            <input type="range" id="transitionRate" min="0.1" max="3" step="0.1" value="1.0">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              <input type="checkbox" id="chk-color-sequence"> Color Sequence
+            </label>
+          </div>
+          
+          <div class="control-item" id="color-sequence-controls" style="display: none;">
+            <label class="control-label">
+              Sequence Rate
+              <span class="value" id="sequenceRate-value">1.0</span>
+            </label>
+            <input type="range" id="sequenceRate" min="0.1" max="5" step="0.1" value="1.0">
+          </div>
+          
+          <div class="control-item" id="color-sequence-controls-offset" style="display: none;">
+            <label class="control-label">
+              Time Offset
+              <span class="value" id="timeOffset-value">10</span>
+            </label>
+            <input type="range" id="timeOffset" min="0" max="100" step="1" value="10">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Display</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              <input type="checkbox" id="chk-grid" checked> Show Grid
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Audio Reactivity</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              <input type="checkbox" id="chk-audio" checked> Audio Reactive
+            </label>
+          </div>
+          
+          <div class="control-item" id="audio-controls">
+            <label class="control-label">
+              Audio Sensitivity (Rotation Rate)
+              <span class="value" id="sensitivity-value">60</span>
+            </label>
+            <input type="range" id="sensitivity" min="0" max="100" step="1" value="60">
+          </div>
+          
+          <div class="control-item" id="audio-controls-scaling">
+            <label class="control-label">
+              Audio-Reactive Scaling
+              <span class="value" id="scalingAmount-value">15</span>
+            </label>
+            <input type="range" id="scalingAmount" min="0" max="100" step="1" value="15">
+          </div>
+          
+          <div class="control-item" id="audio-controls-offset">
+            <label class="control-label">
+              Scaling Sequence Offset
+              <span class="value" id="scalingOffset-value">10</span>
+            </label>
+            <input type="range" id="scalingOffset" min="0" max="100" step="1" value="10">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Wedge Controls</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Wedge Flip Rate
+              <span class="value" id="wedgeFlipRate-value">20</span>
+            </label>
+            <input type="range" id="wedgeFlipRate" min="0" max="100" step="1" value="20">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Actions</h3>
+          
+          <div class="control-item">
+            <button class="btn secondary" id="btn-randomize-colors" style="width: 100%;">Randomize Colors</button>
+          </div>
+          
+          <div class="control-item">
+            <button class="btn secondary" id="btn-randomize-settings" data-randomize-settings style="width: 100%;">Randomize Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Favorites Section -->
+
+  </div>
+
+  </div>
+
+  <div class="favorites-panel">
+      <h3>Favorites</h3>
+      <div class="favorites-section">
+        <div class="favorites-input-group">
+          <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+          <button class="btn primary" id="saveFavoriteBtn">Save favorite</button>
+        </div>
+        <div id="favoritesList" class="favorites-list"></div>
+      </div>
+    </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

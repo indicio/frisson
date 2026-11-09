@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Optional API override (usually not needed): -->
+  <!-- <meta name="frisson-api-base" content="/frisson/api"> -->
+  <title>Frisson</title>
+  <link rel="stylesheet" href="./css/shell.css">
+  <link rel="stylesheet" href="./css/list-view.css">
+  <link rel="stylesheet" href="./css/playlist-tray.css">
+  <link rel="stylesheet" href="../shared/ui.css">
+  <link rel="stylesheet" href="../shared/controls.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header / Controls Bar (single row) -->
+    <header id="header">
+      <div class="header-nav-row">
+        <div class="header-brand">
+          <h1>frisson</h1>
+        </div>
+        <nav class="header-toolbar" aria-label="Module browser">
+          <div class="sort-toggle" role="group" aria-label="Sort alphabetically">
+            <button type="button" id="sort-az-btn" class="sort-toggle-btn active" title="Sort A–Z" aria-pressed="true">
+              <i data-lucide="a-arrow-up" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="sort-za-btn" class="sort-toggle-btn" title="Sort Z–A" aria-pressed="false">
+              <i data-lucide="a-arrow-down" aria-hidden="true"></i>
+            </button>
+          </div>
+          <select id="filter-select" class="filter-select filter-select--type" aria-label="Filter by type">
+            <option value="all">All Types</option>
+          </select>
+          <div class="view-toggle">
+            <button id="view-grid-btn" class="btn btn-icon active" title="Grid View">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            </button>
+            <button id="view-list-btn" class="btn btn-icon" title="List View">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            </button>
+          </div>
+          <button id="clear-filters-btn" type="button" class="btn btn-secondary" style="display: none;">Clear Filters</button>
+          <div class="input-toggles" role="group" aria-label="Media inputs">
+            <label class="input-toggle">
+              <span class="switch">
+                <input type="checkbox" id="audio-input-toggle" role="switch" aria-label="Audio input">
+                <span class="switch-track" aria-hidden="true"></span>
+              </span>
+              Audio
+            </label>
+            <label class="input-toggle">
+              <span class="switch">
+                <input type="checkbox" id="video-input-toggle" role="switch" aria-label="Video input">
+                <span class="switch-track" aria-hidden="true"></span>
+              </span>
+              Video
+            </label>
+          </div>
+          <span id="viewer-status" class="viewer-status">Viewer: Not Connected</span>
+          <button id="image-layer-btn" class="btn btn-secondary" title="Image Layer (Shift+I)">Image Layer</button>
+          <button id="open-viewer-btn" class="btn btn-primary" title="Open Viewer Window">Open Viewer</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Module Selection Grid -->
+    <div id="module-grid-container">
+      <div id="module-grid"></div>
+    </div>
+    
+    <!-- Tray Overlay (for controls and playlist) -->
+    <div id="tray-overlay" class="tray-overlay"></div>
+    
+    <!-- Controls Tray (slides from right; nib moves with tray) -->
+    <div id="controls-tray" class="controls-tray">
+      <div class="controls-tray-nib-column">
+        <button type="button" id="toggle-controls-btn" class="toggle-controls-btn" title="Open Controls">
+          <i data-lucide="chevron-left" class="toggle-controls-icon" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="controls-tray-panel">
+        <div class="controls-tray-header">
+          <h3 id="controls-tray-title">Module Controls</h3>
+          <select id="controls-module-picker" class="controls-module-picker" aria-label="Choose module">
+            <option value="">Choose a module</option>
+          </select>
+          <button type="button" id="controls-open-viewer" class="btn btn-primary controls-open-viewer">Open Viewer</button>
+          <button id="close-controls-btn" class="btn-close" title="Close Controls">×</button>
+        </div>
+        <div id="controls-stage" class="controls-stage">
+          <aside id="controls-preview" class="controls-preview">
+            <div id="controls-preview-frame" class="controls-preview-frame">
+              <div id="controls-preview-stage" class="controls-preview-stage"></div>
+            </div>
+            <div class="preview-bar">
+              <label class="preview-toggle">
+                <span class="switch">
+                  <input type="checkbox" id="preview-toggle" role="switch" checked aria-label="Preview">
+                  <span class="switch-track" aria-hidden="true"></span>
+                </span>
+                Preview
+              </label>
+              <span class="preview-image-eye-slot"></span>
+            </div>
+            <button type="button" id="controls-randomize" class="btn controls-randomize" hidden>Randomize Settings</button>
+          </aside>
+          <div class="controls-tray-content">
+            <iframe id="controls-iframe" src="about:blank"></iframe>
+          </div>
+        </div>
+        <div id="controls-favorites" class="controls-favorites frisson-controls"></div>
+      </div>
+    </div>
+
+    <!-- Playlist Tray (slides from bottom) -->
+    <div id="playlist-tray" class="playlist-tray closed">
+      <div class="playlist-tray-header" id="playlist-tray-header">
+        <h2>Playlist</h2>
+        <div class="saved-playlists-bar">
+          <span class="saved-playlists-label">Saved:</span>
+          <select id="saved-playlist-select" class="saved-playlist-select">
+            <option value="">-- Saved Playlists --</option>
+          </select>
+          <button id="load-saved-playlist-btn" class="saved-playlist-btn" title="Load selected playlist">Load</button>
+          <input type="text" id="saved-playlist-name" class="saved-playlist-name" placeholder="Name..." maxlength="64">
+          <button id="save-saved-playlist-btn" class="saved-playlist-btn primary" title="Save current playlist">Save</button>
+          <button id="delete-saved-playlist-btn" class="saved-playlist-btn danger" title="Delete selected playlist">Delete</button>
+        </div>
+        <div class="playback-controls">
+          <button class="playback-btn primary" id="play-btn" title="Play"><i data-lucide="play" aria-hidden="true"></i></button>
+          <button class="playback-btn" id="pause-btn" title="Pause" disabled><i data-lucide="pause" aria-hidden="true"></i></button>
+          <button class="playback-btn" id="stop-btn" title="Stop" disabled><i data-lucide="square" aria-hidden="true"></i></button>
+          <span class="playback-controls-divider" aria-hidden="true"></span>
+          <button class="playback-btn" id="repeat-btn" title="Repeat (cycle through off/all)"><i data-lucide="repeat" aria-hidden="true"></i></button>
+          <button class="playback-btn active" id="fade-btn" title="Fade: On (fade between modules)"><i data-lucide="arrow-left-right" aria-hidden="true"></i></button>
+          <span class="playback-controls-divider" aria-hidden="true"></span>
+          <button type="button" class="playback-btn playback-btn--clear" id="clear-btn" title="Clear playlist">
+            <i data-lucide="trash-2" aria-hidden="true"></i><span>clear</span>
+          </button>
+        </div>
+        <button class="playlist-tray-toggle" id="playlist-tray-toggle" aria-label="Toggle Playlist Tray"><i data-lucide="chevron-down" aria-hidden="true"></i></button>
+      </div>
+      <div class="playlist-tray-content">
+        <div class="playlist-items" id="playlist-items"></div>
+      </div>
+    </div>
+
+    <!-- Add Module Modal -->
+    <div class="add-module-modal" id="add-module-modal">
+      <div class="add-module-modal-content">
+        <div class="add-module-modal-header">
+          <h3>Add Module to Playlist</h3>
+          <button class="add-module-modal-close" id="modal-close">×</button>
+        </div>
+        <div class="add-module-modal-body">
+          <div class="available-modules-list" id="available-modules-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Layer Modal -->
+    <div class="image-layer-modal" id="image-layer-modal">
+      <div class="image-layer-modal-content">
+        <div class="image-layer-modal-header">
+          <h3>Image Layer</h3>
+          <button class="image-layer-modal-close" id="image-layer-modal-close" title="Close">×</button>
+        </div>
+        <div class="image-layer-modal-body" id="image-layer-modal-body">
+          <!-- Content will be rendered by imageLayerUI.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script type="module" src="./shell.js"></script>
+  <script type="module" src="./playlist-tray.js"></script>
+</body>
+</html>
+

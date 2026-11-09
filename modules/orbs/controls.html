@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbs Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    .control-panel small {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+    }
+    .palette-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    .palette-color {
+      width: 40px;
+      height: 28px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .bg-mode-choice {
+      display: flex;
+      gap: 10px;
+      margin: 8px 0;
+    }
+    .bg-mode-choice label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+    }
+    .bg-grad-custom {
+      margin-top: 8px;
+    }
+    .bg-grad-custom input[type="color"] {
+      width: auto;
+      margin-right: 8px;
+    }
+    .bg-grad-custom label {
+      display: inline-block;
+      width: 80px;
+      font-size: 12px;
+    }
+    details {
+      margin-top: 8px;
+    }
+    details > summary {
+      cursor: pointer;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-secondary);
+      padding: 4px 0;
+      user-select: none;
+    }
+    details > summary::-webkit-details-marker {
+      display: none;
+    }
+    details > summary::after {
+      content: "▾";
+      float: right;
+      opacity: 0.6;
+    }
+    details[open] > summary::after {
+      content: "▴";
+    }
+    .layer-controls {
+      margin-top: 8px;
+    }
+    .layer-card {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    .chip {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      display: inline-block;
+    }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Orbs</h1></header>
+    <small>Instanced emissive spheres arranged as orbiting shell layers with bloom and audio reactivity.</small>
+
+    <!-- BUILD & ACTIONS -->
+    <div class="section">
+      <div class="section-title">Build & Actions</div>
+      <div class="row">
+        <button id="rebuild">Rebuild</button>
+        <button id="randomize" data-randomize-settings>Randomize</button>
+        <button id="newPalette">New Palette</button>
+      </div>
+    </div>
+
+    <!-- COLORS & BACKGROUND -->
+    <div class="section">
+      <div class="section-title">Colors & Background</div>
+
+      <div class="control-item">
+        <label for="colorTheme">Palette Theme</label>
+        <select id="colorTheme">
+          <option value="random">Random</option>
+          <option value="ocean">Ocean</option>
+          <option value="sunset">Sunset</option>
+          <option value="forest">Forest</option>
+          <option value="aurora">Aurora</option>
+          <option value="fire">Fire</option>
+          <option value="lavender">Lavender</option>
+          <option value="mint">Mint</option>
+          <option value="coral">Coral</option>
+          <option value="cyber">Cyber</option>
+          <option value="golden">Golden</option>
+          <option value="plum">Plum</option>
+          <option value="teal">Teal</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label for="colorJitter">Color Randomness
+          <span id="colorJitterVal" class="value">0.35</span>
+        </label>
+        <input id="colorJitter" type="range" min="0" max="1" step="0.01" value="0.35" />
+      </div>
+
+      <details>
+        <summary>Custom Palette</summary>
+        <div class="palette-row">
+          <label for="customColor1"><input id="customColor1" type="color" value="#36a7e9" class="palette-color" /> Color 1</label>
+          <label for="customColor2"><input id="customColor2" type="color" value="#d067db" class="palette-color" /> Color 2</label>
+          <label for="customColor3"><input id="customColor3" type="color" value="#ffe844" class="palette-color" /> Color 3</label>
+        </div>
+        <button id="applyCustomPalette" class="btn secondary" style="width: 100%;">Apply Custom Palette</button>
+      </details>
+
+      <details>
+        <summary>Advanced Palette Options</summary>
+        <div class="control-item">
+          <label for="paletteMode">Palette Mode</label>
+          <select id="paletteMode">
+            <option value="analogous">Analogous</option>
+            <option value="triadic">Triadic</option>
+            <option value="complementary">Complementary</option>
+            <option value="random">Random</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label for="warmCoolLock">Warm/Cool</label>
+          <select id="warmCoolLock">
+            <option value="any">Any</option>
+            <option value="warm">Warm</option>
+            <option value="cool">Cool</option>
+          </select>
+        </div>
+      </details>
+
+      <details>
+        <summary>Background</summary>
+        <div class="bg-mode-choice">
+          <label><input type="radio" id="bgSolidRadio" name="bgMode" value="solid" checked /> Solid</label>
+          <label><input type="radio" id="bgLinearRadio" name="bgMode" value="linear" /> Linear</label>
+          <label><input type="radio" id="bgRadialRadio" name="bgMode" value="radial" /> Radial</label>
+        </div>
+        <div class="bg-grad-custom" id="bgSolidPickerRow">
+          <label for="bgColorSolid"><input id="bgColorSolid" type="color" value="#05060a" /> Color</label>
+        </div>
+        <div class="bg-grad-custom" id="bgLinearPickerRow" style="display:none;">
+          <label for="bgColorLinStart"><input id="bgColorLinStart" type="color" value="#05060a" /> Linear A</label>
+          <label for="bgColorLinEnd"><input id="bgColorLinEnd" type="color" value="#24316c" /> B</label>
+          <select id="bgLinearDir" style="margin-left: 8px;">
+            <option value="to top">To Top</option>
+            <option value="to bottom" selected>To Bottom</option>
+            <option value="to left">To Left</option>
+            <option value="to right">To Right</option>
+            <option value="135deg">↗</option>
+            <option value="225deg">↙</option>
+            <option value="315deg">↗2</option>
+            <option value="45deg">↖</option>
+          </select>
+        </div>
+        <div class="bg-grad-custom" id="bgRadialPickerRow" style="display:none;">
+          <label for="bgColorRadialCenter"><input id="bgColorRadialCenter" type="color" value="#163456" /> Radial A</label>
+          <label for="bgColorRadialOuter"><input id="bgColorRadialOuter" type="color" value="#05060a" /> B</label>
+        </div>
+        <button id="applyBackgroundColor" class="btn secondary" style="width: 100%; margin-top: 16px;">Apply Background</button>
+      </details>
+    </div>
+
+    <!-- SPHERES -->
+    <div class="section">
+      <div class="section-title">Spheres</div>
+
+      <div class="control-item">
+        <label for="sizeMin">Sphere Size Min
+          <span id="sizeMinVal" class="value">0.05</span>
+        </label>
+        <input id="sizeMin" type="range" min="0.01" max="1" step="0.01" value="0.05" />
+      </div>
+
+      <div class="control-item">
+        <label for="sizeMax">Sphere Size Max
+          <span id="sizeMaxVal" class="value">0.22</span>
+        </label>
+        <input id="sizeMax" type="range" min="0.02" max="1.6" step="0.01" value="0.22" />
+      </div>
+
+      <div class="control-item">
+        <label for="sizeCurve">Size Curve (Bias)
+          <span id="sizeCurveVal" class="value">1.60</span>
+        </label>
+        <input id="sizeCurve" type="range" min="0.2" max="4" step="0.05" value="1.6" />
+      </div>
+
+      <div class="control-item">
+        <label for="emissive">Emissive Intensity
+          <span id="emissiveVal" class="value">3.8</span>
+        </label>
+        <input id="emissive" type="range" min="0.1" max="10" step="0.1" value="3.8" />
+      </div>
+    </div>
+
+    <!-- STRUCTURE -->
+    <div class="section">
+      <div class="section-title">Structure</div>
+
+      <div class="control-item">
+        <label for="layers">Layers
+          <span id="layersVal" class="value">4</span>
+        </label>
+        <input id="layers" type="range" min="1" max="8" step="1" value="4" />
+      </div>
+
+      <div class="control-item">
+        <label for="density">Density (spheres/layer)
+          <span id="densityVal" class="value">420</span>
+        </label>
+        <input id="density" type="range" min="50" max="1200" step="10" value="420" />
+      </div>
+
+      <div class="control-item">
+        <label for="baseRadius">Base Radius
+          <span id="baseRadiusVal" class="value">3.2</span>
+        </label>
+        <input id="baseRadius" type="range" min="0.5" max="12" step="0.1" value="3.2" />
+      </div>
+
+      <div class="control-item">
+        <label for="radiusStep">Radius Step
+          <span id="radiusStepVal" class="value">1.6</span>
+        </label>
+        <input id="radiusStep" type="range" min="0.1" max="8" step="0.1" value="1.6" />
+      </div>
+
+      <div class="control-item">
+        <label for="thickness">Shell Thickness
+          <span id="thicknessVal" class="value">0.45</span>
+        </label>
+        <input id="thickness" type="range" min="0.02" max="3" step="0.02" value="0.45" />
+      </div>
+    </div>
+
+    <!-- MOTION & LAYERS -->
+    <div class="section">
+      <div class="section-title">Motion & Layers</div>
+
+      <details>
+        <summary>Global Orb Motion</summary>
+        <div class="control-item">
+          <label for="orbRotRate">Orb Rotation Rate
+            <span id="orbRotRateVal" class="value">0.30</span>
+          </label>
+          <input id="orbRotRate" type="range" min="-2" max="2" step="0.01" value="0.30" />
+        </div>
+        <div class="control-item">
+          <label for="orbRotDir">Direction</label>
+          <select id="orbRotDir">
+            <option value="1">CW</option>
+            <option value="-1">CCW</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label for="orbMotionType">Motion Type</label>
+          <select id="orbMotionType">
+            <option value="steady">Steady</option>
+            <option value="surge">Surge (pulses)</option>
+            <option value="glitch">Glitch</option>
+            <option value="stopgo">Stop/Go</option>
+            <option value="random">Random</option>
+          </select>
+        </div>
+      </details>
+
+      <details id="layerMotionControls">
+        <summary>Layer Motion (per-layer)</summary>
+        <div id="layerControls" class="layer-controls"></div>
+      </details>
+    </div>
+
+    <!-- BLOOM -->
+    <div class="section">
+      <div class="section-title">Bloom</div>
+
+      <div class="control-item">
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="bloomEnabled" checked />
+          Enable Bloom
+        </label>
+      </div>
+
+      <div id="bloomControls">
+        <div class="control-item">
+          <label for="bStrength">Strength
+            <span id="bStrengthVal" class="value">1.20</span>
+          </label>
+          <input id="bStrength" type="range" min="0" max="4" step="0.01" value="1.2" />
+        </div>
+        <div class="control-item">
+          <label for="bRadius">Radius
+            <span id="bRadiusVal" class="value">0.40</span>
+          </label>
+          <input id="bRadius" type="range" min="0" max="2" step="0.01" value="0.4" />
+        </div>
+        <div class="control-item">
+          <label for="bThreshold">Threshold
+            <span id="bThresholdVal" class="value">0.15</span>
+          </label>
+          <input id="bThreshold" type="range" min="0" max="1" step="0.01" value="0.15" />
+        </div>
+      </div>
+    </div>
+
+    <!-- TRAILS -->
+    <div class="section">
+      <div class="section-title">Trails</div>
+
+      <div class="control-item">
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="trailEnabled" checked />
+          Trail Enabled
+        </label>
+      </div>
+
+      <div class="control-item">
+        <label for="trailLength">Trail Length
+          <span id="trailLengthVal" class="value">8</span>
+        </label>
+        <input id="trailLength" type="range" min="2" max="20" step="1" value="8" />
+      </div>
+
+      <div class="control-item">
+        <label for="trailFade">Trail Fade
+          <span id="trailFadeVal" class="value">0.30</span>
+        </label>
+        <input id="trailFade" type="range" min="0.1" max="1" step="0.05" value="0.3" />
+      </div>
+    </div>
+
+    <!-- AUDIO REACTIVITY -->
+    <div class="section">
+      <div class="section-title">Audio Reactivity</div>
+
+      <div class="control-item">
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="audioEnabled" />
+          Audio Enabled
+        </label>
+      </div>
+
+      <div class="control-item">
+        <label for="bassSensitivity">Bass Sensitivity
+          <span id="bassSensitivityVal" class="value">2.0</span>
+        </label>
+        <input id="bassSensitivity" type="range" min="0.1" max="5" step="0.1" value="2.0" />
+      </div>
+
+      <div class="control-item">
+        <label for="radiusScaleRange">Radius Scale Range
+          <span id="radiusScaleRangeVal" class="value">1.5</span>
+        </label>
+        <input id="radiusScaleRange" type="range" min="0.1" max="3" step="0.1" value="1.5" />
+      </div>
+
+    </div>
+
+
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+
+

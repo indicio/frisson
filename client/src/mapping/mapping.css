@@ -1,0 +1,316 @@
+.mapping-workspace {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: none;
+  grid-template-columns: 280px minmax(0, 1fr) 300px;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+  background: #0c0c0c;
+  color: #ececec;
+}
+
+.mapping-workspace.active {
+  display: grid;
+}
+
+.mapping-side {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mapping-inspector {
+  overflow: hidden;
+}
+
+.mapping-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #141414;
+  flex: 0 0 auto;
+}
+
+.mapping-tabs button {
+  min-height: 32px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #bdbdbd;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.mapping-tabs button.active {
+  background: #243044;
+  color: #fff;
+}
+
+.mapping-tab-body {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mapping-side h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.mapping-shapes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mapping-shape {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #ececec;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mapping-shape:hover {
+  background: #1c1c1c;
+}
+
+.mapping-shape-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: #bdbdbd;
+}
+
+.mapping-toolbar,
+.mapping-output-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mapping-layers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mapping-layers button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px 12px;
+  background: #1c1c1c;
+  border: none;
+  border-radius: 12px;
+  color: #ececec;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mapping-layers button span,
+.mapping-layers button small {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mapping-layers button small {
+  color: #8d8d8d;
+  font-size: 12px;
+}
+
+.mapping-layers button.active {
+  background: #243044;
+  box-shadow: inset 0 0 0 1px #3d8bfd;
+}
+
+.mapping-layers button.active small {
+  color: #c5d8f5;
+}
+
+.mapping-toolbar .btn,
+.mapping-output-toggles .btn,
+.mapping-transport .btn,
+.mapping-row .btn {
+  background: #1c1c1c;
+  border: none;
+  border-radius: 999px;
+  color: #ececec;
+}
+
+.mapping-toolbar .btn.active,
+.mapping-output-toggles .btn.active,
+.mapping-transport .btn.active {
+  background: #3d8bfd;
+  color: #fff;
+}
+
+.mapping-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mapping-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 12px;
+  background: #161616;
+}
+
+.mapping-row.selected,
+.mapping-row.marked {
+  background: #243044;
+}
+
+.mapping-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #3d8bfd;
+  flex: 0 0 auto;
+}
+
+.mapping-row button.name {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.mapping-tile-mark {
+  margin-left: 8px;
+  color: #f6c445;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mapping-stage-wrap {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 40%, #161616, #0c0c0c 70%);
+}
+
+.mapping-stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  touch-action: none;
+}
+
+.mapping-transport {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #101010;
+}
+
+.mapping-transport .status {
+  margin-left: auto;
+  color: #8d8d8d;
+  font-size: 13px;
+}
+
+.mapping-stage svg {
+  display: block;
+  overflow: visible;
+  transform-origin: 0 0;
+}
+
+.mapping-empty {
+  margin: 0;
+  color: #8d8d8d;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.mapping-inspector label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #bdbdbd;
+}
+
+.mapping-inspector input[type="text"],
+.mapping-inspector input[type="number"],
+.mapping-inspector select {
+  width: 100%;
+  background: #141414;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  min-height: 36px;
+  padding: 7px 10px;
+  font: inherit;
+}
+
+.mapping-inspector input[type="range"] {
+  width: 100%;
+}
+
+.mapping-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+
+.mapping-toolbar .btn,
+.mapping-transport .btn {
+  font-size: 12px;
+}
+
+.mapping-inspector .swatch {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}

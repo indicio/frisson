@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "form": {
+    "shape": "circles",
+    "sides": 6,
+    "starPoints": 5,
+    "starInner": 0.42,
+    "ellipseAspect": 1.7,
+    "spiralArms": 4,
+    "spiralPitch": 16,
+    "spiralTurns": 6,
+    "waveType": "sine",
+    "waveAmp": 0,
+    "waveFreq": 3,
+    "rotationStep": 7,
+    "centerX": 0,
+    "centerY": 0,
+    "rotation": 0,
+    "scale": 1,
+    "limit": 24,
+    "quality": 0.75,
+    "seed": 3,
+    "morph": 0
+  },
+  "width": {
+    "base": 2,
+    "min": 0.5,
+    "max": 300,
+    "amplitude": 1.5,
+    "period": 8,
+    "phase": 0,
+    "phaseSpeed": 0,
+    "direction": 1,
+    "curve": "sine",
+    "space": "index",
+    "sequence": [
+      2,
+      8,
+      24,
+      80,
+      24,
+      8
+    ],
+    "seed": 1,
+    "profile": {
+      "mode": "off",
+      "start": 1,
+      "end": 0.2,
+      "exponent": 2,
+      "wave": "sine",
+      "repeats": 2,
+      "phase": 0,
+      "phaseSpeed": 0
+    }
+  },
+  "gap": {
+    "base": 28,
+    "min": 0,
+    "max": 400,
+    "amplitude": 0,
+    "period": 8,
+    "phase": 0,
+    "phaseSpeed": 0,
+    "direction": 1,
+    "curve": "uniform",
+    "space": "index",
+    "sequence": [
+      2,
+      8,
+      24,
+      80,
+      24,
+      8
+    ],
+    "seed": 1
+  },
+  "anim": {
+    "speed": 1,
+    "translateX": 0,
+    "translateY": 0,
+    "rotation": 0,
+    "expand": 48,
+    "wavePhase": 0.4,
+    "turbEvolve": 0.15,
+    "ripple": 0.5,
+    "hue": 0,
+    "polyRot": 0,
+    "morph": 0
+  },
+  "deformations": [],
+  "routes": [],
+  "color": {
+    "fg": "#d8fbff",
+    "bg": "#061018",
+    "hue": 0,
+    "bgHue": 0,
+    "saturation": 1,
+    "brightness": 0.82,
+    "bgBrightness": 1,
+    "opacity": 1,
+    "palette": "cyan",
+    "paletteMix": 0.4,
+    "invert": false
+  },
+  "audioGain": 1,
+  "audio": {
+    "graduation": 0,
+    "swell": 0,
+    "wave": 0,
+    "expansion": 0
+  },
+  "presetId": "breathing-rings"
+}

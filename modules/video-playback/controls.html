@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Playback Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    .vp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) { .vp-grid { grid-template-columns: 1fr; } }
+    .vp-library {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.75rem;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 0.25rem;
+    }
+    .vp-lib-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .vp-lib-card:hover { border-color: var(--accent); }
+    .vp-lib-card img {
+      width: 100%;
+      aspect-ratio: 16/10;
+      object-fit: cover;
+      background: #111;
+      display: block;
+    }
+    .vp-lib-card .cap {
+      padding: 0.35rem 0.5rem;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vp-playlist {
+      min-height: 120px;
+      max-height: 360px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .vp-pl-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      cursor: grab;
+    }
+    .vp-pl-item.dragging { opacity: 0.5; }
+    .vp-pl-item .idx {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      width: 1.5rem;
+      flex-shrink: 0;
+    }
+    .vp-pl-item img {
+      width: 56px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #111;
+      flex-shrink: 0;
+    }
+    .vp-pl-item .t { flex: 1; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .vp-pl-item button {
+      flex-shrink: 0;
+      padding: 0.2rem 0.45rem;
+      font-size: 0.7rem;
+    }
+    .vp-empty {
+      color: var(--text-tertiary);
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 1rem;
+    }
+    .vp-hint { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.5rem; }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Video Playback</h1></header>
+    <div class="vp-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Library</h3>
+          <p class="vp-hint">Videos come from <code>media/video/manifest.json</code>. Add files there + list them to appear here.</p>
+          <div id="video-library" class="vp-library"></div>
+        </div>
+      </div>
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Playlist (order top → bottom)</h3>
+          <div id="playlist-stack" class="vp-playlist"></div>
+          <p class="vp-hint">Drag to reorder. In single mode, the first item is used if playlist is non-empty; prefer explicit single selection below.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-grid" style="margin-top: 1rem;">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Playback mode</h3>
+          <div class="control-item">
+            <label class="control-label">Mode</label>
+            <select id="playbackMode" class="control-input">
+              <option value="single">Single video (loop)</option>
+              <option value="playlist">Playlist sequence</option>
+            </select>
+          </div>
+          <div class="control-item" id="singlePickWrap">
+            <label class="control-label">Video</label>
+            <select id="singleVideoId" class="control-input"></select>
+          </div>
+          <div class="control-item">
+            <label class="control-label" style="display:flex;align-items:center;gap:8px;">
+              <input type="checkbox" id="playlistLoop" checked> Loop playlist
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Transitions</h3>
+          <div class="control-item">
+            <label class="control-label">Type</label>
+            <select id="transition" class="control-input">
+              <option value="cut">Hard cut</option>
+              <option value="crossfade">Crossfade</option>
+              <option value="fadeBlack">Fade to black</option>
+            </select>
+          </div>
+          <div class="control-item">
+            <label class="control-label">Crossfade duration <span class="value" id="crossfadeMs-v">800</span> ms</label>
+            <input type="range" id="crossfadeMs" min="200" max="4000" step="50" value="800">
+          </div>
+          <div class="control-item">
+            <label class="control-label">Fade-to-black (clips) <span class="value" id="fadeBlackMs-v">500</span> ms</label>
+            <input type="range" id="fadeBlackMs" min="200" max="4000" step="50" value="500">
+          </div>
+          <div class="control-item">
+            <label class="control-label">Fade-to-black (single loop) <span class="value" id="singleLoopFadeBlackMs-v">350</span> ms</label>
+            <input type="range" id="singleLoopFadeBlackMs" min="0" max="3000" step="50" value="350">
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Audio-reactive effects</h3>
+          <div class="control-item">
+            <label class="control-label">Mode</label>
+            <select id="effectMode" class="control-input">
+              <option value="none">None</option>
+              <option value="rgb">RGB / chromatic</option>
+              <option value="glitch">Glitch</option>
+            </select>
+          </div>
+          <div class="control-item">
+            <label class="control-label">Intensity <span class="value" id="effectIntensity-v">0.50</span></label>
+            <input type="range" id="effectIntensity" min="0" max="1" step="0.05" value="0.5">
+          </div>
+          <div class="control-item">
+            <label class="control-label">Sensitivity <span class="value" id="effectSensitivity-v">1.00</span></label>
+            <input type="range" id="effectSensitivity" min="0.1" max="3" step="0.05" value="1">
+          </div>
+          <div class="control-item">
+            <label class="control-label">Amplitude threshold <span class="value" id="effectThreshold-v">0.05</span></label>
+            <input type="range" id="effectThreshold" min="0" max="0.5" step="0.01" value="0.05">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+[
+  {
+    "id": "gradientmap",
+    "name": "Gradient Map",
+    "path": "../modules/gradientmap/index.html",
+    "controlsPath": "../modules/gradientmap/controls.html",
+    "previewImage": "../modules/gradientmap/preview.jpg",
+    "description": "Webcam-driven shader that remaps luminance to custom gradient palettes with precise control over contrast, blend, and blur.",
+    "tags": ["threejs", "shader", "webcam", "gradient", "color-grading"]
+  },
+  {
+    "id": "metaball2",
+    "name": "Metaball2 Shader",
+    "path": "../modules/metaball2/index.html",
+    "controlsPath": "../modules/metaball2/controls.html",
+    "previewImage": "../modules/metaball2/preview.jpg",
+    "description": "Shader-based audio-reactive metaballs with presets and advanced controls.",
+    "tags": ["threejs", "metaballs", "shader", "audio-reactive", "presets"]
+  },
+  {
+    "id": "orbiter",
+    "name": "Orbiter",
+    "path": "../modules/orbiter/index.html",
+    "controlsPath": "../modules/orbiter/controls.html",
+    "previewImage": "../modules/orbiter/preview.jpg",
+    "description": "3D particle system with audio-reactive emitters orbiting in 3D space.",
+    "tags": ["threejs", "particles", "3d", "audio-reactive", "orbit", "emitters"]
+  },
+  {
+    "id": "inkdrop",
+    "name": "Inkdrop",
+    "path": "../modules/inkdrop/index.html",
+    "controlsPath": "../modules/inkdrop/controls.html",
+    "previewImage": "../modules/inkdrop/preview.jpg",
+    "description": "Sound-reactive ink in water particle system with flow fields and color themes.",
+    "tags": ["canvas", "particles", "2d", "audio-reactive", "ink", "flow-field"]
+  },
+  {
+    "id": "paint-swirl",
+    "name": "Liquid Marbling",
+    "path": "../modules/paint-swirl/index.html",
+    "controlsPath": "../modules/paint-swirl/controls.html",
+    "previewImage": "../modules/paint-swirl/preview.jpg",
+    "description": "WebGL fluid marbling shader with curl noise, interactive mouse drag to pull paint, and audio-reactive motion.",
+    "tags": ["webgl", "shader", "audio-reactive", "interactive", "marbling", "fluid"]
+  },
+  {
+    "id": "op-art",
+    "name": "Op Art",
+    "path": "../modules/op-art/index.html",
+    "controlsPath": "../modules/op-art/controls.html",
+    "previewImage": "../modules/op-art/preview.jpg",
+    "description": "Audio-reactive striped cubes and spheres with op-art patterns and orbital motion.",
+    "tags": ["threejs", "op-art", "audio-reactive", "stripes", "cubes", "spheres", "orbital"]
+  },
+  {
+    "id": "webbing",
+    "name": "Webbing",
+    "path": "../modules/webbing/index.html",
+    "controlsPath": "../modules/webbing/controls.html",
+    "previewImage": "../modules/webbing/preview.jpg",
+    "description": "Dual emitter audio visualizer with particle connections and web-like patterns.",
+    "tags": ["canvas", "particles", "2d", "audio-reactive", "emitters", "connections", "webbing"]
+  },
+  {
+    "id": "wormhole",
+    "name": "Wormhole",
+    "path": "../modules/wormhole/index.html",
+    "controlsPath": "../modules/wormhole/controls.html",
+    "previewImage": "../modules/wormhole/preview.jpg",
+    "description": "3D tunnel visualization with stars, rings, or squares. Audio-reactive camera movement.",
+    "tags": ["threejs", "tunnel", "3d", "audio-reactive", "stars", "rings", "squares", "wormhole"]
+  },
+  {
+    "id": "pixelated",
+    "name": "Pixelated",
+    "path": "../modules/pixelated/index.html",
+    "controlsPath": "../modules/pixelated/controls.html",
+    "previewImage": "../modules/pixelated/preview.jpg",
+    "description": "Video-based particle visualizer with audio-reactive distortion. Uses camera input for pixel-based effects.",
+    "tags": ["threejs", "particles", "3d", "audio-reactive", "video", "camera", "pixelated", "distortion"]
+  },
+  {
+    "id": "bigSolid",
+    "name": "Big Solid",
+    "path": "../modules/bigSolid/index.html",
+    "controlsPath": "../modules/bigSolid/controls.html",
+    "previewImage": "../modules/bigSolid/preview.jpg",
+    "description": "Audio-reactive full-screen solid color visualization with palette-based color transitions and flash effects.",
+    "tags": ["canvas", "2d", "audio-reactive", "solid", "color", "palette", "flash"]
+  },
+  {
+    "id": "bauhaus",
+    "name": "Bauhaus",
+    "path": "../modules/bauhaus/index.html",
+    "controlsPath": "../modules/bauhaus/controls.html",
+    "previewImage": "../modules/bauhaus/preview.jpg",
+    "description": "Rhythmic Bauhaus grid visualization with audio-reactive shapes, color sequences, and multiple themes.",
+    "tags": ["threejs", "grid", "audio-reactive", "bauhaus", "geometric", "color-sequence", "themes"]
+  },
+  {
+    "id": "kaleidoscope",
+    "name": "Kaleidoscope",
+    "path": "../modules/kaleidoscope/index.html",
+    "controlsPath": "../modules/kaleidoscope/controls.html",
+    "previewImage": "../modules/kaleidoscope/preview.jpg",
+    "description": "Audio-reactive webcam kaleidoscope with fractal recursion, multi-center rotation, and temporal feedback effects.",
+    "tags": ["threejs", "webcam", "audio-reactive", "kaleidoscope", "fractal", "shader", "video"]
+  },
+  {
+    "id": "shake",
+    "name": "Camera Shake",
+    "path": "../modules/shake/index.html",
+    "controlsPath": "../modules/shake/controls.html",
+    "previewImage": "../modules/shake/preview.jpg",
+    "description": "Audio-reactive camera shake effect with webcam input, position/rotation shake, and color refraction.",
+    "tags": ["threejs", "webcam", "audio-reactive", "shake", "shader", "video", "distortion"]
+  },
+  {
+    "id": "mosh",
+    "name": "Datamosh Lab",
+    "path": "../modules/mosh/index.html",
+    "controlsPath": "../modules/mosh/controls.html",
+    "previewImage": "../modules/mosh/preview.jpg",
+    "description": "Audio-reactive webcam datamosh with multiple glitch modes, temporal feedback, and CRT post-processing.",
+    "tags": ["threejs", "webcam", "audio-reactive", "datamosh", "glitch", "shader", "video", "crt"]
+  },
+  {
+    "id": "leaks-and-lights",
+    "name": "Leaks and Lights",
+    "path": "../modules/leaks-and-lights/index.html",
+    "controlsPath": "../modules/leaks-and-lights/controls.html",
+    "previewImage": "../modules/leaks-and-lights/preview.jpg",
+    "description": "Audio-reactive light leaks and particle bursts visualization with customizable palettes, blend modes, and camera overlay.",
+    "tags": ["canvas", "2d", "audio-reactive", "light-leaks", "particles", "lightning", "camera"]
+  },
+  {
+    "id": "wheels",
+    "name": "Orbiting Wheels",
+    "path": "../modules/wheels/index.html",
+    "controlsPath": "../modules/wheels/controls.html",
+    "previewImage": "../modules/wheels/preview.jpg",
+    "description": "Audio-reactive orbiting wheels with 3D orbit and tunnel modes, customizable color themes, and dynamic camera movement.",
+    "tags": ["threejs", "3d", "audio-reactive", "wheels", "orbit", "tunnel", "particles"]
+  },
+  {
+    "id": "flow",
+    "name": "Flow",
+    "path": "../modules/flow/index.html",
+    "controlsPath": "../modules/flow/controls.html",
+    "previewImage": "../modules/flow/preview.jpg",
+    "description": "Audio-reactive particle fluid visualization with swirling vortices, flow dynamics, and customizable particle behavior.",
+    "tags": ["threejs", "particles", "2d", "audio-reactive", "fluid", "flow", "swirl", "vortices"]
+  },
+  {
+    "id": "mandala",
+    "name": "Mandala",
+    "path": "../modules/mandala/index.html",
+    "controlsPath": "../modules/mandala/controls.html",
+    "previewImage": "../modules/mandala/preview.jpg",
+    "description": "Geometric wireframes with persistent steps, then ride the post drivers for live, audio-reactive expression.",
+    "tags": ["canvas", "2d", "audio-reactive", "geometric", "wireframe", "mandala", "shapes"]
+  },
+  {
+    "id": "bigdeck",
+    "name": "Big Deck",
+    "path": "../modules/bigdeck/index.html",
+    "controlsPath": "../modules/bigdeck/controls.html",
+    "previewImage": "../modules/bigdeck/preview.jpg",
+    "description": "3D card deck visualization with multiple layout modes, audio reactivity, and customizable lighting. Features texture-based card images.",
+    "tags": ["threejs", "3d", "cards", "audio-reactive", "textures", "layouts", "lighting"]
+  },
+  {
+    "id": "photosome",
+    "name": "Photosome",
+    "path": "../modules/photosome/index.html",
+    "controlsPath": "../modules/photosome/controls.html",
+    "previewImage": "../modules/photosome/preview.jpg",
+    "description": "Ink drop visualization with audio-reactive motion and bass-triggered drops. Features fluid-like expansion curves, shape variability, and multiple blend modes.",
+    "tags": ["threejs", "shader", "audio-reactive", "ink", "drops", "fluid", "blend-modes"]
+  },
+  {
+    "id": "orbs",
+    "name": "Orbs",
+    "path": "../modules/orbs/index.html",
+    "controlsPath": "../modules/orbs/controls.html",
+    "previewImage": "../modules/orbs/preview.jpg",
+    "description": "Instanced emissive spheres arranged as orbiting shell layers with bloom, trails, and audio reactivity. Features customizable color palettes and per-layer motion controls.",
+    "tags": ["threejs", "3d", "audio-reactive", "orbs", "spheres", "bloom", "trails", "instanced"]
+  },
+  {
+    "id": "video-playback",
+    "name": "Video Playback",
+    "path": "../modules/video-playback/index.html",
+    "controlsPath": "../modules/video-playback/controls.html",
+    "previewImage": "../modules/video-playback/preview.jpg",
+    "description": "Local video files with playlist or single-loop modes, transitions (cut, crossfade, fade-to-black), and optional audio-reactive RGB/glitch effects. Assets listed in media/video/manifest.json.",
+    "tags": ["video", "playlist", "canvas", "audio-reactive", "vj"]
+  },
+  {
+    "id": "beholder",
+    "name": "Beholder",
+    "path": "../modules/beholder/index.html",
+    "controlsPath": "../modules/beholder/controls.html",
+    "previewImage": "../modules/beholder/eye-texture.png",
+    "description": "Surreal floating eye swarm with depth-of-field, ambient drift, saccadic gaze, and optional microphone-driven pulse.",
+    "tags": ["threejs", "3d", "eyes", "surreal", "depth-of-field", "audio-reactive"]
+  },
+  {
+    "id": "eidolon",
+    "name": "Eidolon",
+    "path": "../modules/eidolon/index.html",
+    "controlsPath": "../modules/eidolon/controls.html",
+    "previewImage": "../modules/eidolon/preview.svg",
+    "description": "Gaussian Splat performer — load .ply scans, explode and reconstruct splats with modular deformations and audio modulation.",
+    "tags": ["threejs", "3d", "gaussian-splat", "ply", "audio-reactive", "deformation", "vj"]
+  },
+  {
+    "id": "procedural-geometry",
+    "name": "Procedural Geometry",
+    "path": "../modules/procedural-geometry/index.html",
+    "controlsPath": "../modules/procedural-geometry/controls.html",
+    "previewImage": "../modules/procedural-geometry/preview.png",
+    "description": "Audio-reactive geometric patterns featuring concentric shapes, parallel lines, waveforms, extreme width and spacing variations, turbulence, and layered procedural distortion.",
+    "tags": ["canvas", "2d", "generative", "geometric", "audio-reactive", "procedural", "op-art"]
+  }
+]
+

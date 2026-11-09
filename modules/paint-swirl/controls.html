@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liquid Marbling Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    .hint { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Liquid Marbling</h1></header>
+    <div class="connection-status disconnected" id="connectionStatus">
+      Waiting for visualization...
+    </div>
+
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Marbling</h3>
+
+          <div class="control-item">
+            <label class="control-label">Motion <span class="value" id="speed-value">0.55</span></label>
+            <input type="range" id="speed" min="0" max="2" step="0.01" value="0.55">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">Swirl <span class="value" id="swirl-value">1.35</span></label>
+            <input type="range" id="swirl" min="0" max="3" step="0.01" value="1.35">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">Stretch <span class="value" id="stretch-value">1.65</span></label>
+            <input type="range" id="stretch" min="0" max="3" step="0.01" value="1.65">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">Detail <span class="value" id="detail-value">1.30</span></label>
+            <input type="range" id="detail" min="0" max="3" step="0.01" value="1.3">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">Edges <span class="value" id="edges-value">0.85</span></label>
+            <input type="range" id="edges" min="0" max="2" step="0.01" value="0.85">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">Variety <span class="value" id="variety-value">0.50</span></label>
+            <input type="range" id="variety" min="0" max="1" step="0.01" value="0.5">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Audio</h3>
+          <div class="control-item">
+            <label class="control-label">Reactivity <span class="value" id="audioReactivity-value">0.50</span></label>
+            <input type="range" id="audioReactivity" min="0" max="1" step="0.01" value="0.5">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Actions</h3>
+          <div class="control-item">
+            <button id="randomizeSeedBtn" class="btn" style="width: 100%;">Randomize Seed</button>
+          </div>
+          <div class="control-item">
+            <button id="randomizeSettingsBtn" class="btn primary" data-randomize-settings style="width: 100%;">Randomize All</button>
+          </div>
+          <div class="hint" style="margin-top: 8px;">Drag on the canvas to pull the paint.</div>
+        </div>
+
+        <div class="control-group">
+          <h3>Mouse Simulation</h3>
+          <div class="control-item">
+            <label class="control-label">Pattern</label>
+            <select id="mouseSim">
+              <option value="none">None</option>
+              <option value="circle">Circle</option>
+              <option value="figure8">Figure 8</option>
+              <option value="lissajous">Lissajous</option>
+              <option value="random">Random</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Auto Randomize</h3>
+          <div class="control-item">
+            <label class="control-label">Randomize All <span class="value" id="autoRandAll-value">0s</span></label>
+            <input type="range" id="autoRandAll" min="0" max="120" step="5" value="0">
+          </div>
+          <div class="control-item">
+            <label class="control-label">Randomize Colors <span class="value" id="autoRandColors-value">0s</span></label>
+            <input type="range" id="autoRandColors" min="0" max="120" step="5" value="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Colors</h3>
+
+          <div class="control-item">
+            <label class="control-label">Palette</label>
+            <select id="palettePreset">
+              <option value="marbling">Marbling</option>
+              <option value="psychedelic">Psychedelic</option>
+              <option value="sunset">Sunset</option>
+              <option value="ocean">Ocean</option>
+              <option value="neon">Neon</option>
+              <option value="candy">Candy</option>
+              <option value="cosmic">Cosmic</option>
+              <option value="tropical">Tropical</option>
+              <option value="aurora">Aurora</option>
+              <option value="monochrome">Monochrome</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <div class="control-item">
+            <label class="control-label">Color 1 <span class="value" id="color1-value">#f04d4d</span></label>
+            <input type="color" id="color1" value="#f04d4d">
+          </div>
+          <div class="control-item">
+            <label class="control-label">Color 2 <span class="value" id="color2-value">#f4a040</span></label>
+            <input type="color" id="color2" value="#f4a040">
+          </div>
+          <div class="control-item">
+            <label class="control-label">Color 3 <span class="value" id="color3-value">#3498db</span></label>
+            <input type="color" id="color3" value="#3498db">
+          </div>
+          <div class="control-item">
+            <label class="control-label">Color 4 <span class="value" id="color4-value">#2ecc71</span></label>
+            <input type="color" id="color4" value="#2ecc71">
+          </div>
+
+          <div class="control-item">
+            <button id="randomizeColorsBtn" class="btn" style="width: 100%;">Randomize Colors</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>

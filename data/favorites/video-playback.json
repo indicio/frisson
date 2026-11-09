@@ -1,0 +1,62 @@
+{
+  "train": {
+    "params": {
+      "playbackMode": "single",
+      "singleVideoId": "train",
+      "playlistIds": [
+        "train"
+      ],
+      "playlistLoop": true,
+      "transition": "crossfade",
+      "crossfadeMs": 800,
+      "fadeBlackMs": 500,
+      "singleLoopFadeBlackMs": 350,
+      "effectMode": "none",
+      "effectIntensity": 0.5,
+      "effectSensitivity": 1,
+      "effectThreshold": 0.05
+    },
+    "timestamp": 1775856798202,
+    "updated": 1775856798202
+  },
+  "city": {
+    "params": {
+      "playbackMode": "single",
+      "singleVideoId": "city-timelapse",
+      "playlistIds": [
+        "city-timelapse"
+      ],
+      "playlistLoop": true,
+      "transition": "crossfade",
+      "crossfadeMs": 800,
+      "fadeBlackMs": 500,
+      "singleLoopFadeBlackMs": 350,
+      "effectMode": "none",
+      "effectIntensity": 0.5,
+      "effectSensitivity": 1,
+      "effectThreshold": 0.05
+    },
+    "timestamp": 1775856805725,
+    "updated": 1775856805725
+  },
+  "fire": {
+    "params": {
+      "playbackMode": "single",
+      "singleVideoId": "fire",
+      "playlistIds": [
+        "fire"
+      ],
+      "playlistLoop": true,
+      "transition": "crossfade",
+      "crossfadeMs": 800,
+      "fadeBlackMs": 500,
+      "singleLoopFadeBlackMs": 350,
+      "effectMode": "none",
+      "effectIntensity": 0.5,
+      "effectSensitivity": 1,
+      "effectThreshold": 0.05
+    },
+    "timestamp": 1775856959628,
+    "updated": 1775856959628
+  }
+}

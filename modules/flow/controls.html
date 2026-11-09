@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flow Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Flow</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Performance</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Quality Preset</label>
+            <select id="qualityPreset">
+              <option value="low">Low (5K particles)</option>
+              <option value="medium" selected>Medium (10K particles)</option>
+              <option value="high">High (20K particles)</option>
+              <option value="ultra">Ultra (40K particles)</option>
+              <option value="extreme">Extreme (60K particles)</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Main Particles: <span id="particleCountValue">30000</span>
+            </label>
+            <input type="range" id="particleCount" min="2000" max="60000" step="1000" value="30000" />
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Subparticles Per Particle: <span id="subparticleCountValue">0</span>
+            </label>
+            <input type="range" id="subparticleCount" min="0" max="8" step="1" value="0" />
+          </div>
+          
+          <div class="control-item">
+            <button class="btn primary" id="apply-performance-btn" style="width: 100%;">Apply Performance Changes</button>
+            <small style="opacity: 0.6; font-size: 10px; display: block; margin-top: 4px; text-align: center;">
+              Total Visual: <span id="totalVisualCount">30000</span> particles
+            </small>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Actions</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              <input type="checkbox" id="autoExplode" style="margin-right: 8px;">
+              Auto Explode
+            </label>
+            <label class="control-label">
+              Interval: <span id="explodeIntervalValue">10</span> seconds
+            </label>
+            <input type="range" id="explodeInterval" min="3" max="60" step="1" value="10" />
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              <input type="checkbox" id="autoRandomize" style="margin-right: 8px;">
+              Auto Randomize
+            </label>
+            <label class="control-label">
+              Interval: <span id="randomizeIntervalValue">15</span> seconds
+            </label>
+            <input type="range" id="randomizeInterval" min="5" max="120" step="5" value="15" />
+          </div>
+          
+          <div class="control-item">
+            <button class="btn secondary" id="explode-btn" style="width: 100%; margin-bottom: 8px;">Explode Particles</button>
+            <button class="btn secondary" id="randomize-btn" data-randomize-settings style="width: 100%;">Randomize Settings</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Flow Dynamics</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Swirl Strength: <span id="swirlStrengthValue">1.8</span>
+            </label>
+            <input type="range" id="swirlStrength" min="0" max="4" step="0.1" value="1.8" />
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Flow Speed: <span id="flowSpeedValue">1.2</span>
+            </label>
+            <input type="range" id="flowSpeed" min="0.1" max="3" step="0.1" value="1.2" />
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Turbulence: <span id="turbulenceValue">1.3</span>
+            </label>
+            <input type="range" id="turbulence" min="0" max="3" step="0.1" value="1.3" />
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Particles</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Particle Size: <span id="particleSizeValue">2.2</span>
+            </label>
+            <input type="range" id="particleSize" min="1" max="6" step="0.1" value="2.2" />
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Brightness: <span id="brightnessValue">1.2</span>
+            </label>
+            <input type="range" id="brightness" min="0.3" max="2.5" step="0.1" value="1.2" />
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Particle Density: <span id="particleDensityValue">80</span>%
+            </label>
+            <input type="range" id="particleDensity" min="40" max="140" step="5" value="80" />
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Particle Behavior</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Particle Interaction: <span id="particleInteractionValue">0.0</span>
+            </label>
+            <input type="range" id="particleInteraction" min="-3" max="3" step="0.1" value="0" />
+            <small style="opacity: 0.6; font-size: 10px;">Negative = Repel | Positive = Attract</small>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Viscosity: <span id="viscosityValue">1.5</span>
+            </label>
+            <input type="range" id="viscosity" min="0" max="5" step="0.1" value="1.5" />
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Flow Influence: <span id="flowInfluenceValue">1.0</span>
+            </label>
+            <input type="range" id="flowInfluence" min="0.1" max="3" step="0.1" value="1.0" />
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Pointer Influence: <span id="pointerInfluenceValue">0.0</span>
+            </label>
+            <input type="range" id="pointerInfluence" min="0" max="3" step="0.1" value="0" />
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Colors</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Background Color</label>
+            <input type="color" id="bgColor" value="#020309" />
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Cool Color</label>
+            <input type="color" id="coolColor" value="#6fc9ff" />
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Warm Color</label>
+            <input type="color" id="warmColor" value="#ff7aa0" />
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Reactivity</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Audio Influence: <span id="audioInfluenceValue">1.5</span>
+            </label>
+            <input type="range" id="audioInfluence" min="0" max="3" step="0.1" value="1.5" />
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

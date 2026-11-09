@@ -1,0 +1,44 @@
+{
+  "bold": {
+    "params": {
+      "cubeCount": 22,
+      "cubeSize": 3.3,
+      "sizeVariation": 0.28,
+      "geometryType": "cubes",
+      "intersectionChaos": 0.07,
+      "distributionDensity": 0.13,
+      "animationRate": 0.3,
+      "stripeWidth": 0.08,
+      "stripeAngle": 0,
+      "color1": "#000000",
+      "color2": "#ffffff",
+      "rotationSensitivity": 2,
+      "orbitSensitivity": 2.1,
+      "scaleSensitivity": 0.3,
+      "backgroundColor": "#eb0000"
+    },
+    "timestamp": 1774809088933,
+    "updated": 1774809088933
+  },
+  "spark-chaos": {
+    "params": {
+      "cubeCount": 58,
+      "cubeSize": 3.8,
+      "sizeVariation": 0.75,
+      "geometryType": "cubes",
+      "intersectionChaos": 0.29,
+      "distributionDensity": 0.91,
+      "animationRate": 0.4,
+      "stripeWidth": 0.7,
+      "stripeAngle": 76,
+      "color1": "#7bbaea",
+      "color2": "#e000b7",
+      "rotationSensitivity": 2.5,
+      "orbitSensitivity": 3.2,
+      "scaleSensitivity": 0.28,
+      "backgroundColor": "#3584dd"
+    },
+    "timestamp": 1774809189933,
+    "updated": 1774809189933
+  }
+}

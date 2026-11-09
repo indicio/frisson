@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Big Deck Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    .inline-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .inline-controls label {
+      margin: 0;
+      min-width: 80px;
+    }
+    .inline-controls select,
+    .inline-controls button {
+      flex: 1;
+    }
+    .layout-params {
+      display: none;
+    }
+    .layout-params.active {
+      display: block;
+    }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Big Deck</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Layout</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Layout Type</label>
+            <select id="layout">
+              <option value="field">Field</option>
+              <option value="ring">Ring</option>
+              <option value="tunnel">Tunnel</option>
+              <option value="grid">Grid</option>
+              <option value="exploding">Exploding</option>
+              <option value="sphere">Sphere</option>
+              <option value="fan">Fan</option>
+              <option value="helix">Helix</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <button id="nextLayoutBtn" class="btn primary" style="width: 100%;">Next Layout</button>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Card Count
+              <span class="value" id="cardCount-value">52</span>
+            </label>
+            <input 
+              type="range" 
+              id="cardCount" 
+              min="10" 
+              max="52" 
+              step="1" 
+              value="52"
+            >
+          </div>
+          
+          <!-- Layout Parameters (shown/hidden based on layout) -->
+          <div id="layoutParams" class="layout-params">
+            <!-- Field -->
+            <div class="layout-params-group" data-layout="field">
+              <div class="control-item">
+                <label class="control-label">
+                  Field Spread
+                  <span class="value" id="fieldSpread-value">12</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="fieldSpread" 
+                  min="4" 
+                  max="24" 
+                  step="0.5" 
+                  value="12"
+                >
+              </div>
+            </div>
+            
+            <!-- Ring -->
+            <div class="layout-params-group" data-layout="ring">
+              <div class="control-item">
+                <label class="control-label">
+                  Ring Radius
+                  <span class="value" id="ringRadius-value">7</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="ringRadius" 
+                  min="3" 
+                  max="14" 
+                  step="0.5" 
+                  value="7"
+                >
+              </div>
+            </div>
+            
+            <!-- Tunnel -->
+            <div class="layout-params-group" data-layout="tunnel">
+              <div class="control-item">
+                <label class="control-label">
+                  Tunnel Length
+                  <span class="value" id="tunnelLength-value">40</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="tunnelLength" 
+                  min="10" 
+                  max="80" 
+                  step="1" 
+                  value="40"
+                >
+              </div>
+              <div class="control-item">
+                <label class="control-label">
+                  Tunnel Radius
+                  <span class="value" id="tunnelRadius-value">5</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="tunnelRadius" 
+                  min="2" 
+                  max="10" 
+                  step="0.5" 
+                  value="5"
+                >
+              </div>
+            </div>
+            
+            <!-- Grid -->
+            <div class="layout-params-group" data-layout="grid">
+              <div class="control-item">
+                <label class="control-label">
+                  Grid Rows
+                  <span class="value" id="gridRows-value">5</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="gridRows" 
+                  min="2" 
+                  max="8" 
+                  step="1" 
+                  value="5"
+                >
+              </div>
+              <div class="control-item">
+                <label class="control-label">
+                  Grid Cols
+                  <span class="value" id="gridCols-value">10</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="gridCols" 
+                  min="4" 
+                  max="13" 
+                  step="1" 
+                  value="10"
+                >
+              </div>
+            </div>
+            
+            <!-- Exploding -->
+            <div class="layout-params-group" data-layout="exploding">
+              <div class="control-item">
+                <label class="control-label">
+                  Explode Radius
+                  <span class="value" id="explodingRadius-value">15</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="explodingRadius" 
+                  min="5" 
+                  max="30" 
+                  step="0.5" 
+                  value="15"
+                >
+              </div>
+            </div>
+            
+            <!-- Sphere -->
+            <div class="layout-params-group" data-layout="sphere">
+              <div class="control-item">
+                <label class="control-label">
+                  Sphere Radius
+                  <span class="value" id="sphereRadius-value">8</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="sphereRadius" 
+                  min="3" 
+                  max="20" 
+                  step="0.5" 
+                  value="8"
+                >
+              </div>
+            </div>
+            
+            <!-- Fan -->
+            <div class="layout-params-group" data-layout="fan">
+              <div class="control-item">
+                <label class="control-label">
+                  Fan Radius
+                  <span class="value" id="fanRadius-value">6</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="fanRadius" 
+                  min="2" 
+                  max="12" 
+                  step="0.2" 
+                  value="6"
+                >
+              </div>
+              <div class="control-item">
+                <label class="control-label">
+                  Fan Angle
+                  <span class="value" id="fanAngle-value">120</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="fanAngle" 
+                  min="30" 
+                  max="180" 
+                  step="1" 
+                  value="120"
+                >
+              </div>
+              <div class="control-item">
+                <label class="control-label">
+                  Fan Tilt
+                  <span class="value" id="fanTilt-value">35</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="fanTilt" 
+                  min="0" 
+                  max="80" 
+                  step="1" 
+                  value="35"
+                >
+              </div>
+              <div class="control-item">
+                <label class="control-label">
+                  Fan Lift
+                  <span class="value" id="fanLift-value">0.4</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="fanLift" 
+                  min="0" 
+                  max="2" 
+                  step="0.05" 
+                  value="0.4"
+                >
+              </div>
+            </div>
+            
+            <!-- Helix -->
+            <div class="layout-params-group" data-layout="helix">
+              <div class="control-item">
+                <label class="control-label">
+                  Helix Radius
+                  <span class="value" id="helixRadius-value">5</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="helixRadius" 
+                  min="1" 
+                  max="12" 
+                  step="0.2" 
+                  value="5"
+                >
+              </div>
+              <div class="control-item">
+                <label class="control-label">
+                  Helix Height
+                  <span class="value" id="helixHeight-value">16</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="helixHeight" 
+                  min="4" 
+                  max="40" 
+                  step="1" 
+                  value="16"
+                >
+              </div>
+              <div class="control-item">
+                <label class="control-label">
+                  Helix Twists
+                  <span class="value" id="helixTwists-value">3</span>
+                </label>
+                <input 
+                  type="range" 
+                  id="helixTwists" 
+                  min="1" 
+                  max="8" 
+                  step="0.5" 
+                  value="3"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Appearance</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Card Back</label>
+            <select id="backTheme">
+              <option value="blue">Blue</option>
+              <option value="red">Red</option>
+              <option value="occult">Occult</option>
+              <option value="blackgold">Black Gold</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Fog Density
+              <span class="value" id="fogDensity-value">0.008</span>
+            </label>
+            <input 
+              type="range" 
+              id="fogDensity" 
+              min="0" 
+              max="0.06" 
+              step="0.001" 
+              value="0.008"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Background Color</label>
+            <input 
+              type="color" 
+              id="backgroundColor" 
+              value="#020309"
+            >
+          </div>
+          
+          <div class="control-item">
+            <button id="shuffleBtn" class="btn primary" style="width: 100%;">Shuffle Deck</button>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Lighting & Brightness</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Overall Brightness
+              <span class="value" id="overallBrightness-value">1.6</span>
+            </label>
+            <input 
+              type="range" 
+              id="overallBrightness" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.6"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Ambient Light
+              <span class="value" id="ambientIntensity-value">2.4</span>
+            </label>
+            <input 
+              type="range" 
+              id="ambientIntensity" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="2.4"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Hemisphere
+              <span class="value" id="hemiIntensity-value">0.8</span>
+            </label>
+            <input 
+              type="range" 
+              id="hemiIntensity" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="0.8"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Key Light
+              <span class="value" id="keyLightIntensity-value">2.2</span>
+            </label>
+            <input 
+              type="range" 
+              id="keyLightIntensity" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="2.2"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Fill Light
+              <span class="value" id="fillLightIntensity-value">2.2</span>
+            </label>
+            <input 
+              type="range" 
+              id="fillLightIntensity" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="2.2"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Rim Light
+              <span class="value" id="rimLightIntensity-value">1.8</span>
+            </label>
+            <input 
+              type="range" 
+              id="rimLightIntensity" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.8"
+            >
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Camera</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Zoom Distance
+              <span class="value" id="cameraZoom-value">18</span>
+            </label>
+            <input 
+              type="range" 
+              id="cameraZoom" 
+              min="-10" 
+              max="30" 
+              step="1" 
+              value="18"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Motion & Animation</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Idle Spin Speed
+              <span class="value" id="idleSpin-value">0.15</span>
+            </label>
+            <input 
+              type="range" 
+              id="idleSpin" 
+              min="0" 
+              max="1" 
+              step="0.01" 
+              value="0.15"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Rotation X
+              <span class="value" id="rotationSpeedX-value">0.2</span>
+            </label>
+            <input 
+              type="range" 
+              id="rotationSpeedX" 
+              min="0" 
+              max="2" 
+              step="0.1" 
+              value="0.2"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Rotation Y
+              <span class="value" id="rotationSpeedY-value">0.5</span>
+            </label>
+            <input 
+              type="range" 
+              id="rotationSpeedY" 
+              min="0" 
+              max="2" 
+              step="0.1" 
+              value="0.5"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Rotation Z
+              <span class="value" id="rotationSpeedZ-value">0.1</span>
+            </label>
+            <input 
+              type="range" 
+              id="rotationSpeedZ" 
+              min="0" 
+              max="2" 
+              step="0.1" 
+              value="0.1"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Wave Amplitude
+              <span class="value" id="waveAmplitude-value">2.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="waveAmplitude" 
+              min="0" 
+              max="5" 
+              step="0.1" 
+              value="2.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Wave Frequency
+              <span class="value" id="waveFrequency-value">1.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="waveFrequency" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Pulse Speed
+              <span class="value" id="pulseSpeed-value">1.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="pulseSpeed" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              <input type="checkbox" id="autoRotate"> Auto Rotate Camera
+            </label>
+          </div>
+          
+          <div class="control-item" id="autoRotateSpeedGroup" style="display: none;">
+            <label class="control-label">
+              Auto Rotate Speed
+              <span class="value" id="autoRotateSpeed-value">0.5</span>
+            </label>
+            <input 
+              type="range" 
+              id="autoRotateSpeed" 
+              min="0.1" 
+              max="3" 
+              step="0.1" 
+              value="0.5"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              <input type="checkbox" id="enableCardFlip"> Enable Card Flipping
+            </label>
+          </div>
+          
+          <div class="control-item" id="cardFlipSpeedGroup" style="display: none;">
+            <label class="control-label">
+              Card Flip Speed
+              <span class="value" id="cardFlipSpeed-value">1.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="cardFlipSpeed" 
+              min="0.1" 
+              max="3" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Audio Reactivity</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              <input type="checkbox" id="audioEnabled"> Audio reactivity
+            </label>
+          </div>
+          
+          <div id="audioControls" style="display: none;">
+            <div class="control-item">
+              <label class="control-label">
+                Bass Reactivity
+                <span class="value" id="bassReactivity-value">1.0</span>
+              </label>
+              <input 
+                type="range" 
+                id="bassReactivity" 
+                min="0" 
+                max="3" 
+                step="0.1" 
+                value="1.0"
+              >
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Mid Reactivity
+                <span class="value" id="midReactivity-value">0.8</span>
+              </label>
+              <input 
+                type="range" 
+                id="midReactivity" 
+                min="0" 
+                max="3" 
+                step="0.1" 
+                value="0.8"
+              >
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Treble Reactivity
+                <span class="value" id="trebleReactivity-value">0.6</span>
+              </label>
+              <input 
+                type="range" 
+                id="trebleReactivity" 
+                min="0" 
+                max="3" 
+                step="0.1" 
+                value="0.6"
+              >
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                <input type="checkbox" id="audioToPosition" checked> → Position
+              </label>
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                <input type="checkbox" id="audioToRotation" checked> → Rotation
+              </label>
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                <input type="checkbox" id="audioToScale"> → Scale
+              </label>
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                <input type="checkbox" id="audioToCamera"> → Camera
+              </label>
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Smoothing
+                <span class="value" id="audioSmoothing-value">0.7</span>
+              </label>
+              <input 
+                type="range" 
+                id="audioSmoothing" 
+                min="0" 
+                max="0.95" 
+                step="0.05" 
+                value="0.7"
+              >
+            </div>
+          </div>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+  
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+
+
+
+
+

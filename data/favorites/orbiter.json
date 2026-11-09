@@ -1,0 +1,68 @@
+{
+  "event horizon": {
+    "params": {
+      "rotationMode": "audio-orbit",
+      "circleMode": "static",
+      "emitterShape": "sphere",
+      "circleRadius": 11,
+      "rotSpeed": 0.95,
+      "sensitivity": 0.09,
+      "freqMin": 0,
+      "freqMax": 100,
+      "particleShape": "sphere",
+      "particleRate": 3,
+      "particleSize": 0.42,
+      "lineLen": 0.7,
+      "lineOri": "along",
+      "decayRate": 0.008,
+      "currentTheme": "rainbow",
+      "backgroundColor": "#000000"
+    },
+    "timestamp": 1774832862540,
+    "updated": 1774832862540
+  },
+  "cosmic jets": {
+    "params": {
+      "rotationMode": "audio-orbit",
+      "circleMode": "static",
+      "emitterShape": "cube",
+      "circleRadius": 4,
+      "rotSpeed": 0.65,
+      "sensitivity": 0.09,
+      "freqMin": 0,
+      "freqMax": 100,
+      "particleShape": "square",
+      "particleRate": 1,
+      "particleSize": 0.16,
+      "lineLen": 1.14,
+      "lineOri": "along",
+      "decayRate": 0.008,
+      "currentTheme": "cosmic",
+      "backgroundColor": "#000000"
+    },
+    "timestamp": 1774833036234,
+    "updated": 1774833036234
+  },
+  "space-minnows": {
+    "params": {
+      "rotationMode": "auto",
+      "circleMode": "audio-size",
+      "emitterShape": "sphere",
+      "circleRadius": 20,
+      "rotSpeed": 0.98,
+      "sensitivity": 0.15,
+      "freqMin": 0,
+      "freqMax": 100,
+      "particleShape": "sphere",
+      "particleRate": 2,
+      "particleSize": 0.33,
+      "lineLen": 1.14,
+      "lineOri": "along",
+      "decayRate": 0.039,
+      "currentTheme": "rainbow",
+      "backgroundColor": "#000000"
+    },
+    "timestamp": 1774833232861,
+    "updated": 1774833232861
+  }
+}

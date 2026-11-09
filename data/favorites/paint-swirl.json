@@ -1,0 +1,23 @@
+{
+  "just go": {
+    "params": {
+      "palettePreset": "sunset",
+      "color1": "#ff4e00",
+      "color2": "#ff8a00",
+      "color3": "#ff006e",
+      "color4": "#8338ec",
+      "speed": 0.55,
+      "swirl": 0.45,
+      "stretch": 3,
+      "detail": 2.15,
+      "edges": 0.5,
+      "variety": 0.22,
+      "audioReactivity": 0.7,
+      "mouseSim": "circle",
+      "autoRandAll": 45,
+      "autoRandColors": 25
+    },
+    "timestamp": 1782575581830,
+    "updated": 1782575581830
+  }
+}

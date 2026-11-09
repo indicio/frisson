@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixelated Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Pixelated</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Visual Appearance</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Color Theme</label>
+            <select id="colorTheme">
+              <option value="plasma">Plasma</option>
+              <option value="ocean">Ocean</option>
+              <option value="fire">Fire</option>
+              <option value="neon">Neon</option>
+              <option value="grayscale">Grayscale</option>
+              <option value="technicolor">Technicolor</option>
+              <option value="rainbow">Rainbow</option>
+              <option value="pastel">Pastel</option>
+              <option value="icecream">Ice Cream</option>
+              <option value="forest">Forest</option>
+              <option value="candy">Candy</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Color 1</label>
+            <input type="color" id="color1" value="#621cbb">
+            <span class="value" id="color1-value">#621cbb</span>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Color 2</label>
+            <input type="color" id="color2" value="#fe3b8f">
+            <span class="value" id="color2-value">#fe3b8f</span>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Background Color</label>
+            <input type="color" id="backgroundColor" value="#000000">
+            <span class="value" id="backgroundColor-value">#000000</span>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Particle Type</label>
+            <select id="particleType">
+              <option value="sphere">Sphere</option>
+              <option value="square">Square</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Layout</h3>
+          
+          <div class="control-item">
+            <label class="control-label">Particle Diffusion Pattern</label>
+            <select id="particleDiffusion">
+              <option value="grid">Grid</option>
+              <option value="spiral">Spiral</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Number of Particles
+              <span class="value" id="particleCount-value">10000</span>
+            </label>
+            <input 
+              type="range" 
+              id="particleCount" 
+              min="1000" 
+              max="50000" 
+              step="1000" 
+              value="10000"
+            >
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Size & Effects</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Particle Size
+              <span class="value" id="particleSize-value">3</span>
+            </label>
+            <input 
+              type="range" 
+              id="particleSize" 
+              min="1" 
+              max="10" 
+              step="0.5" 
+              value="3"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Distortion Pattern</label>
+            <select id="distortionPattern">
+              <option value="linear">Linear</option>
+              <option value="wave">Wave</option>
+              <option value="spiral">Spiral</option>
+              <option value="pulse">Pulse</option>
+              <option value="ripple">Ripple</option>
+              <option value="twist">Twist</option>
+              <option value="noise">Noise</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Distortion Amount
+              <span class="value" id="distortionAmount-value">0.50</span>
+            </label>
+            <input 
+              type="range" 
+              id="distortionAmount" 
+              min="0" 
+              max="2" 
+              step="0.1" 
+              value="0.5"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Distortion Speed
+              <span class="value" id="distortionSpeed-value">1.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="distortionSpeed" 
+              min="0" 
+              max="3" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Distortion Frequency
+              <span class="value" id="distortionFrequency-value">1.0</span>
+            </label>
+            <input 
+              type="range" 
+              id="distortionFrequency" 
+              min="0.1" 
+              max="5" 
+              step="0.1" 
+              value="1.0"
+            >
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Scene</h3>
+          
+          <button id="randomizeBtn" class="btn primary" data-randomize-settings style="width: 100%; margin-bottom: 15px;">Randomize Settings</button>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+  
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+

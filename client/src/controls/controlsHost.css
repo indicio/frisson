@@ -1,0 +1,22 @@
+.controls-tray-content .frisson-controls-host {
+  --bg-primary: #17191c;
+  --bg-secondary: #22252a;
+  --bg-tertiary: #2d3138;
+  --border-color: #3d424b;
+  --text-primary: #f1f3f5;
+  --text-secondary: #bcc2cb;
+  --text-tertiary: #989faa;
+  --accent: #85b8fa;
+  --accent-hover: #acd0ff;
+  color-scheme: dark;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}

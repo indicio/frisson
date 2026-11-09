@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaks and Lights Controls</title>
+  <link rel="stylesheet" href="../../shared/ui.css">
+  <style>
+    .leak-custom-colors {
+      display: none;
+    }
+    .leak-custom-colors.visible {
+      display: flex;
+    }
+    .group-content.hidden {
+      display: none;
+    }
+    .quadrant-control {
+      width: 100%;
+      height: 200px;
+      position: relative;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      cursor: crosshair;
+      margin: 6px 0;
+      touch-action: none;
+    }
+    .quadrant-control::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    .quadrant-control::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    .quadrant-indicator {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      border: 2px solid rgba(0,0,0,0.5);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      box-shadow: 0 0 8px rgba(255,255,255,0.5);
+    }
+    .quadrant-labels {
+      position: absolute;
+      font-size: 9px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .quadrant-label-top { top: 4px; left: 50%; transform: translateX(-50%); }
+    .quadrant-label-bottom { bottom: 4px; left: 50%; transform: translateX(-50%); }
+    .quadrant-label-left { left: 4px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+    .quadrant-label-right { right: 4px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+    .favorites-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .favorite-item {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      align-items: center;
+    }
+    .favorite-item span {
+      flex: 1;
+      cursor: pointer;
+    }
+    .favorite-item button {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+  </style>
+  <link rel="stylesheet" href="../../shared/controls.css">
+</head>
+<body class="frisson-controls">
+  <div class="control-panel">
+    <header class="controls-heading"><p>Frisson / Controls</p><h1>Leaks and Lights</h1></header>
+    
+    <div class="controls-grid">
+      <div class="controls-column">
+        <!-- GLOBAL -->
+        <div class="control-group">
+          <h3>Global</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Master Intensity
+              <span class="value" id="masterIntensity-value">1.00</span>
+            </label>
+            <input id="ctrl-masterIntensity" type="range" min="0" max="2" step="0.01" value="1.0">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Audio Sensitivity
+              <span class="value" id="audioSensitivity-value">1.20</span>
+            </label>
+            <input id="ctrl-audioSensitivity" type="range" min="0" max="3" step="0.01" value="1.2">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Trail Fade
+              <span class="value" id="trailFade-value">0.12</span>
+            </label>
+            <input id="ctrl-trailFade" type="range" min="0" max="0.4" step="0.01" value="0.12">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Background</label>
+            <input id="ctrl-backgroundColor" type="color" value="#000000">
+          </div>
+        </div>
+
+        <!-- LEAKS / EDGE GLOW -->
+        <div class="control-group" id="group-leaks">
+          <h3>Light Leaks (Edges)</h3>
+          
+          <div class="control-item">
+            <label class="control-label" style="display: flex; align-items: center; gap: 8px;">
+              <input id="ctrl-leakEnabled" type="checkbox" checked>
+              Enabled
+            </label>
+          </div>
+          
+          <div class="group-content" id="leaks-content">
+            <div class="control-item">
+              <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px;">Shape & Motion</label>
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Count
+                <span class="value" id="leakCount-value">7</span>
+              </label>
+              <input id="ctrl-leakCount" type="range" min="1" max="20" step="1" value="7">
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Edge Bias
+                <span class="value" id="leakEdgeBias-value">0.80</span>
+              </label>
+              <input id="ctrl-leakEdgeBias" type="range" min="0" max="1" step="0.01" value="0.8">
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Base Radius
+                <span class="value" id="leakBaseRadius-value">260</span>
+              </label>
+              <input id="ctrl-leakBaseRadius" type="range" min="50" max="600" step="1" value="260">
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Drift Speed
+                <span class="value" id="leakNoiseSpeed-value">0.18</span>
+              </label>
+              <input id="ctrl-leakNoiseSpeed" type="range" min="0" max="2" step="0.01" value="0.18">
+            </div>
+
+            <div class="control-item">
+              <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px; margin-top: 8px;">Brightness & Audio</label>
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Base Intensity
+                <span class="value" id="leakBaseIntensity-value">0.35</span>
+              </label>
+              <input id="ctrl-leakBaseIntensity" type="range" min="0" max="1" step="0.01" value="0.35">
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Audio Breath
+                <span class="value" id="leakAudioBreath-value">0.40</span>
+              </label>
+              <input id="ctrl-leakAudioBreath" type="range" min="0" max="1" step="0.01" value="0.4">
+            </div>
+
+            <div class="control-item">
+              <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px; margin-top: 8px;">Color</label>
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">Palette</label>
+              <select id="ctrl-leakPaletteMode">
+                <option value="cool">Cool</option>
+                <option value="warm">Warm</option>
+                <option value="neon">Neon</option>
+                <option value="sunset">Sunset</option>
+                <option value="ocean">Ocean</option>
+                <option value="forest">Forest</option>
+                <option value="fire">Fire</option>
+                <option value="ice">Ice</option>
+                <option value="purple">Purple</option>
+                <option value="gold">Gold</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">Blend</label>
+              <select id="ctrl-leakBlendMode">
+                <option value="lighter">Lighter</option>
+                <option value="screen">Screen</option>
+                <option value="overlay">Overlay</option>
+                <option value="soft-light">Soft Light</option>
+                <option value="hard-light">Hard Light</option>
+                <option value="color-dodge">Color Dodge</option>
+                <option value="difference">Difference</option>
+                <option value="exclusion">Exclusion</option>
+                <option value="multiply">Multiply</option>
+                <option value="normal">Normal</option>
+              </select>
+            </div>
+            
+            <div class="control-item leak-custom-colors">
+              <label class="control-label">Custom 1</label>
+              <input id="ctrl-leakColor1" type="color" value="#00aaff">
+            </div>
+            
+            <div class="control-item leak-custom-colors">
+              <label class="control-label">Custom 2</label>
+              <input id="ctrl-leakColor2" type="color" value="#ff00aa">
+            </div>
+            
+            <div class="control-item leak-custom-colors">
+              <label class="control-label">Custom 3</label>
+              <input id="ctrl-leakColor3" type="color" value="#aaff00">
+            </div>
+          </div>
+        </div>
+
+        <!-- BURSTS / EMITTER -->
+        <div class="control-group" id="group-bursts">
+          <h3>Bursts & Emitters</h3>
+          
+          <div class="control-item">
+            <label class="control-label" style="display: flex; align-items: center; gap: 8px;">
+              <input id="ctrl-burstEnabled" type="checkbox" checked>
+              Enabled
+            </label>
+          </div>
+          
+          <div class="group-content" id="bursts-content">
+            <div class="control-item">
+              <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px;">Rate & Peaks</label>
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Base Rate
+                <span class="value" id="burstBaseRate-value">3.50</span>
+              </label>
+              <input id="ctrl-burstBaseRate" type="range" min="0" max="15" step="0.05" value="3.5">
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Peak Threshold
+                <span class="value" id="burstPeakThreshold-value">0.65</span>
+              </label>
+              <input id="ctrl-burstPeakThreshold" type="range" min="0" max="1" step="0.01" value="0.65">
+            </div>
+
+            <div class="control-item">
+              <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px; margin-top: 8px;">Particles per Burst</label>
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Min
+                <span class="value" id="burstMinParticles-value">8</span>
+              </label>
+              <input id="ctrl-burstMinParticles" type="range" min="1" max="50" step="1" value="8">
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">
+                Max
+                <span class="value" id="burstMaxParticles-value">90</span>
+              </label>
+              <input id="ctrl-burstMaxParticles" type="range" min="10" max="300" step="1" value="90">
+            </div>
+
+            <div class="control-item">
+              <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px; margin-top: 8px;">Emitter Style (Quadrant)</label>
+            </div>
+            
+            <div class="control-item" style="flex-direction: column; align-items: stretch;">
+              <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px;">Top: Smooth Curls • Bottom: Jittery Lightning</label>
+              <div class="quadrant-control" id="ctrl-emitterQuadrant">
+                <div class="quadrant-indicator" id="quadrant-indicator"></div>
+                <div class="quadrant-labels quadrant-label-top">Smooth Curls</div>
+                <div class="quadrant-labels quadrant-label-bottom">Jittery Lightning</div>
+                <div class="quadrant-labels quadrant-label-left">Less Jitter</div>
+                <div class="quadrant-labels quadrant-label-right">More Jitter</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PARTICLES / TRAILS -->
+        <div class="control-group">
+          <h3>Particles & Trails</h3>
+          
+          <div class="control-item">
+            <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px;">Motion</label>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Base Speed
+              <span class="value" id="particleBaseSpeed-value">260</span>
+            </label>
+            <input id="ctrl-particleBaseSpeed" type="range" min="50" max="1000" step="10" value="260">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Audio Speed Boost
+              <span class="value" id="particleSpeedAudioBoost-value">0.90</span>
+            </label>
+            <input id="ctrl-particleSpeedAudioBoost" type="range" min="0" max="2" step="0.01" value="0.9">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Lifetime Min
+              <span class="value" id="particleLifetimeMin-value">1.80</span>
+            </label>
+            <input id="ctrl-particleLifetimeMin" type="range" min="0.2" max="9" step="0.05" value="1.8">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Lifetime Max
+              <span class="value" id="particleLifetimeMax-value">5.40</span>
+            </label>
+            <input id="ctrl-particleLifetimeMax" type="range" min="0.5" max="15" step="0.05" value="5.4">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px; margin-top: 8px;">Size & Spread</label>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Size Min
+              <span class="value" id="particleSizeMin-value">0.30</span>
+            </label>
+            <input id="ctrl-particleSizeMin" type="range" min="0.1" max="30" step="0.1" value="0.3">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Size Max
+              <span class="value" id="particleSizeMax-value">3.00</span>
+            </label>
+            <input id="ctrl-particleSizeMax" type="range" min="0.2" max="80" step="0.1" value="3">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Direction Spread
+              <span class="value" id="particleDirectionSpread-value">360</span>
+            </label>
+            <input id="ctrl-particleDirectionSpread" type="range" min="0" max="360" step="5" value="360">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Trail Length
+              <span class="value" id="particleTrailLength-value">150</span>
+            </label>
+            <input id="ctrl-particleTrailLength" type="range" min="5" max="200" step="1" value="150">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Path Divergence
+              <span class="value" id="particleDivergence-value">0.50</span>
+            </label>
+            <input id="ctrl-particleDivergence" type="range" min="0" max="2" step="0.01" value="0.5">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px; margin-top: 8px;">Lightning Detail</label>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Branching
+              <span class="value" id="lightningBranching-value">0.30</span>
+            </label>
+            <input id="ctrl-lightningBranching" type="range" min="0" max="1" step="0.01" value="0.3">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Jitter
+              <span class="value" id="lightningJitter-value">0.45</span>
+            </label>
+            <input id="ctrl-lightningJitter" type="range" min="0" max="1.5" step="0.01" value="0.45">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Twist
+              <span class="value" id="lightningTwistAmount-value">1.20</span>
+            </label>
+            <input id="ctrl-lightningTwistAmount" type="range" min="0" max="3" step="0.01" value="1.2">
+          </div>
+
+          <div class="control-item">
+            <label class="control-label" style="opacity: 0.7; font-size: 11px; margin-bottom: 4px; margin-top: 8px;">Color</label>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">Color Mode</label>
+            <select id="ctrl-particleColorMode">
+              <option value="palette">Palette</option>
+              <option value="randomHue">Random Hue</option>
+              <option value="ampMapped">Amp Mapped</option>
+            </select>
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Audio Color Boost
+              <span class="value" id="particleAudioColorBoost-value">0.60</span>
+            </label>
+            <input id="ctrl-particleAudioColorBoost" type="range" min="0" max="1" step="0.01" value="0.6">
+          </div>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Opacity Variability
+              <span class="value" id="particleOpacityVariability-value">0.30</span>
+            </label>
+            <input id="ctrl-particleOpacityVariability" type="range" min="0" max="1" step="0.01" value="0.3">
+          </div>
+        </div>
+
+        <!-- CAMERA -->
+        <div class="control-group" id="group-camera">
+          <h3>Camera</h3>
+          
+          <div class="control-item">
+            <label class="control-label" style="display: flex; align-items: center; gap: 8px;">
+              <input id="ctrl-cameraEnabled" type="checkbox">
+              Enabled
+            </label>
+          </div>
+          
+          <div class="group-content" id="camera-content">
+            <div class="control-item">
+              <label class="control-label">
+                Opacity
+                <span class="value" id="cameraOpacity-value">0.70</span>
+              </label>
+              <input id="ctrl-cameraOpacity" type="range" min="0" max="1" step="0.01" value="0.7">
+            </div>
+            
+            <div class="control-item">
+              <label class="control-label">Blend Mode</label>
+              <select id="ctrl-cameraBlendMode">
+                <option value="normal">Normal</option>
+                <option value="multiply">Multiply</option>
+                <option value="screen">Screen</option>
+                <option value="overlay">Overlay</option>
+                <option value="soft-light">Soft Light</option>
+                <option value="hard-light">Hard Light</option>
+                <option value="color-dodge">Color Dodge</option>
+                <option value="difference">Difference</option>
+                <option value="exclusion">Exclusion</option>
+                <option value="lighter">Lighter</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERFORMANCE -->
+        <div class="control-group">
+          <h3>Performance</h3>
+          
+          <div class="control-item">
+            <label class="control-label">
+              Max Particles
+              <span class="value" id="maxParticles-value">1300</span>
+            </label>
+            <input id="ctrl-maxParticles" type="range" min="200" max="3000" step="50" value="1300">
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-column">
+        <div class="control-group">
+          <h3>Scene</h3>
+          
+          <button id="randomizeBtn" class="btn primary" data-randomize-settings style="width: 100%; margin-bottom: 15px;">Randomize Settings</button>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="favorites-panel">
+    <h3>Favorites</h3>
+    <div class="favorites-section">
+      <div class="favorites-input-group">
+        <input type="text" id="favoriteName" placeholder="Favorite name" class="control-input" aria-label="Favorite name">
+        <button id="saveFavoriteBtn" class="btn primary">Save favorite</button>
+      </div>
+      <div id="favoritesList" class="favorites-list"></div>
+    </div>
+  </div>
+  
+  <script type="module" src="./controls.js"></script>
+  <script type="module" src="../../shared/controlsUI.js"></script>
+</body>
+</html>
+
+

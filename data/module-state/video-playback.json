@@ -1,0 +1,16 @@
+{
+  "playbackMode": "single",
+  "singleVideoId": "fire",
+  "playlistIds": [
+    "fire"
+  ],
+  "playlistLoop": true,
+  "transition": "crossfade",
+  "crossfadeMs": 800,
+  "fadeBlackMs": 500,
+  "singleLoopFadeBlackMs": 350,
+  "effectMode": "none",
+  "effectIntensity": 0.5,
+  "effectSensitivity": 1,
+  "effectThreshold": 0.05
+}
