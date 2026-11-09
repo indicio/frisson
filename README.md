@@ -2,6 +2,46 @@
 
 A local studio for live visuals. It runs in the browser on your own computer: audio-reactive modules, a separate projector window, surface mapping, controls, favorites, playlists, and a logo overlay. The manifest currently includes 25 visualizers.
 
+## Projection mapping
+
+Map mode sends the show onto shapes instead of one full-frame picture. Add a rectangle, triangle, circle, ellipse, pentagon, hexagon, or Bézier outline, then drag it into place. Double-click an edge to add a point. The projector window follows this canvas.
+
+Each shape can show a solid color, stripes, a checker, rings, the current VJ composition, or any module. A module can use one of its saved favorites. The picture sits in a frame on the shape. That frame turns with the surface. The handle above the frame rotates the picture only, and turning the picture does not turn the shape. Fill surface snaps the picture to the whole outline.
+
+Select several shapes and tile them to share one picture. Each shape clips and warps that picture to its own corners, and one frame scales and positions it. Four-sided surfaces are placed on the projector by mapping their corners.
+
+Open the viewer, switch from VJ to Map, and use the viewer's fullscreen action for the projection.
+
+## Modules
+
+Camera Shake, Datamosh Lab, Eidolon, and Gradient Map are in the project and currently kept off the dashboard.
+
+- **Bauhaus.** Rhythmic Bauhaus grid with audio-reactive shapes, color sequences, and themes.
+- **Beholder.** Floating eye swarm with depth of field, ambient drift, saccadic gaze, and an optional microphone pulse.
+- **Big Deck.** 3D card deck with several layouts, audio reactivity, lighting, and texture-based card faces.
+- **Big Solid.** Full-screen solid color with palette transitions and flashes.
+- **Camera Shake.** Webcam picture shaken in position and rotation, with color refraction.
+- **Datamosh Lab.** Webcam datamosh with glitch modes, temporal feedback, and a CRT finish.
+- **Eidolon.** Gaussian-splat performer. Load a `.ply` scan, then explode and reconstruct it with deformations and audio.
+- **Flow.** Particle fluid with swirling vortices and adjustable particle behavior.
+- **Gradient Map.** Webcam shader that remaps luminance onto custom gradient palettes, with contrast, blend, and blur.
+- **Inkdrop.** Ink in water. Particles follow a flow field and color themes.
+- **Kaleidoscope.** Webcam kaleidoscope with fractal recursion, several centers of rotation, and temporal feedback.
+- **Leaks and Lights.** Light leaks and particle bursts, with palettes, blend modes, and a camera overlay.
+- **Liquid Marbling.** Fluid marbling shader. Drag to pull the paint. Motion can follow the audio.
+- **Mandala.** Geometric wireframes that keep their steps, then respond to the live audio drivers.
+- **Metaball2 Shader.** Shader metaballs with presets and finer controls.
+- **Op Art.** Striped cubes and spheres with orbital motion.
+- **Orbiter.** Particle emitters orbiting in 3D space.
+- **Orbiting Wheels.** Wheels in an orbit or a tunnel, with color themes and a moving camera.
+- **Orbs.** Emissive spheres in orbiting shell layers, with bloom, trails, palettes, and per-layer motion.
+- **Photosome.** Ink drops with fluid expansion, shape variation, blend modes, and bass-triggered drops.
+- **Pixelated.** Camera picture turned into particles, with audio-reactive distortion.
+- **Procedural Geometry.** Concentric shapes, parallel lines, and waveforms, with width, spacing, turbulence, and layered distortion.
+- **Video Playback.** Local clips in a playlist or a single loop, with cut, crossfade, and fade-to-black, plus optional RGB and glitch.
+- **Webbing.** Two emitters joined by particle connections.
+- **Wormhole.** 3D tunnel of stars, rings, or squares, with audio-reactive camera movement.
+
 ## Start
 
 Use Node.js 22 or newer. No package installation is required.
