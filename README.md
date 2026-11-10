@@ -2,15 +2,13 @@
 
 A local studio for live visuals. It runs in the browser on your own computer: audio-reactive modules, a separate projector window, surface mapping, controls, favorites, playlists, and a logo overlay. The manifest currently includes 25 visualizers.
 
+## VJ mode
+
+VJ mode is the live deck. Pick a module from the grid and it plays full frame in a separate projector window. Controls, favorites, and a timed playlist sit with the module. Audio and video input switch once for the whole show, and a logo can sit over the picture.
+
 ## Projection mapping
 
-Map mode sends the show onto shapes instead of one full-frame picture. Add a rectangle, triangle, circle, ellipse, pentagon, hexagon, or Bézier outline, then drag it into place. Double-click an edge to add a point. The projector window follows this canvas.
-
-Each shape can show a solid color, stripes, a checker, rings, the current VJ composition, or any module. A module can use one of its saved favorites. The picture sits in a frame on the shape. That frame turns with the surface. The handle above the frame rotates the picture only, and turning the picture does not turn the shape. Fill surface snaps the picture to the whole outline.
-
-Select several shapes and tile them to share one picture. Each shape clips and warps that picture to its own corners, and one frame scales and positions it. Four-sided surfaces are placed on the projector by mapping their corners.
-
-Open the viewer, switch from VJ to Map, and use the viewer's fullscreen action for the projection.
+Map mode places the same show onto shapes: rectangle, triangle, circle, ellipse, pentagon, hexagon, or Bézier. Give a shape a color, a pattern, or any module. The picture frame turns with the shape, and several shapes can share one tiled picture. The projector follows this canvas.
 
 ## Modules
 
